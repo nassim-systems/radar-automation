@@ -8,16 +8,19 @@ dependencies = [
 ]
 
 [tool.uv]
-dev-dependencies = ["pytest>=8.0", "ruff>=0.0.0"]
+dev-dependencies = [
+  "pytest>=8.0",
+  "ruff>=0.0.0"
+]
 
 [build-system]
 requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
-[tool.ruff]
+[tool.ruff.lint]
 line-length = 88
 target-version = "py311"
-select = ["E", "F", "W", "C90"]
+select = ["E", "F", "I", "UP", "ANN", "T20", "B", "SIM", "PL"]
 exclude = ["tests/fixtures", ".venv"]
 
 [tool.pytest.ini_options]
