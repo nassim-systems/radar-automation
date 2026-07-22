@@ -1,0 +1,27 @@
+[project]
+name = "radar-automation"
+version = "0.1.0"
+description = "RSS radar automation tooling"
+requires-python = ">=3.11"
+dependencies = [
+  "pydantic>=2.0",
+]
+
+[tool.uv]
+dev-dependencies = ["pytest>=8.0", "ruff>=0.0.0"]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+select = ["E", "F", "W", "C90"]
+exclude = ["tests/fixtures", ".venv"]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "--strict-markers"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
