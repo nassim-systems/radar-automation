@@ -1,6 +1,6 @@
-from datetime import datetime, timezone
+from collections.abc import Callable
+from datetime import UTC
 from email.utils import parsedate_to_datetime
-from typing import Callable
 from xml.etree import ElementTree as ET
 
 from radar.domain import RawItem
@@ -25,9 +25,9 @@ def parse_rss(feed_xml: str) -> list[RawItem]:
 
         published_at = parsedate_to_datetime(pub_date_text)
         if published_at.tzinfo is None:
-            published_at = published_at.replace(tzinfo=timezone.utc)
+            published_at = published_at.replace(tzinfo=UTC)
         else:
-            published_at = published_at.astimezone(timezone.utc)
+            published_at = published_at.astimezone(UTC)
         external_id = guid or link
 
         items.append(
@@ -45,7 +45,7 @@ def parse_rss(feed_xml: str) -> list[RawItem]:
 
 
 class RssSource:
-    def __init__(self, name: str, url: str, fetcher: Callable[[str], str]):
+    def __init__(self, name: str, url: str, fetcher: Callable[[str], str]) -> None:
         self.name = name
         self.url = url
         self.fetcher = fetcher

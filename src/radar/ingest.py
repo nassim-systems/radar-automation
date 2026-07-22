@@ -24,5 +24,9 @@ def deduplicate(items: list[RawItem]) -> list[RawItem]:
     return unique_items
 
 
-def filter_fresh(items: list[RawItem], now: datetime, max_age: timedelta) -> list[RawItem]:
+def filter_fresh(
+    items: list[RawItem],
+    now: datetime,
+    max_age: timedelta,
+) -> list[RawItem]:
     return [item for item in items if now - item.published_at <= max_age]
