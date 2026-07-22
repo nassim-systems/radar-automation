@@ -1,11 +1,5 @@
 from __future__ import annotations
 from datetime import datetime, timedelta
-from pathlib import Path
-import sys
-
-ROOT = Path(__file__).resolve().parents[1]
-SRC = ROOT.parent / "src"
-sys.path.insert(0, str(SRC))
 
 from radar.domain import RawItem
 from radar.ingest import deduplicate, filter_fresh

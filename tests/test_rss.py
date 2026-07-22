@@ -1,11 +1,7 @@
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
-import sys
 
-# Ensure that src is on sys.path so tests can import the radar package.
 ROOT = Path(__file__).resolve().parents[1]
-SRC = ROOT.parent / "src"
-sys.path.insert(0, str(SRC))
 
 from radar.ingest import filter_fresh
 from radar.sources.rss import parse_rss

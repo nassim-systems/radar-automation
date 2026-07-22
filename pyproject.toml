@@ -17,14 +17,17 @@ dev-dependencies = [
 requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
-[tool.ruff.lint]
+[tool.ruff]
 line-length = 88
 target-version = "py311"
-select = ["E", "F", "I", "UP", "ANN", "T20", "B", "SIM", "PL"]
 exclude = ["tests/fixtures", ".venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "ANN", "T20", "B", "SIM", "PL"]
 
 [tool.pytest.ini_options]
 minversion = "7.0"
 addopts = "--strict-markers"
+pythonpath = ["src"]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
