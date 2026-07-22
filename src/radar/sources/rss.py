@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from typing import Callable
 from xml.etree import ElementTree as ET
@@ -8,7 +8,9 @@ from radar.domain import RawItem
 
 def parse_rss(feed_xml: str) -> list[RawItem]:
     root = ET.fromstring(feed_xml)
-    channel = root.find("channel") or root
+    channel = root.find("channel")
+    if channel is None:
+        channel = root
     items: list[RawItem] = []
 
     for element in channel.findall("item"):
@@ -22,6 +24,10 @@ def parse_rss(feed_xml: str) -> list[RawItem]:
             continue
 
         published_at = parsedate_to_datetime(pub_date_text)
+        if published_at.tzinfo is None:
+            published_at = published_at.replace(tzinfo=timezone.utc)
+        else:
+            published_at = published_at.astimezone(timezone.utc)
         external_id = guid or link
 
         items.append(

@@ -1,3 +1,4 @@
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 import sys
 
@@ -6,6 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT.parent / "src"
 sys.path.insert(0, str(SRC))
 
+from radar.ingest import filter_fresh
 from radar.sources.rss import parse_rss
 
 
@@ -30,3 +32,14 @@ def test_parse_rss_ignores_item_without_pubdate():
     items = parse_rss(feed_xml)
 
     assert all(item.external_id != "3" for item in items)
+
+
+def test_parse_rss_integration_with_filter_fresh():
+    fixture_path = ROOT / "fixtures" / "sample_feed.xml"
+    feed_xml = fixture_path.read_text(encoding="utf-8")
+    items = parse_rss(feed_xml)
+
+    now = datetime(2024, 1, 10, 12, 0, 0, tzinfo=timezone.utc)
+    fresh_items = filter_fresh(items, now=now, max_age=timedelta(days=30))
+
+    assert len(fresh_items) == len(items)
