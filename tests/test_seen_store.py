@@ -59,8 +59,10 @@ def test_filter_unseen_is_pure() -> None:
         ),
     ]
 
+    original = list(items)
     result = filter_unseen(items, seen)
 
+    assert items == original
     assert [item.external_id for item in result] == ["c"]
 
 
