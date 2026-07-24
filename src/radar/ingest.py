@@ -3,25 +3,27 @@ from datetime import datetime, timedelta
 from radar.domain import RawItem
 
 
-def deduplicate(items: list[RawItem]) -> list[RawItem]:
-    """Return unique items, keeping the first occurrence of each (source, external_id).
+def item_key(item: RawItem) -> str:
+    return f"{item.source}:{item.external_id}"
 
-    The deduplication key is intentionally limited to (source, external_id) because
-    these fields uniquely identify an item across sources. Other fields like title
-    or published_at are not used for equality, to avoid dropping updated content
-    from the same source item.
-    """
-    seen: set[tuple[str, str]] = set()
+
+def deduplicate(items: list[RawItem]) -> list[RawItem]:
+    """Return unique items, keeping the first occurrence of each source/external_id."""
+    seen: set[str] = set()
     unique_items: list[RawItem] = []
 
     for item in items:
-        key = (item.source, item.external_id)
+        key = item_key(item)
         if key in seen:
             continue
         seen.add(key)
         unique_items.append(item)
 
     return unique_items
+
+
+def filter_unseen(items: list[RawItem], seen: set[str]) -> list[RawItem]:
+    return [item for item in items if item_key(item) not in seen]
 
 
 def filter_fresh(
