@@ -22,9 +22,8 @@ def test_build_prompt_includes_item_fields() -> None:
     prompt = build_prompt(item)
 
     assert item.title in prompt
-    assert item.source in prompt
-    assert item.url in prompt
     assert item.summary in prompt
+    assert "PME" in prompt  # cadrage automatisation-PME
 
 
 def test_build_prompt_is_pure() -> None:

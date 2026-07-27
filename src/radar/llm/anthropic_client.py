@@ -22,6 +22,7 @@ class AnthropicClient:
         response = self._client.messages.create(
             model=self._model,
             max_tokens=MAX_TOKENS,
+            temperature=0,
             messages=[{"role": "user", "content": prompt}],
         )
         for block in response.content:

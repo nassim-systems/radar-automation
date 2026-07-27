@@ -11,17 +11,40 @@ class Score(BaseModel):
 
 
 def build_prompt(item: RawItem) -> str:
-    """Construit un prompt texte simple à partir d'un ``RawItem``.
+    """Construit le prompt d'évaluation orienté automatisation-PME.
 
-    Fonction pure : sortie déterministe, aucune mutation de l'item,
-    aucune logique LLM.
+    Fonction pure : sortie déterministe, aucune mutation de l'item. Le modèle
+    doit répondre uniquement par un entier ; ``parse_score`` tolère toute
+    sortie non entière (score neutre).
     """
     return (
-        "Évalue la pertinence de cet article sur une échelle de 0 à 10.\n"
-        "Réponds uniquement par un entier, sans aucun autre texte.\n\n"
+        "Tu es un évaluateur expert en automatisation pour PME.\n"
+        "\n"
+        "Ta mission : noter la pertinence de cet article pour une PME qui "
+        "cherche à gagner du temps, automatiser ses tâches, réduire ses "
+        "coûts, ou adopter des outils IA/no-code.\n"
+        "\n"
+        "Échelle de 0 à 10 :\n"
+        "- 0 = hors sujet total pour une PME (actualité générale, "
+        "géopolitique, lifestyle, conso, divertissement)\n"
+        "- 3 = sujet vaguement lié à la tech mais sans application PME\n"
+        "- 5 = sujet tech général, potentiellement utile mais pas orienté "
+        "PME\n"
+        "- 7 = sujet utile pour une PME mais pas directement actionnable\n"
+        "- 8 = outil, méthode ou pratique pouvant apporter un gain réel\n"
+        "- 10 = automatisation directe, IA appliquée, agents, no-code, "
+        "gains de temps concrets, impact immédiat PME\n"
+        "\n"
+        "Exemples (hors dataset, ne pas utiliser pour la note) :\n"
+        "- Exemple 0 : “Les emojis les plus utilisés en 2024”\n"
+        "- Exemple 5 : “Top 20 modèles IA populaires”\n"
+        "- Exemple 10 : “Créer un agent IA qui automatise les tâches "
+        "d’une PME”\n"
+        "\n"
+        "Maintenant, note cet article sur 0–10.\n"
+        "Réponds uniquement par un entier.\n"
+        "Article :\n"
         f"Titre : {item.title}\n"
-        f"Source : {item.source}\n"
-        f"URL : {item.url}\n"
         f"Résumé : {item.summary or ''}\n"
     )
 
