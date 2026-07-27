@@ -26,6 +26,10 @@ exclude = ["tests/fixtures", ".venv"]
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "ANN", "T20", "B", "SIM", "PL"]
 
+[tool.ruff.lint.per-file-ignores]
+# Les scripts opérationnels (hors cœur) peuvent écrire sur stdout.
+"scripts/*" = ["T201"]
+
 [tool.pytest.ini_options]
 minversion = "7.0"
 addopts = "--strict-markers"
