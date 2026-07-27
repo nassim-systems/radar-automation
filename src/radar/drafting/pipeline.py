@@ -1,4 +1,4 @@
-from radar.decision.select_top_k import ScoredItem
+from radar.decision.models import ScoredItem
 from radar.drafting.parse import Draft, parse_draft
 from radar.drafting.prompt import build_draft_prompt
 from radar.llm.base import LLMClient

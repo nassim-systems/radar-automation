@@ -1,6 +1,6 @@
 from datetime import UTC, datetime
 
-from radar.decision.select_top_k import ScoredItem
+from radar.decision.models import ScoredItem
 from radar.domain import RawItem
 from radar.drafting.parse import Draft
 from radar.drafting.pipeline import drafting_pipeline

@@ -1,6 +1,7 @@
 from datetime import UTC, datetime
 
-from radar.decision.select_top_k import ScoredItem, select_top_k
+from radar.decision.models import ScoredItem
+from radar.decision.select_top_k import select_top_k
 from radar.domain import RawItem
 
 

@@ -10,7 +10,8 @@ import json
 import sys
 import urllib.request
 
-from radar.decision.select_top_k import ScoredItem, select_top_k
+from radar.decision.models import ScoredItem
+from radar.decision.select_top_k import select_top_k
 from radar.drafting.pipeline import drafting_pipeline
 from radar.llm.anthropic_client import AnthropicClient
 from radar.scoring import score_item

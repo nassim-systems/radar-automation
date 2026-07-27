@@ -1,11 +1,4 @@
-from pydantic import BaseModel
-
-from radar.domain import RawItem
-
-
-class ScoredItem(BaseModel):
-    item: RawItem
-    score: int
+from radar.decision.models import ScoredItem
 
 
 def select_top_k(scored_items: list[ScoredItem], k: int) -> list[ScoredItem]:
