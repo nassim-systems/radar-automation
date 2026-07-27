@@ -3,15 +3,19 @@ from pathlib import Path
 
 from pydantic import BaseModel, TypeAdapter
 
+from radar.domain import RawItem
 from radar.eval.metrics import agreement
+from radar.llm.base import LLMClient
+from radar.scoring import score_item
 
 _DATASET_PATH = Path(__file__).parent / "dataset.json"
 
-Scorer = Callable[[str], int]
+Scorer = Callable[[RawItem], int]
 
 
-class EvalItem(BaseModel):
-    text: str
+class EvalItem(RawItem):
+    """Un ``RawItem`` augmenté du label humain (vérité terrain)."""
+
     label: int
 
 
@@ -25,19 +29,28 @@ _DATASET_ADAPTER = TypeAdapter(list[EvalItem])
 
 
 def load_dataset(path: Path = _DATASET_PATH) -> list[EvalItem]:
-    """Charge la vérité terrain annotée à la main depuis un fichier JSON."""
+    """Charge la vérité terrain annotée (RawItem + label) depuis un JSON."""
     return _DATASET_ADAPTER.validate_json(path.read_text(encoding="utf-8"))
 
 
-def evaluate(dataset: list[EvalItem], scorer: Scorer) -> Report:
-    """Applique ``scorer`` à chaque item et agrège le résultat dans un ``Report``.
+def make_llm_scorer(llm: LLMClient) -> Scorer:
+    """Ferme la couture d'évaluation.
 
-    ``scorer`` prend le texte d'un item et renvoie un score entier prédit. Le
-    harness reste agnostique du modèle : en test on lui passe un scorer basé sur
-    ``FakeLLM``/``ScriptedFakeLLM``, en production un scorer basé sur le vrai
-    client LLM (module 1.4+, hors tests).
+    Le scorer déroule le pipeline du module 1.3 pour un item :
+    ``RawItem -> build_prompt -> llm.complete -> parse_score -> Score`` et
+    renvoie l'entier du ``Score``. On réutilise ``score_item`` (aucune
+    duplication de la logique de scoring).
     """
-    predictions = [scorer(item.text) for item in dataset]
+
+    def scorer(item: RawItem) -> int:
+        return score_item(item, llm).score
+
+    return scorer
+
+
+def evaluate(dataset: list[EvalItem], scorer: Scorer) -> Report:
+    """Applique ``scorer`` à chaque item et agrège le résultat dans un ``Report``."""
+    predictions = [scorer(item) for item in dataset]
     labels = [item.label for item in dataset]
     return Report(
         predictions=predictions,

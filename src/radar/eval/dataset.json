@@ -1,98 +1,272 @@
 [
   {
-    "text": "Un nouvel outil no-code permet aux PME d'automatiser leurs relances de factures impayees sans developpeur.",
-    "label": 10
-  },
-  {
-    "text": "Une TPE de plomberie gagne 8 heures par semaine en automatisant la prise de rendez-vous par SMS.",
-    "label": 9
-  },
-  {
-    "text": "Tutoriel : automatiser la saisie comptable d'une petite entreprise grace a l'OCR des tickets et factures.",
-    "label": 9
-  },
-  {
-    "text": "Retour d'experience : une PME industrielle reduit ses erreurs de stock grace a des alertes automatiques.",
-    "label": 8
-  },
-  {
-    "text": "Comment connecter votre CRM et votre boite mail pour relancer automatiquement les prospects.",
-    "label": 8
-  },
-  {
-    "text": "Zapier ajoute des connecteurs pour synchroniser les commandes e-commerce des petites boutiques.",
-    "label": 8
-  },
-  {
-    "text": "Microsoft Power Automate propose un plan abordable pense pour les petites structures.",
-    "label": 8
-  },
-  {
-    "text": "Automatiser la generation de devis a partir d'un tableur : mode d'emploi pas a pas.",
-    "label": 8
-  },
-  {
-    "text": "Les scripts d'export de paie font gagner du temps aux petits cabinets comptables.",
-    "label": 7
-  },
-  {
-    "text": "Un artisan boulanger met en place un chatbot pour gerer les commandes de son commerce local.",
-    "label": 7
-  },
-  {
-    "text": "Comparatif des logiciels de facturation avec relance automatique pour independants.",
-    "label": 7
-  },
-  {
-    "text": "L'IA generative aide les petites equipes marketing a rediger leurs newsletters plus vite.",
-    "label": 6
-  },
-  {
-    "text": "Panorama des ERP cloud : lesquels conviennent aux entreprises de moins de 50 salaries ?",
-    "label": 6
-  },
-  {
-    "text": "Les integrations par webhook expliquees simplement pour les non-developpeurs.",
-    "label": 6
-  },
-  {
-    "text": "Une startup leve des fonds pour son assistant IA de support client destine aux commerces.",
-    "label": 5
-  },
-  {
-    "text": "Cybersecurite : les bonnes pratiques de sauvegarde pour une petite entreprise.",
-    "label": 4
-  },
-  {
-    "text": "Une grande banque deploie des agents IA pour automatiser des milliers de postes back-office.",
-    "label": 4
-  },
-  {
-    "text": "Google annonce une mise a jour de son moteur de recherche axee sur l'intelligence artificielle.",
+    "source": "blogdumoderateur",
+    "external_id": "0",
+    "title": "Meta lance Facebook Verified, un badge de certification gratuit",
+    "url": "",
+    "published_at": "2026-07-24T00:00:00Z",
+    "summary": "Pour obtenir une certification, les utilisateurs devront prouver leur identité en enregistrant une courte vidéo d’eux-mêmes. Le déploiement de la fonctionnalité s'effectuera par vagues.",
     "label": 3
   },
   {
-    "text": "Le teletravail reste plebiscite par les salaries selon une etude nationale.",
-    "label": 2
+    "source": "blogdumoderateur",
+    "external_id": "1",
+    "title": "IA : 10 chiffres à retenir de l’étude ATLAS de Google",
+    "url": "",
+    "published_at": "2026-07-24T00:00:00Z",
+    "summary": "Google dévoile les résultats de sa première étude ATLAS, qui analyse des millions de conversations pour comprendre comment l'IA s'installe au travail et au quotidien.",
+    "label": 6
   },
   {
-    "text": "Test du dernier smartphone pliable : autonomie et photo au banc d'essai.",
-    "label": 1
+    "source": "blogdumoderateur",
+    "external_id": "2",
+    "title": "Anthropic améliore le mode vocal de Claude : modèles avancés, langues, accès aux applications…",
+    "url": "",
+    "published_at": "2026-07-24T00:00:00Z",
+    "summary": "Le mode vocal de Claude peut désormais s'appuyer sur les modèles Opus et Sonnet, exécuter des actions dans Gmail ou Slack, et dialoguer dans une dizaine de langues supplémentaires, dont le français.",
+    "label": 7
   },
   {
-    "text": "La Bourse de Paris termine en hausse, portee par le secteur du luxe.",
-    "label": 1
+    "source": "blogdumoderateur",
+    "external_id": "3",
+    "title": "AI Overviews en France, c’est aussi un problème de souveraineté",
+    "url": "",
+    "published_at": "2026-07-24T00:00:00Z",
+    "summary": "L'arrivée d'AI Overviews inquiète largement les professionnels du SEO et les éditeurs. Mais d'un point de vue plus large, la fonctionnalité questionne sur le contrôle de l'information opéré par un géant étasunien.",
+    "label": 4
   },
   {
-    "text": "Resultats sportifs : le club local remporte le derby au bout du suspense.",
+    "source": "blogdumoderateur",
+    "external_id": "4",
+    "title": "AI Overviews : ce que révèlent les études sur leur fonctionnement et leur impact sur le trafic",
+    "url": "",
+    "published_at": "2026-07-24T00:00:00Z",
+    "summary": "Avant leur déploiement en France, les AI Overviews ont fait l'objet de nombreuses études aux États-Unis, où la fonctionnalité est disponible depuis mai 2024. Voici ce qu'elles nous ont appris.",
+    "label": 5
+  },
+  {
+    "source": "blogdumoderateur",
+    "external_id": "5",
+    "title": "AI Overviews : comment les masquer sur Chrome, Safari, Firefox, Edge…",
+    "url": "",
+    "published_at": "2026-07-24T00:00:00Z",
+    "summary": "Extension, moteur de recherche personnalisé ou site proxy : tour d'horizon des méthodes pour masquer les Aperçus IA de Google selon votre navigateur.",
+    "label": 3
+  },
+  {
+    "source": "blogdumoderateur",
+    "external_id": "6",
+    "title": "Trello se connecte désormais à Claude, ChatGPT ou Gemini via MCP",
+    "url": "",
+    "published_at": "2026-07-24T00:00:00Z",
+    "summary": "Après Jira, Confluence et Rovo, Atlassian ouvre Trello aux assistants IA via le protocole MCP. L'intégration est disponible dès aujourd'hui pour tous les utilisateurs.",
+    "label": 8
+  },
+  {
+    "source": "blogdumoderateur",
+    "external_id": "7",
+    "title": "IA au travail : 61 % des salariés refusent qu’elle agisse sans validation humaine",
+    "url": "",
+    "published_at": "2026-07-24T00:00:00Z",
+    "summary": "Une étude TeamViewer pointe un paradoxe faisant de l'IA un réflexe quotidien au travail. Et pourtant, une majorité de salariés refuse qu'elle prenne la moindre décision seule.",
+    "label": 7
+  },
+  {
+    "source": "blogdumoderateur",
+    "external_id": "8",
+    "title": "« Femme, vie, liberté » : en Iran, les réseaux sociaux sont passés de refuge à outil de traque",
+    "url": "",
+    "published_at": "2026-07-24T00:00:00Z",
+    "summary": "En 2022, la mort de Mahsa Jina Amini embrase l'Iran. Faute de presse libre, les femmes font des réseaux sociaux le cœur d'une révolte : « Femme, vie, liberté ». Des plateformes que le régime a retournées en outil de traque, pour arrêter, condamner et punir.",
     "label": 0
   },
   {
-    "text": "Recette : comment reussir une pate a pizza maison a coup sur.",
+    "source": "blogdumoderateur",
+    "external_id": "9",
+    "title": "AI Overviews : comment mesurer la visibilité de votre site web",
+    "url": "",
+    "published_at": "2026-07-24T00:00:00Z",
+    "summary": "Search Console, outils tiers, tests manuels... Découvrez les méthodes pour suivre sa visibilité dans les AI Overviews et l'AI Mode de Google, déployés en France depuis le 22 juillet.",
+    "label": 5
+  },
+  {
+    "source": "blogdumoderateur",
+    "external_id": "10",
+    "title": "Avec Gemini 3.6 Flash et 3.5 Flash Lite, Google améliore ses modèles et baisse ses prix",
+    "url": "",
+    "published_at": "2026-07-24T00:00:00Z",
+    "summary": "Google déploie Gemini 3.6 Flash et 3.5 Flash-Lite pour les développeurs, et réserve 3.5 Flash Cyber aux gouvernements. Le modèle Pro se fait toujours attendre.",
+    "label": 6
+  },
+  {
+    "source": "blogdumoderateur",
+    "external_id": "11",
+    "title": "En France, la loi bannit désormais les mineurs de moins de 15 ans des réseaux sociaux",
+    "url": "",
+    "published_at": "2026-07-24T00:00:00Z",
+    "summary": "Après plusieurs mois de débats, députés et sénateurs se sont mis d'accord en commission mixte paritaire sur un texte qui fait de la France le premier pays d'Europe à instaurer une majorité numérique.",
     "label": 0
   },
   {
-    "text": "Un acteur celebre annonce sa participation a une nouvelle serie televisee.",
+    "source": "blogdumoderateur",
+    "external_id": "12",
+    "title": "Google déploie AI Overviews et AI Mode en France",
+    "url": "",
+    "published_at": "2026-07-24T00:00:00Z",
+    "summary": "Google déploie ce mercredi 22 juillet ses AI Overviews et son AI Mode en France, après deux ans d'attente liés à des \"obstacles réglementaires\". Une évolution majeure pour les éditeurs, qui redoutent une chute massive de leur trafic.",
+    "label": 5
+  },
+  {
+    "source": "blogdumoderateur",
+    "external_id": "13",
+    "title": "Comment exclure votre site des AI Overviews de Google",
+    "url": "",
+    "published_at": "2026-07-24T00:00:00Z",
+    "summary": "Plus de deux ans après leur déploiement, les résumés IA de Google, qui apparaissent en tête des résultats de recherche, arrivent en France. La Search Console propose déjà une option pour en exclure le contenu de votre site.",
+    "label": 4
+  },
+  {
+    "source": "blogdumoderateur",
+    "external_id": "14",
+    "title": "AI Overviews et AI Mode : le guide pratique pour optimiser votre contenu",
+    "url": "",
+    "published_at": "2026-07-24T00:00:00Z",
+    "summary": "Google a publié un guide officiel pour préparer vos pages web aux AI Overviews et à l'AI Mode. Voici les leviers qui comptent vraiment, à l'arrivée de ces fonctionnalités en France.",
+    "label": 5
+  },
+  {
+    "source": "blogdumoderateur",
+    "external_id": "15",
+    "title": "AI Overviews : ce que la presse française peut apprendre du déploiement au Royaume-Uni",
+    "url": "",
+    "published_at": "2026-07-24T00:00:00Z",
+    "summary": "À partir de ce 22 juillet 2026, la France accueille à son tour les AI Overviews de Google. Deux ans après leur déploiement au Royaume-Uni, les études documentent une chute brutale du trafic vers les sites d'éditeurs.",
+    "label": 4
+  },
+  {
+    "source": "blogdumoderateur",
+    "external_id": "16",
+    "title": "Digital detox ou hyperconnecté : quel vacancier êtes-vous ?",
+    "url": "",
+    "published_at": "2026-07-24T00:00:00Z",
+    "summary": "Téléphone au fond du sac ou mails sur le transat ? Découvrez votre profil de vacancier numérique avec notre quiz en 9 questions !",
     "label": 0
+  },
+  {
+    "source": "blogdumoderateur",
+    "external_id": "17",
+    "title": "AI Overviews, LLM, « collapse du funnel » : comment l’IA rebat les cartes du marketing",
+    "url": "",
+    "published_at": "2026-07-24T00:00:00Z",
+    "summary": "Chute du trafic organique, montée des AI Overviews, découverte qui se joue désormais dans ChatGPT… Tifenn Dano Kwan, directrice marketing de Zendesk, décrit un funnel marketing en pleine recomposition. Analyse, chiffres à l’appui.",
+    "label": 7
+  },
+  {
+    "source": "blogdumoderateur",
+    "external_id": "18",
+    "title": "IA et cybersécurité : quand la même technologie sert à attaquer et à se défendre",
+    "url": "",
+    "published_at": "2026-07-24T00:00:00Z",
+    "summary": "L'intelligence artificielle a modifié l'équilibre des forces entre cyberattaquants et défenseurs. Décryptage complet avec Raphaël Azou, référent cybersécurité chez Astek, sur la manière dont elle amplifie les menaces tout en devenant un outil de défense à part entière.",
+    "label": 6
+  },
+  {
+    "source": "blogdumoderateur",
+    "external_id": "19",
+    "title": "Quels sont les emojis les plus populaires en 2026 ?",
+    "url": "",
+    "published_at": "2026-07-24T00:00:00Z",
+    "summary": "Emojipedia a livré son palmarès des emojis les plus plébiscités et les plus attendus par les utilisateurs.",
+    "label": 0
+  },
+  {
+    "source": "blogdumoderateur",
+    "external_id": "20",
+    "title": "Top 20 des modèles d’IA les plus performants en juillet 2026 : le classement complet",
+    "url": "",
+    "published_at": "2026-07-24T00:00:00Z",
+    "summary": "En juillet 2026, Anthropic conserve la tête du classement général d'Arena avec Claude Fable 5. En développement web, Kimi crée la surprise en détrônant Anthropic avec kimi-k3.",
+    "label": 6
+  },
+  {
+    "source": "blogdumoderateur",
+    "external_id": "21",
+    "title": "Achats en ligne : près d’un Français sur deux consulte déjà une IA avant d’acheter",
+    "url": "",
+    "published_at": "2026-07-24T00:00:00Z",
+    "summary": "Selon une étude Botnation, 49 % des Français consultent déjà une IA avant d'acheter, mais veulent tout de même garder la main sur leurs décisions d'achat.",
+    "label": 5
+  },
+  {
+    "source": "blogdumoderateur",
+    "external_id": "22",
+    "title": "5 formations pour améliorer son anglais professionnel",
+    "url": "",
+    "published_at": "2026-07-24T00:00:00Z",
+    "summary": "Besoin de progresser en anglais pour être plus à l'aise dans un contexte professionnel ? Cette sélection de formations vous aide à renforcer vos compétences, à l'oral comme à l'écrit.",
+    "label": 0
+  },
+  {
+    "source": "blogdumoderateur",
+    "external_id": "23",
+    "title": "ChatGPT Ads se rapproche : comment les entreprises françaises peuvent s’y préparer",
+    "url": "",
+    "published_at": "2026-07-24T00:00:00Z",
+    "summary": "Déployée aux États-Unis depuis février, la régie publicitaire de ChatGPT pourrait ouvrir en France d'ici la fin de l'été, selon les signaux relevés ces dernières semaines.",
+    "label": 6
+  },
+  {
+    "source": "blogdumoderateur",
+    "external_id": "24",
+    "title": "Google : 3 nouveautés IA à découvrir",
+    "url": "",
+    "published_at": "2026-07-24T00:00:00Z",
+    "summary": "Le géant américain multiplie les annonces autour de l'IA : recherche connectée aux apps tierces, repositionnement de NotebookLM et création vidéo par avatar personnel.",
+    "label": 6
+  },
+  {
+    "source": "blogdumoderateur",
+    "external_id": "25",
+    "title": "L’UE contraint Google à ouvrir Android aux IA rivales et à partager ses données de recherche",
+    "url": "",
+    "published_at": "2026-07-24T00:00:00Z",
+    "summary": "Google, contraint par la Commission européenne, a jusqu'à janvier 2027 pour partager ses données de recherche avec ses concurrents, et un an pour ouvrir Android aux IA rivales.",
+    "label": 4
+  },
+  {
+    "source": "blogdumoderateur",
+    "external_id": "26",
+    "title": "IA agentique : comment l’automatisation redessine les métiers du marketing digital",
+    "url": "",
+    "published_at": "2026-07-24T00:00:00Z",
+    "summary": "Après un hackathon sur l'IA agentique, Vincent Montet (EFAP) et Maxime Vidal (expert Manus) décryptent ce que les agents savent faire, ce qu'ils ne remplacent pas, et les nouvelles compétences attendues des futurs professionnels du marketing digital.",
+    "label": 10
+  },
+  {
+    "source": "blogdumoderateur",
+    "external_id": "27",
+    "title": "7 applications gratuites à installer avant de partir en vacances",
+    "url": "",
+    "published_at": "2026-07-24T00:00:00Z",
+    "summary": "Préparation de la valise, gestion du budget, navigation, traduction, formalités administratives : voici sept applications, disponibles sur iOS et Android, qui facilitent l'organisation et le bon déroulement des vacances.",
+    "label": 0
+  },
+  {
+    "source": "blogdumoderateur",
+    "external_id": "28",
+    "title": "Quelle IA écrit le meilleur message d’absence ?",
+    "url": "",
+    "published_at": "2026-07-24T00:00:00Z",
+    "summary": "Avant de couper pour l'été, une tâche revient chaque année : rédiger son message d'absence. On a confié l'exercice à quatre IA génératives pour voir laquelle s'en sort le mieux !",
+    "label": 3
+  },
+  {
+    "source": "blogdumoderateur",
+    "external_id": "29",
+    "title": "Souveraineté numérique : pourquoi et comment réduire sa dépendance aux hyperscalers américains",
+    "url": "",
+    "published_at": "2026-07-24T00:00:00Z",
+    "summary": "Entre tensions géopolitiques et lois extraterritoriales, la dépendance aux géants américains du cloud pose question. Des alternatives européennes crédibles, comme Infomaniak, existent.",
+    "label": 4
   }
 ]

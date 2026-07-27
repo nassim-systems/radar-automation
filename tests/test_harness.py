@@ -1,23 +1,33 @@
-from collections.abc import Callable
+from datetime import UTC, datetime
 
 import pytest
 from pydantic import BaseModel
 
-from radar.eval.harness import EvalItem, Report, evaluate, load_dataset
-from radar.llm.base import LLMClient
+from radar.domain import RawItem
+from radar.eval.harness import (
+    EvalItem,
+    Report,
+    evaluate,
+    load_dataset,
+    make_llm_scorer,
+)
 from radar.llm.scripted import ScriptedFakeLLM
-from radar.scoring import parse_score
 
 MIN_DATASET_SIZE = 20
 MIN_LABEL = 0
 MAX_LABEL = 10
 
 
-def _scorer_from_llm(llm: LLMClient) -> Callable[[str], int]:
-    def scorer(text: str) -> int:
-        return parse_score(llm.complete(text)).score
-
-    return scorer
+def _eval_item(title: str, label: int) -> EvalItem:
+    return EvalItem(
+        source="test",
+        external_id=title,
+        title=title,
+        url="",
+        published_at=datetime(2026, 1, 1, tzinfo=UTC),
+        summary=None,
+        label=label,
+    )
 
 
 def test_scripted_fake_llm_maps_prompt_to_response() -> None:
@@ -34,13 +44,11 @@ def test_scripted_fake_llm_falls_back_to_canned() -> None:
 
 
 def test_evaluate_produces_consistent_report() -> None:
-    dataset = [
-        EvalItem(text="alpha", label=8),
-        EvalItem(text="beta", label=2),
-    ]
+    dataset = [_eval_item("alpha", 8), _eval_item("beta", 2)]
+    # build_prompt insère le titre dans le prompt : on mappe donc sur le titre.
     llm = ScriptedFakeLLM(canned="0", mapping={"alpha": "8", "beta": "2"})
 
-    report = evaluate(dataset, _scorer_from_llm(llm))
+    report = evaluate(dataset, make_llm_scorer(llm))
 
     assert report.predictions == [8, 2]
     assert report.labels == [8, 2]
@@ -49,10 +57,10 @@ def test_evaluate_produces_consistent_report() -> None:
 
 def test_evaluate_maps_malformed_output_to_neutral_score() -> None:
     # coherence avec le module 1.3 : sortie non parsable -> score neutre 0
-    dataset = [EvalItem(text="gamma", label=5)]
+    dataset = [_eval_item("gamma", 5)]
     llm = ScriptedFakeLLM(canned="pas un nombre")
 
-    report = evaluate(dataset, _scorer_from_llm(llm))
+    report = evaluate(dataset, make_llm_scorer(llm))
 
     assert report.predictions == [0]
     assert report.labels == [5]
@@ -73,5 +81,8 @@ def test_dataset_is_valid_ground_truth() -> None:
 
     assert len(dataset) >= MIN_DATASET_SIZE
     for item in dataset:
-        assert item.text.strip() != ""
+        assert isinstance(item, RawItem)
+        assert item.title.strip() != ""
         assert MIN_LABEL <= item.label <= MAX_LABEL
+        assert "<img" not in item.title
+        assert item.summary is None or "<img" not in item.summary
