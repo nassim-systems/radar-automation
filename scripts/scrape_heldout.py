@@ -19,6 +19,10 @@ from radar.sources.rss import parse_rss
 
 DEFAULT_URL = "https://www.numerama.com/feed/"
 DEFAULT_K = 5
+# UA honnête d'un client RSS : beaucoup de flux refusent le UA par défaut de
+# urllib. Ne contourne aucun challenge anti-bot (ceux-là échouent toujours).
+USER_AGENT = "Mozilla/5.0 (compatible; radar-automation/0.1; RSS reader)"
+DRAFT_MAX_TOKENS = 512  # le scoring garde 16 ; le drafting a besoin de marge
 
 
 def main() -> None:
@@ -26,17 +30,20 @@ def main() -> None:
     url = args[0] if args else DEFAULT_URL
     k = int(args[1]) if len(args) > 1 else DEFAULT_K
 
-    with urllib.request.urlopen(url) as response:
+    request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    with urllib.request.urlopen(request) as response:
         feed_xml = response.read().decode("utf-8", errors="replace")
     items = parse_rss(feed_xml)
     print(f"{len(items)} articles récupérés depuis {url}")
 
-    llm = AnthropicClient()
+    scorer_llm = AnthropicClient()
+    drafter_llm = AnthropicClient(max_tokens=DRAFT_MAX_TOKENS)
     scored = [
-        ScoredItem(item=item, score=score_item(item, llm).score) for item in items
+        ScoredItem(item=item, score=score_item(item, scorer_llm).score)
+        for item in items
     ]
     top = select_top_k(scored, k)
-    drafts = drafting_pipeline(top, llm)
+    drafts = drafting_pipeline(top, drafter_llm)
 
     payload = [
         {"score": s.score, "title": s.item.title, "draft": d.text}
