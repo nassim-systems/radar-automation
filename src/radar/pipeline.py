@@ -53,11 +53,12 @@ def run_pipeline(
     Étages : ``fetch → dedup → fresh → unseen → score → select_top_k → draft``.
 
     - **Budget LLM** : au plus ``config.max_scored`` items sont scorés.
-    - **Idempotence** : les items scorés sont marqués vus dans ``seen_store``,
-      donc un second run ne les re-drafte pas (les items non scorés pour cause
-      de budget restent « à voir »).
-    - **Isolation des échecs** : un draft qui lève est compté dans
-      ``n_failures`` sans interrompre le run.
+    - **Idempotence** : seuls les items **draftés avec succès** sont marqués
+      vus dans ``seen_store``. Un item non retenu (budget/top-k) ou dont le
+      draft échoue reste « à voir » et sera retenté au run suivant.
+    - **Isolation des échecs** : seul l'appel ``llm.complete`` est isolé (un
+      échec LLM est compté dans ``n_failures`` sans tuer le run) ; un bug de
+      code dans la construction du prompt ou le parsing se propage.
     - **Appariement** : chaque brouillon est un ``ScoredDraft`` (item + score).
     """
     fetched = fetch_items()
@@ -76,16 +77,20 @@ def run_pipeline(
     drafts: list[ScoredDraft] = []
     n_failures = 0
     for entry in top:
+        prompt = build_draft_prompt(entry.item)
+        n_llm_calls += 1
         try:
-            prompt = build_draft_prompt(entry.item)
-            n_llm_calls += 1
-            draft = parse_draft(llm.complete(prompt))
+            response = llm.complete(prompt)
         except Exception:
+            # Seul l'appel LLM est isolé ; build_draft_prompt/parse_draft
+            # (code pur) se propagent volontairement.
             n_failures += 1
             continue
+        draft = parse_draft(response)
         drafts.append(ScoredDraft(item=entry.item, score=entry.score, draft=draft))
 
-    seen_store.add_seen(item_key(entry.item) for entry in scored)
+    # Idempotence : ne marquer vus QUE les items draftés avec succès.
+    seen_store.add_seen(item_key(sd.item) for sd in drafts)
 
     return PipelineReport(
         n_fetched=len(fetched),

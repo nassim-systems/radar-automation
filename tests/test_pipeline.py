@@ -141,3 +141,30 @@ def test_run_pipeline_isolates_draft_failure() -> None:
     assert report.n_failures == 1
     assert report.n_drafted == N_ROBUST - 1
     assert "BOOM" not in {d.item.title for d in report.drafts}
+
+
+def test_run_pipeline_retries_failed_draft() -> None:
+    items = [_item("1", "Alpha", FRESH), _item("2", "BOOM", FRESH)]
+    store = InMemorySeenStore()
+    config = _config(k=10, max_scored=10)
+
+    # run 1 : le draft de BOOM échoue -> BOOM n'est PAS marqué vu
+    first = run_pipeline(
+        fetch_items=lambda: list(items),
+        seen_store=store,
+        llm=_BoomOnDraftLLM(canned="5", boom_marker="BOOM"),
+        config=config,
+    )
+    assert first.n_failures == 1
+    assert "BOOM" not in {d.item.title for d in first.drafts}
+
+    # run 2 : LLM sain -> BOOM, resté à voir, est retenté et drafté
+    second = run_pipeline(
+        fetch_items=lambda: list(items),
+        seen_store=store,
+        llm=FakeLLM(canned="5"),
+        config=config,
+    )
+    assert second.n_unseen == 1
+    assert second.n_drafted == 1
+    assert {d.item.title for d in second.drafts} == {"BOOM"}
