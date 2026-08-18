@@ -49,10 +49,10 @@ def main() -> None:
         {"score": s.score, "title": s.item.title, "draft": d.text}
         for s, d in zip(top, drafts, strict=True)
     ]
-    with open("heldout.json", "w", encoding="utf-8") as f:
+    with open("heldout_scrape.json", "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, indent=2)
 
-    print(f"Top {len(top)} + brouillons écrits dans heldout.json :")
+    print(f"Top {len(top)} + brouillons écrits dans heldout_scrape.json :")
     for entry in payload:
         print(f"  [{entry['score']}] {entry['title']}")
 
