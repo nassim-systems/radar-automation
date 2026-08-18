@@ -34,3 +34,16 @@ class JsonSeenStore:
         seen.update(keys)
         content = json.dumps(sorted(seen), ensure_ascii=False)
         self.path.write_text(content, encoding="utf-8")
+
+
+class InMemorySeenStore:
+    """SeenStore non persistant (tests, runs éphémères)."""
+
+    def __init__(self) -> None:
+        self._seen: set[str] = set()
+
+    def load_seen(self) -> set[str]:
+        return set(self._seen)
+
+    def add_seen(self, keys: Iterable[str]) -> None:
+        self._seen.update(keys)

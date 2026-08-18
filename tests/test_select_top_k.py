@@ -28,12 +28,13 @@ def test_select_top_k_returns_highest_scores_descending() -> None:
     assert [s.score for s in top] == [9, 5]
 
 
-def test_select_top_k_is_stable_on_ties() -> None:
-    items = [_scored("a", 5), _scored("b", 5), _scored("c", 5)]
+def test_select_top_k_breaks_ties_by_item_key() -> None:
+    # même score, ordre d'entrée inverse de l'item_key : le tri suit item_key
+    items = [_scored("b", 5), _scored("a", 5), _scored("c", 5)]
 
     top = select_top_k(items, 2)
 
-    assert [s.item.title for s in top] == ["a", "b"]
+    assert [s.item.external_id for s in top] == ["a", "b"]
 
 
 def test_select_top_k_clamps_k_above_length() -> None:
