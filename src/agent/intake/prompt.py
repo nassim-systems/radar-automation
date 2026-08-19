@@ -1,5 +1,5 @@
 from agent.intake.models import InboundMessage, Intent
-from agent.intake.sanitize import sanitize
+from core.sanitize import sanitize
 
 _LABELS = ", ".join(intent.value for intent in Intent)
 

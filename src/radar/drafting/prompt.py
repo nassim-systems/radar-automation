@@ -1,5 +1,5 @@
+from core.sanitize import sanitize
 from radar.domain import RawItem
-from radar.sanitize import sanitize
 
 
 def build_draft_prompt(item: RawItem) -> str:

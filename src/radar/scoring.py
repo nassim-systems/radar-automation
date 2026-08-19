@@ -1,8 +1,8 @@
 from pydantic import BaseModel
 
+from core.sanitize import sanitize
 from radar.domain import RawItem
 from radar.llm.base import LLMClient
-from radar.sanitize import sanitize
 
 NEUTRAL_SCORE = 0
 

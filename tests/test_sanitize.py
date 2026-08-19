@@ -1,4 +1,4 @@
-from radar.sanitize import sanitize
+from core.sanitize import sanitize
 
 
 def test_sanitize_strips_article_delimiters() -> None:

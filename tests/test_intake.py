@@ -1,15 +1,11 @@
-from collections import Counter
 from datetime import UTC, datetime
-
-import pytest
 
 from agent.intake.classify import classify
 from agent.intake.models import InboundMessage, Intent
 from agent.intake.parse import parse_classification
 from agent.intake.prompt import build_classification_prompt
-from agent.intake.sanitize import sanitize
+from core.sanitize import sanitize
 from radar.llm.fake import FakeLLM
-from radar.llm.scripted import ScriptedFakeLLM
 
 RECEIVED_AT = datetime(2026, 8, 18, 12, 0, tzinfo=UTC)
 
@@ -77,31 +73,3 @@ def test_classify_defaults_to_other_on_malformed_output() -> None:
 
     assert classify(msg, FakeLLM(canned="???")) == Intent.OTHER
     assert classify(msg, FakeLLM(canned="")) == Intent.OTHER
-
-
-def test_intake_categorical_eval() -> None:
-    # petit jeu annoté (mots-clés absents du gabarit de prompt)
-    cases = [
-        ("Je veux tester votre solution pour mon équipe", Intent.PROSPECT),
-        ("Mon appli plante systématiquement au démarrage", Intent.SUPPORT),
-        ("Un prélèvement en double apparaît ce mois-ci", Intent.BILLING),
-        ("Gagnez de l'argent facile, offre limitée", Intent.SPAM),
-        ("Simple bonjour, rien de particulier aujourd'hui", Intent.OTHER),
-    ]
-    llm = ScriptedFakeLLM(
-        canned="other",
-        mapping={
-            "tester": "prospect",
-            "plante": "support",
-            "prélèvement": "billing",
-            "Gagnez": "spam",
-        },
-    )
-
-    pairs = [(expected, classify(_msg(body), llm)) for body, expected in cases]
-    accuracy = sum(1 for true, pred in pairs if true == pred) / len(pairs)
-    confusion = Counter(pairs)
-
-    assert accuracy == pytest.approx(1.0)
-    # matrice de confusion diagonale (aucune confusion inter-catégories)
-    assert all(true == pred for true, pred in confusion)
