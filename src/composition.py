@@ -6,6 +6,7 @@ ici : tout vient de ``Settings`` (donc de l'environnement).
 import urllib.request
 from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
+from xml.etree.ElementTree import ParseError
 
 from agent.agent.result import AgentResult
 from agent.agent.runner import AgentConfig, handle_message
@@ -88,12 +89,16 @@ def _make_feed_fetcher(feed_urls: list[str]) -> Callable[[], list[RawItem]]:
     def fetch() -> list[RawItem]:
         items: list[RawItem] = []
         for url in feed_urls:
-            request = urllib.request.Request(
-                url, headers={"User-Agent": _USER_AGENT}
-            )
-            with urllib.request.urlopen(request) as response:
-                xml = response.read().decode("utf-8", errors="replace")
-            items.extend(parse_rss(xml))
+            try:
+                request = urllib.request.Request(
+                    url, headers={"User-Agent": _USER_AGENT}
+                )
+                with urllib.request.urlopen(request) as response:
+                    xml = response.read().decode("utf-8", errors="replace")
+                items.extend(parse_rss(xml))
+            except (OSError, ParseError):
+                # skip + continue : un flux en échec ne doit pas tuer le run.
+                continue
         return items
 
     return fetch
