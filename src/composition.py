@@ -33,11 +33,14 @@ _MAX_AGE = timedelta(days=7)
 _TOP_K = 5
 _MAX_SCORED = 30
 _MAX_HISTORY_TURNS = 20
+_LLM_MAX_TOKENS = 512  # marge pour le drafting ; le scoring reste court de fait
 
 
 def build_radar_pipeline(settings: Settings) -> Callable[[], PipelineReport]:
     """Câble ``run_pipeline`` avec les vraies implémentations. Renvoie un runner."""
-    llm = AnthropicClient(api_key=settings.anthropic_api_key)
+    llm = AnthropicClient(
+        api_key=settings.anthropic_api_key, max_tokens=_LLM_MAX_TOKENS
+    )
     seen_store = JsonSeenStore(settings.store_dir / "seen.json")
     fetch_items = _make_feed_fetcher(settings.feed_urls)
 
@@ -57,7 +60,9 @@ def build_radar_pipeline(settings: Settings) -> Callable[[], PipelineReport]:
 
 def build_agent(settings: Settings) -> Callable[[InboundMessage], AgentResult]:
     """Câble ``handle_message`` avec les vraies implémentations. Renvoie un runner."""
-    llm = AnthropicClient(api_key=settings.anthropic_api_key)
+    llm = AnthropicClient(
+        api_key=settings.anthropic_api_key, max_tokens=_LLM_MAX_TOKENS
+    )
     conversations = JsonConversationStore(settings.store_dir / "conversations.json")
     read_tools = ReadToolRegistry([CrmReadTool({}), KnowledgeBaseReadTool({})])
     config = AgentConfig(max_history_turns=_MAX_HISTORY_TURNS)
