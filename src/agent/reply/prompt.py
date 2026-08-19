@@ -8,14 +8,18 @@ def build_reply_prompt(
 ) -> str:
     """Construit le prompt de rédaction de réponse ancrée (fonction pure).
 
-    Tous les champs d'origine client (message + contexte) sont sanitizés via
-    ``core.sanitize``. Le prompt impose de n'utiliser QUE ``context.known_facts``
-    et d'escalader (marqueur ``ESCALATION_MARKER``) plutôt que d'inventer.
+    Les champs d'origine client (``message``, ``client_name``, ``known_facts``)
+    sont sanitizés via ``core.sanitize``. ``history_summary`` est l'exception :
+    il doit déjà être un bloc sûr (produit par ``build_history_block``) et n'est
+    PAS re-sanitizé, sous peine de détruire sa structure ``<turn>``. Le prompt
+    impose de n'utiliser QUE ``context.known_facts`` et d'escalader (marqueur
+    ``ESCALATION_MARKER``) plutôt que d'inventer.
     """
     facts = [sanitize(fact) for fact in context.known_facts]
     facts_block = "\n".join(f"- {fact}" for fact in facts) if facts else "- (aucun)"
     client_name = sanitize(context.client_name or "")
-    history = sanitize(context.history_summary or "")
+    # Historique déjà sûr (bloc <turn>) : le re-sanitizer détruirait sa structure.
+    history = context.history_summary or ""
     return (
         "Tu es un agent qui rédige la réponse à un message client d'une PME.\n"
         f"Intention détectée : {intent.value}.\n"

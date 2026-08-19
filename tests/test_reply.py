@@ -113,3 +113,12 @@ def test_draft_reply_is_read_only() -> None:
 
     assert context.known_facts == original_facts
     assert msg.body == "Bonjour"
+
+
+def test_build_reply_prompt_keeps_prebuilt_history_block() -> None:
+    # l'historique <turn> est déjà sûr : il ne doit PAS être re-sanitizé
+    context = _context([], history='<turn role="client">bonjour</turn>')
+
+    prompt = build_reply_prompt(_msg("Question ?"), Intent.SUPPORT, context)
+
+    assert '<turn role="client">bonjour</turn>' in prompt
