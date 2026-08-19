@@ -1,0 +1,99 @@
+"""Racine de composition : le SEUL module autorisé à importer ``agent`` ET
+``executor``. Instancie les vraies implémentations (LLM réel, flux, stores
+persistants, exécuteur réel) et câble les pipelines. Aucun secret n'est codé
+ici : tout vient de ``Settings`` (donc de l'environnement).
+"""
+import urllib.request
+from collections.abc import Callable
+from datetime import UTC, datetime, timedelta
+
+from agent.agent.result import AgentResult
+from agent.agent.runner import AgentConfig, handle_message
+from agent.conversation.store import JsonConversationStore
+from agent.intake.models import InboundMessage
+from agent.tools.read import CrmReadTool, KnowledgeBaseReadTool
+from agent.tools.registry import ReadToolRegistry
+from executor.execute import (
+    ExecutionResult,
+    JsonExecutionLedger,
+    RecordingActionSink,
+    execute,
+)
+from executor.models import ApprovedAction
+from radar.domain import RawItem
+from radar.llm.anthropic_client import AnthropicClient
+from radar.pipeline import PipelineConfig, PipelineReport, run_pipeline
+from radar.sources.rss import parse_rss
+from radar.tools.seen_store import JsonSeenStore
+from settings import Settings
+
+_USER_AGENT = "Mozilla/5.0 (compatible; radar-automation/0.1; RSS reader)"
+_MAX_AGE = timedelta(days=7)
+_TOP_K = 5
+_MAX_SCORED = 30
+_MAX_HISTORY_TURNS = 20
+
+
+def build_radar_pipeline(settings: Settings) -> Callable[[], PipelineReport]:
+    """Câble ``run_pipeline`` avec les vraies implémentations. Renvoie un runner."""
+    llm = AnthropicClient(api_key=settings.anthropic_api_key)
+    seen_store = JsonSeenStore(settings.store_dir / "seen.json")
+    fetch_items = _make_feed_fetcher(settings.feed_urls)
+
+    def run() -> PipelineReport:
+        config = PipelineConfig(
+            now=datetime.now(tz=UTC),
+            max_age=_MAX_AGE,
+            k=_TOP_K,
+            max_scored=_MAX_SCORED,
+        )
+        return run_pipeline(
+            fetch_items=fetch_items, seen_store=seen_store, llm=llm, config=config
+        )
+
+    return run
+
+
+def build_agent(settings: Settings) -> Callable[[InboundMessage], AgentResult]:
+    """Câble ``handle_message`` avec les vraies implémentations. Renvoie un runner."""
+    llm = AnthropicClient(api_key=settings.anthropic_api_key)
+    conversations = JsonConversationStore(settings.store_dir / "conversations.json")
+    read_tools = ReadToolRegistry([CrmReadTool({}), KnowledgeBaseReadTool({})])
+    config = AgentConfig(max_history_turns=_MAX_HISTORY_TURNS)
+
+    def handle(msg: InboundMessage) -> AgentResult:
+        return handle_message(
+            msg=msg,
+            conversations=conversations,
+            read_tools=read_tools,
+            llm=llm,
+            config=config,
+        )
+
+    return handle
+
+
+def build_executor(settings: Settings) -> Callable[[ApprovedAction], ExecutionResult]:
+    """Câble l'exécuteur réel (sink + journal persistant). Renvoie un runner."""
+    sink = RecordingActionSink()
+    ledger = JsonExecutionLedger(settings.store_dir / "executed.json")
+
+    def run(action: ApprovedAction) -> ExecutionResult:
+        return execute(action, sink=sink, ledger=ledger)
+
+    return run
+
+
+def _make_feed_fetcher(feed_urls: list[str]) -> Callable[[], list[RawItem]]:
+    def fetch() -> list[RawItem]:
+        items: list[RawItem] = []
+        for url in feed_urls:
+            request = urllib.request.Request(
+                url, headers={"User-Agent": _USER_AGENT}
+            )
+            with urllib.request.urlopen(request) as response:
+                xml = response.read().decode("utf-8", errors="replace")
+            items.extend(parse_rss(xml))
+        return items
+
+    return fetch

@@ -55,3 +55,17 @@ def test_agent_does_not_import_executor_or_outgoing_clients() -> None:
         offenders += [f"{path.name}: {module}" for module in sorted(forbidden_here)]
 
     assert offenders == [], f"imports interdits dans agent/ : {offenders}"
+
+
+def test_only_composition_imports_executor() -> None:
+    # seul le module de composition a le droit d'importer executor
+    src = Path(__file__).resolve().parents[1] / "src"
+    offenders: list[str] = []
+    for path in sorted(src.rglob("*.py")):
+        rel = path.relative_to(src)
+        if rel.parts[0] == "executor" or path.name == "composition.py":
+            continue
+        if "executor" in _imported_top_modules(path):
+            offenders.append(str(rel))
+
+    assert offenders == [], f"executor importé hors composition : {offenders}"

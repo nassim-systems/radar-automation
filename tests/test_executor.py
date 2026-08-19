@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 
 from agent.tools.actions import propose_send_email
@@ -5,6 +7,7 @@ from executor.execute import (
     ALREADY_EXECUTED,
     EXECUTED,
     InMemoryExecutionLedger,
+    JsonExecutionLedger,
     NotApproved,
     RecordingActionSink,
     execute,
@@ -59,3 +62,14 @@ def test_approve_requires_human_approver() -> None:
 
     with pytest.raises(ValueError, match="approbation humaine"):
         approve(proposed, approved_by="   ")
+
+
+def test_json_execution_ledger_persists(tmp_path: Path) -> None:
+    path = tmp_path / "executed.json"
+    ledger = JsonExecutionLedger(path)
+
+    assert not ledger.was_executed("id-1")
+    ledger.mark_executed("id-1")
+
+    # une nouvelle instance relit le fichier (idempotence entre runs)
+    assert JsonExecutionLedger(path).was_executed("id-1")

@@ -1,3 +1,5 @@
+import json
+from pathlib import Path
 from typing import Protocol
 
 from executor.models import ApprovedAction, ExecutionResult
@@ -36,6 +38,36 @@ class InMemoryExecutionLedger:
 
     def mark_executed(self, action_id: str) -> None:
         self._done.add(action_id)
+
+
+class JsonExecutionLedger:
+    """Journal persistant des actions exécutées — idempotence entre les runs.
+
+    Même esprit que ``JsonSeenStore`` : lecture résiliente (fichier absent ou
+    corrompu → aucune action connue) plutôt que de lever.
+    """
+
+    def __init__(self, path: Path) -> None:
+        self.path = path
+
+    def was_executed(self, action_id: str) -> bool:
+        return action_id in self._read()
+
+    def mark_executed(self, action_id: str) -> None:
+        done = self._read()
+        done.add(action_id)
+        self.path.write_text(
+            json.dumps(sorted(done), ensure_ascii=False), encoding="utf-8"
+        )
+
+    def _read(self) -> set[str]:
+        if not self.path.exists():
+            return set()
+        try:
+            data = json.loads(self.path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return set()
+        return set(data) if isinstance(data, list) else set()
 
 
 class RecordingActionSink:

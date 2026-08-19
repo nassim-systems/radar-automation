@@ -6,3 +6,5 @@ __pycache__/
 .ruff_cache/
 heldout.json
 heldout_scrape.json
+.env
+.data/
