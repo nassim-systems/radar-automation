@@ -19,6 +19,7 @@ class PipelineConfig(BaseModel):
     max_age: timedelta
     k: int
     max_scored: int
+    min_score: int = 0
 
 
 class ScoredDraft(BaseModel):
@@ -53,6 +54,8 @@ def run_pipeline(
     Étages : ``fetch → dedup → fresh → unseen → score → select_top_k → draft``.
 
     - **Budget LLM** : au plus ``config.max_scored`` items sont scorés.
+    - **Seuil de pertinence** : seuls les items de score ≥ ``config.min_score``
+      sont draftés ; si aucun ne l'atteint, aucun brouillon n'est produit.
     - **Idempotence** : seuls les items **draftés avec succès** sont marqués
       vus dans ``seen_store``. Un item non retenu (budget/top-k) ou dont le
       draft échoue reste « à voir » et sera retenté au run suivant.
@@ -77,6 +80,8 @@ def run_pipeline(
     drafts: list[ScoredDraft] = []
     n_failures = 0
     for entry in top:
+        if entry.score < config.min_score:
+            continue  # sous le seuil de pertinence : pas de brouillon
         prompt = build_draft_prompt(entry.item)
         n_llm_calls += 1
         try:

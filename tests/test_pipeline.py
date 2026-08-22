@@ -47,8 +47,10 @@ def _item(external_id: str, title: str, published_at: datetime) -> RawItem:
     )
 
 
-def _config(*, k: int, max_scored: int) -> PipelineConfig:
-    return PipelineConfig(now=NOW, max_age=MAX_AGE, k=k, max_scored=max_scored)
+def _config(*, k: int, max_scored: int, min_score: int = 0) -> PipelineConfig:
+    return PipelineConfig(
+        now=NOW, max_age=MAX_AGE, k=k, max_scored=max_scored, min_score=min_score
+    )
 
 
 def test_run_pipeline_end_to_end() -> None:
@@ -168,3 +170,19 @@ def test_run_pipeline_retries_failed_draft() -> None:
     assert second.n_unseen == 1
     assert second.n_drafted == 1
     assert {d.item.title for d in second.drafts} == {"BOOM"}
+
+
+def test_run_pipeline_skips_drafts_below_min_score() -> None:
+    items = [_item("1", "Alpha", FRESH), _item("2", "Beta", FRESH)]
+    store = InMemorySeenStore()
+
+    report = run_pipeline(
+        fetch_items=lambda: list(items),
+        seen_store=store,
+        llm=FakeLLM(canned="3"),  # score 3, sous le seuil 6
+        config=_config(k=5, max_scored=10, min_score=6),
+    )
+
+    assert report.n_scored == len(items)
+    assert report.n_drafted == 0
+    assert report.drafts == []

@@ -32,6 +32,7 @@ _USER_AGENT = "Mozilla/5.0 (compatible; radar-automation/0.1; RSS reader)"
 _MAX_AGE = timedelta(days=7)
 _TOP_K = 5
 _MAX_SCORED = 30
+_MIN_SCORE = 6  # seuil de pertinence : on ne drafte pas les items hors-sujet
 _MAX_HISTORY_TURNS = 20
 _LLM_MAX_TOKENS = 512  # marge pour le drafting ; le scoring reste court de fait
 
@@ -50,6 +51,7 @@ def build_radar_pipeline(settings: Settings) -> Callable[[], PipelineReport]:
             max_age=_MAX_AGE,
             k=_TOP_K,
             max_scored=_MAX_SCORED,
+            min_score=_MIN_SCORE,
         )
         return run_pipeline(
             fetch_items=fetch_items, seen_store=seen_store, llm=llm, config=config
