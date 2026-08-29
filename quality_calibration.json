@@ -5,184 +5,184 @@
     {
       "threshold": 4,
       "precision": 1.0,
-      "recall": 0.75
+      "recall": 0.9
     },
     {
       "threshold": 5,
       "precision": 1.0,
-      "recall": 0.75
+      "recall": 0.85
     },
     {
       "threshold": 6,
-      "precision": 0.8462,
-      "recall": 0.7333
+      "precision": 0.8125,
+      "recall": 1.0
     },
     {
       "threshold": 7,
-      "precision": 1.0,
+      "precision": 0.7692,
       "recall": 1.0
     },
     {
       "threshold": 8,
       "precision": 1.0,
-      "recall": 1.0
+      "recall": 0.7
     }
   ],
   "usage": {
-    "input_tokens": 13697,
+    "input_tokens": 15686,
     "output_tokens": 150,
-    "cost_usd": 0.014447
+    "cost_usd": 0.016436
   },
   "items": [
     {
-      "title": "Sophie Adenot achève sa sortie spatiale historique hors de l'ISS",
+      "title": "Twitter et son célèbre oiseau bleu sont de retour, mais Elon Musk veut les faire disparaître",
       "human_label": 0,
       "model_score": 0
     },
     {
-      "title": "Ligue 1 : le PSG s'impose 3-0 face à Lyon au Parc des Princes",
+      "title": "Facebook et Instagram jugés trop addictifs pour les jeunes, Meta accepte de payer 18 milliards",
       "human_label": 0,
       "model_score": 0
     },
     {
-      "title": "Critique : le dernier film de Denis Villeneuve impressionne la critique",
+      "title": "Le Brésil inflige une amende de 25 millions d’euros à TikTok pour ses manquements envers les mineurs",
       "human_label": 0,
       "model_score": 0
     },
     {
-      "title": "Les 10 destinations de vacances les plus tendance pour l'été 2027",
+      "title": "TikTok aurait une influence directe sur les envies alimentaires des adolescents",
       "human_label": 0,
       "model_score": 0
     },
     {
-      "title": "Sommet climatique : les négociations s'enlisent sur la sortie du charbon",
+      "title": "Netflix pourrait bientôt réunir plusieurs plateformes de streaming dans une seule application",
+      "human_label": 0,
+      "model_score": 0
+    },
+    {
+      "title": "YouTube bat des records de vues, mais les internautes regardent de moins en moins longtemps",
+      "human_label": 0,
+      "model_score": 1
+    },
+    {
+      "title": "Rentrée scolaire : attention à ces sites qui promettent de révéler la classe de votre enfant",
+      "human_label": 0,
+      "model_score": 0
+    },
+    {
+      "title": "Waymo va lancer ses robotaxis sans conducteur dans une grande ville européenne",
       "human_label": 1,
-      "model_score": 0
+      "model_score": 1
     },
     {
-      "title": "Quels sont les emojis les plus utilisés sur les réseaux sociaux en 2026 ?",
-      "human_label": 0,
-      "model_score": 0
-    },
-    {
-      "title": "Recette : comment réussir une pâte à pizza maison en 5 étapes",
-      "human_label": 0,
-      "model_score": 0
-    },
-    {
-      "title": "Un randonneur secouru après trois jours perdu dans les Alpes",
-      "human_label": 0,
-      "model_score": 0
-    },
-    {
-      "title": "Mode : les tendances vestimentaires de la rentrée selon les podiums parisiens",
+      "title": "Face aux mêmes symptômes, les IA envoient les hommes aux urgences mais pas les femmes",
       "human_label": 1,
-      "model_score": 0
+      "model_score": 2
     },
     {
-      "title": "Top 5 des séries à ne pas manquer ce mois-ci sur les plateformes de streaming",
+      "title": "On connaît enfin la date de présentation du tout premier iPhone pliable d’Apple",
       "human_label": 0,
       "model_score": 0
     },
     {
-      "title": "Étude : 61 % des salariés français ont déjà utilisé une IA générative au travail",
+      "title": "Le véritable frein à l’adoption de l’IA en entreprise n’est pas la technologie, mais la confiance",
       "human_label": 6,
-      "model_score": 5
+      "model_score": 7
     },
     {
-      "title": "Cybersécurité : les attaques par rançongiciel visant les PME en hausse de 30 %",
+      "title": "Les 15 000 entreprises qui découvriront NIS 2 après le vote",
       "human_label": 5,
       "model_score": 6
     },
     {
-      "title": "Comparatif 2026 des meilleurs smartphones professionnels sous 600 €",
+      "title": "Réforme de la facturation électronique : ce que les TPE/PME ont à y gagner",
+      "human_label": 6,
+      "model_score": 7
+    },
+    {
+      "title": "5 formations pour lancer et développer son activité e-commerce",
+      "human_label": 5,
+      "model_score": 6
+    },
+    {
+      "title": "L’IA va-t-elle tuer les logiciels ? Le patron de Salesforce balaie cette idée",
+      "human_label": 5,
+      "model_score": 5
+    },
+    {
+      "title": "IA : l’Europe n’a plus un problème de diagnostic, mais elle a un problème d’exécution",
       "human_label": 5,
       "model_score": 2
     },
     {
-      "title": "Le marché du cloud computing devrait croître de 20 % en France d'ici 2028",
+      "title": "Signature mail : 5 façons de l’activer comme un canal marketing qui cartonne",
+      "human_label": 5,
+      "model_score": 6
+    },
+    {
+      "title": "Building France invite les entrepreneurs français à transformer leurs idées en applications",
+      "human_label": 6,
+      "model_score": 7
+    },
+    {
+      "title": "Mauvaise nouvelle pour les abonnés ChatGPT Plus, OpenAI resserre les limites d’utilisation",
       "human_label": 5,
       "model_score": 3
     },
     {
-      "title": "Intelligence artificielle : la Commission européenne prépare un nouveau cadre réglementaire",
-      "human_label": 6,
-      "model_score": 3
-    },
-    {
-      "title": "Levée de fonds : une start-up française spécialisée en IA générative lève 15 millions d'euros",
+      "title": "Expert SEO : 8 formations pour approfondir ses compétences",
       "human_label": 5,
-      "model_score": 2
+      "model_score": 4
     },
     {
-      "title": "Télétravail : les entreprises françaises généralisent la semaine de 4 jours",
-      "human_label": 6,
-      "model_score": 2
-    },
-    {
-      "title": "Les grandes tendances du marketing digital à surveiller en 2027",
-      "human_label": 5,
-      "model_score": 6
-    },
-    {
-      "title": "Pourquoi la cybersécurité devient un enjeu stratégique pour les PME françaises",
-      "human_label": 6,
-      "model_score": 6
-    },
-    {
-      "title": "Étude Insee : la transformation numérique des TPE-PME progresse lentement",
-      "human_label": 6,
-      "model_score": 5
-    },
-    {
-      "title": "Comment automatiser sa facturation avec Make.com : guide pas à pas pour les TPE",
+      "title": "The best automation software for small business in 2026",
       "human_label": 10,
-      "model_score": 9
-    },
-    {
-      "title": "5 workflows Zapier indispensables pour automatiser le service client d'une PME",
-      "human_label": 10,
-      "model_score": 9
-    },
-    {
-      "title": "n8n : créer un agent IA qui répond automatiquement aux emails clients",
-      "human_label": 10,
-      "model_score": 9
-    },
-    {
-      "title": "No-code : comment une PME de 8 salariés a automatisé sa gestion de devis avec Airtable",
-      "human_label": 9,
-      "model_score": 9
-    },
-    {
-      "title": "Chatbot IA pour PME : réduire de 40 % le temps de traitement des demandes clients",
-      "human_label": 9,
       "model_score": 8
     },
     {
-      "title": "Automatiser sa comptabilité : les meilleurs outils no-code pour les indépendants en 2026",
+      "title": "How Rozas uses Zapier to give every lead a 2-minute headstart",
       "human_label": 9,
-      "model_score": 8
-    },
-    {
-      "title": "CRM automatisé : comment une TPE a gagné 10 heures par semaine grâce à HubSpot Workflows",
-      "human_label": 9,
-      "model_score": 8
-    },
-    {
-      "title": "Agents IA en entreprise : le guide pratique pour automatiser les tâches répétitives d'une PME",
-      "human_label": 10,
       "model_score": 9
     },
     {
-      "title": "RPA pour les petites entreprises : automatiser la saisie de données sans coder",
+      "title": "Zapier MCP: Perform tens of thousands of actions in your AI tool",
       "human_label": 8,
       "model_score": 8
     },
     {
-      "title": "Zapier lance de nouveaux agents IA pour automatiser les workflows des petites entreprises",
+      "title": "The Zappy Award winner behind Just Eat Spain’s faster partner onboarding",
+      "human_label": 9,
+      "model_score": 7
+    },
+    {
+      "title": "Build multi-agent teams that remember every customer with Amazon Bedrock AgentCore",
+      "human_label": 8,
+      "model_score": 8
+    },
+    {
+      "title": "RPA vs. Workflow Automation: Building Automation That Lasts",
+      "human_label": 8,
+      "model_score": 7
+    },
+    {
+      "title": "Workflow Versioning for Reliable Automation and Maintenance",
+      "human_label": 8,
+      "model_score": 7
+    },
+    {
+      "title": "Goose",
       "human_label": 9,
       "model_score": 9
+    },
+    {
+      "title": "Base44",
+      "human_label": 9,
+      "model_score": 8
+    },
+    {
+      "title": "Scraper Studio by Bright Data",
+      "human_label": 8,
+      "model_score": 8
     }
   ]
 }

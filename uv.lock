@@ -386,6 +386,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "anthropic" },
+    { name = "certifi" },
     { name = "pydantic" },
 ]
 
@@ -398,6 +399,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "anthropic", specifier = ">=0.120.0" },
+    { name = "certifi", specifier = ">=2024.0.0" },
     { name = "pydantic", specifier = ">=2.0" },
 ]
 

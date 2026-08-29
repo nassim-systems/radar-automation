@@ -1,0 +1,115 @@
+{
+  "source": "production_recall_check (échantillon réel non biaisé, module 3.5)",
+  "n": 20,
+  "min_score": 8,
+  "n_retained_at_min_score": 0,
+  "n_truly_relevant_in_sample": 0,
+  "n_false_positives_at_min_score": 0,
+  "usage": {
+    "input_tokens": 11003,
+    "output_tokens": 100,
+    "cost_usd": 0.011503
+  },
+  "items": [
+    {
+      "title": "PASQAL au Nasdaq : le quantique français cherche le capital de son industrialisation",
+      "human_label": 0,
+      "model_score": 2
+    },
+    {
+      "title": "Pourquoi dotAI + dotJS est le seul événement tech incontournable de la rentrée",
+      "human_label": 2,
+      "model_score": 2
+    },
+    {
+      "title": "Trois Français viennent de vendre leur entreprise à Nvidia pour près de 13 milliards de dollars",
+      "human_label": 0,
+      "model_score": 2
+    },
+    {
+      "title": "Google répond déjà par IA à plus d’une recherche sur deux en France",
+      "human_label": 3,
+      "model_score": 4
+    },
+    {
+      "title": "Vous utilisez ChatGPT ? 5 réglages à modifier obligatoirement pour protéger votre vie privée",
+      "human_label": 3,
+      "model_score": 6
+    },
+    {
+      "title": "RBAC for AI Agents: Why Static Roles Break and What Replaces Them",
+      "human_label": 4,
+      "model_score": 6
+    },
+    {
+      "title": "ETL Pipeline Patterns for Reliable, Scalable Automation",
+      "human_label": 4,
+      "model_score": 6
+    },
+    {
+      "title": "La Russie a utilisé ChatGPT pour alimenter une campagne de désinformation",
+      "human_label": 0,
+      "model_score": 1
+    },
+    {
+      "title": "Grok dépassé par ses rivaux, Elon Musk veut mettre les bouchées doubles",
+      "human_label": 1,
+      "model_score": 3
+    },
+    {
+      "title": "Facturation électronique : face aux craintes de piratage, le gouvernement veut rassurer",
+      "human_label": 6,
+      "model_score": 7
+    },
+    {
+      "title": "HUGGING FACE : la plateforme que tous les géants de l’IA ont intérêt à acheter. Mais à quel prix ?",
+      "human_label": 1,
+      "model_score": 3
+    },
+    {
+      "title": "IPO d’OpenAI et d’Anthropic : le jour où l’intelligence artificielle devra montrer ses comptes",
+      "human_label": 0,
+      "model_score": 3
+    },
+    {
+      "title": "What is HubSpot—and what does it do?",
+      "human_label": 6,
+      "model_score": 7
+    },
+    {
+      "title": "How to transfer files from Dropbox to Google Drive: 4 methods",
+      "human_label": 4,
+      "model_score": 7
+    },
+    {
+      "title": "How to add Zoom to Google Calendar (and make it the default option)",
+      "human_label": 3,
+      "model_score": 7
+    },
+    {
+      "title": "What is Google AI Mode? How it works and how to use it",
+      "human_label": 3,
+      "model_score": 4
+    },
+    {
+      "title": "RHINE GROUP : Mario Draghi et Patrick Collison veulent construire la coalition qui manque à l’Europe",
+      "human_label": 0,
+      "model_score": 1
+    },
+    {
+      "title": "Instagram lance un outil qui monte automatiquement vos Reels en quelques secondes",
+      "human_label": 6,
+      "model_score": 6
+    },
+    {
+      "title": "DEFENSE: l’Europe veut des champions paneuropéens, chaque État veut le sien",
+      "human_label": 0,
+      "model_score": 0
+    },
+    {
+      "title": "ARCSPACE lève plus de 2 millions d’euros pour faire passer les satellites du jetable au réparable",
+      "human_label": 0,
+      "model_score": 1
+    }
+  ]
+}

@@ -3,10 +3,13 @@
 persistants, exécuteur réel) et câble les pipelines. Aucun secret n'est codé
 ici : tout vient de ``Settings`` (donc de l'environnement).
 """
+import ssl
 import urllib.request
 from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 from xml.etree.ElementTree import ParseError
+
+import certifi
 
 from agent.agent.result import AgentResult
 from agent.agent.runner import AgentConfig, handle_message
@@ -32,6 +35,10 @@ from radar.tools.seen_store import JsonSeenStore
 from settings import Settings
 
 _USER_AGENT = "Mozilla/5.0 (compatible; radar-automation/0.1; RSS reader)"
+# Bundle de CA certifi plutôt que le magasin par défaut de l'OS : certains
+# flux (ex. blog.n8n.io) échouent la validation TLS avec le contexte SSL par
+# défaut de Python sur cette machine (chaîne de certification non résolue).
+_SSL_CONTEXT = ssl.create_default_context(cafile=certifi.where())
 _MAX_AGE = timedelta(days=7)
 _TOP_K = 5
 _MAX_SCORED = 30
@@ -117,7 +124,9 @@ def _make_feed_fetcher(feed_urls: list[str]) -> Callable[[], list[RawItem]]:
                 request = urllib.request.Request(
                     url, headers={"User-Agent": _USER_AGENT}
                 )
-                with urllib.request.urlopen(request) as response:
+                with urllib.request.urlopen(
+                    request, context=_SSL_CONTEXT
+                ) as response:
                     xml = response.read().decode("utf-8", errors="replace")
                 items.extend(parse_rss(xml))
             except (OSError, ParseError):

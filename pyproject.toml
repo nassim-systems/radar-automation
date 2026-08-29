@@ -6,6 +6,7 @@ requires-python = ">=3.11"
 dependencies = [
   "anthropic>=0.120.0",
   "pydantic>=2.0",
+  "certifi>=2024.0.0",
 ]
 
 [project.scripts]
@@ -40,6 +41,9 @@ select = ["E", "F", "I", "UP", "ANN", "T20", "B", "SIM", "PL"]
 # Les scripts opérationnels et le point d'entrée peuvent écrire sur stdout.
 "scripts/*" = ["T201"]
 "src/app.py" = ["T201"]
+# Dictionnaires url -> label : les URLs réelles ne sont pas raccourcissables.
+"scripts/label_heldout_pool.py" = ["E501"]
+"scripts/label_production_recall_check.py" = ["E501"]
 
 [tool.pytest.ini_options]
 minversion = "7.0"
