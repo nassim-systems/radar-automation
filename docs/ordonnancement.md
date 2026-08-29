@@ -43,8 +43,9 @@ Les **bugs de code** (hors I/O réseau/parsing), eux, remontent volontairement.
 
 | Code | Signification |
 |---|---|
-| `0` | Succès — le `PipelineReport` JSON est écrit sur stdout. |
+| `0` | Succès — `PipelineReport` écrit dans le fichier de rapport (JSON, UTF-8). |
 | `2` | Configuration manquante (ex. `ANTHROPIC_API_KEY`) — message clair sur stderr. |
+| `3` | Alerte (module 3.4) — coût du run ou échecs LLM au-dessus du seuil — message sur stderr. Le rapport est quand même écrit. |
 | autre / traceback | Erreur non gérée — visible dans les logs, l'ordonnanceur peut alerter. |
 
 L'ordonnanceur (cron/Task Scheduler) peut se baser sur ce code de sortie pour

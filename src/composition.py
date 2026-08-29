@@ -23,7 +23,10 @@ from executor.execute import (
 from executor.models import ApprovedAction
 from radar.domain import RawItem
 from radar.llm.anthropic_client import AnthropicClient
-from radar.pipeline import PipelineConfig, PipelineReport, run_pipeline
+from radar.llm.usage import ListUsageSink
+from radar.observability.history import JsonRunHistoryStore
+from radar.observability.models import RunRecord
+from radar.pipeline import PipelineConfig, run_pipeline
 from radar.sources.rss import parse_rss
 from radar.tools.seen_store import JsonSeenStore
 from settings import Settings
@@ -37,15 +40,24 @@ _MAX_HISTORY_TURNS = 20
 _LLM_MAX_TOKENS = 512  # marge pour le drafting ; le scoring reste court de fait
 
 
-def build_radar_pipeline(settings: Settings) -> Callable[[], PipelineReport]:
-    """Câble ``run_pipeline`` avec les vraies implémentations. Renvoie un runner."""
+def build_radar_pipeline(settings: Settings) -> Callable[[], RunRecord]:
+    """Câble ``run_pipeline`` avec les vraies implémentations. Renvoie un runner.
+
+    Le runner renvoie un ``RunRecord`` (rapport + usage LLM agrégé du run,
+    horodaté) et l'archive dans l'historique persistant (module 3.4).
+    """
+    usage_sink = ListUsageSink()
     llm = AnthropicClient(
-        api_key=settings.anthropic_api_key, max_tokens=_LLM_MAX_TOKENS
+        api_key=settings.anthropic_api_key,
+        max_tokens=_LLM_MAX_TOKENS,
+        usage_sink=usage_sink,
     )
     seen_store = JsonSeenStore(settings.store_dir / "seen.json")
+    history_store = JsonRunHistoryStore(settings.store_dir / "run_history.json")
     fetch_items = _make_feed_fetcher(settings.feed_urls)
 
-    def run() -> PipelineReport:
+    def run() -> RunRecord:
+        usage_sink.calls.clear()
         config = PipelineConfig(
             now=datetime.now(tz=UTC),
             max_age=_MAX_AGE,
@@ -53,9 +65,14 @@ def build_radar_pipeline(settings: Settings) -> Callable[[], PipelineReport]:
             max_scored=_MAX_SCORED,
             min_score=_MIN_SCORE,
         )
-        return run_pipeline(
+        report = run_pipeline(
             fetch_items=fetch_items, seen_store=seen_store, llm=llm, config=config
         )
+        record = RunRecord(
+            at=datetime.now(tz=UTC), report=report, usage=usage_sink.total()
+        )
+        history_store.append(record)
+        return record
 
     return run
 
