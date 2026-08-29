@@ -9,7 +9,7 @@ dependencies = [
 ]
 
 [project.scripts]
-run-radar = "app:run"
+radar-run = "app:main"
 
 [tool.uv]
 dev-dependencies = [

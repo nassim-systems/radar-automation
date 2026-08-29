@@ -18,6 +18,7 @@ def _fake_report() -> PipelineReport:
         n_fresh=2,
         n_unseen=2,
         n_scored=2,
+        n_above_threshold=2,
         n_drafted=0,
         n_llm_calls=2,
         n_failures=0,

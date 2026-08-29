@@ -1,5 +1,7 @@
+import json
 from collections.abc import Callable
 from datetime import datetime, timedelta
+from pathlib import Path
 
 from pydantic import BaseModel
 
@@ -36,10 +38,31 @@ class PipelineReport(BaseModel):
     n_fresh: int
     n_unseen: int
     n_scored: int
+    n_above_threshold: int
     n_drafted: int
     n_llm_calls: int
     n_failures: int
     drafts: list[ScoredDraft]
+
+
+def filter_by_min_score(items: list[ScoredItem], min_score: int) -> list[ScoredItem]:
+    """Ne garde que les items dont le score atteint ``min_score``.
+
+    Étage pur, appliqué avant ``select_top_k`` : un item hors-sujet ne doit
+    pas consommer une place dans le top-K à la place d'un item pertinent.
+    """
+    return [scored for scored in items if scored.score >= min_score]
+
+
+def write_report_json(report: PipelineReport, out: str | Path) -> None:
+    """Écrit ``report`` en JSON, encoding UTF-8 explicite.
+
+    Indépendant de toute redirection shell (celle-ci varie d'encodage par OS).
+    """
+    Path(out).write_text(
+        json.dumps(report.model_dump(mode="json"), ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
 
 
 def run_pipeline(
@@ -51,14 +74,18 @@ def run_pipeline(
 ) -> PipelineReport:
     """Exécute le pipeline complet avec dépendances injectées.
 
-    Étages : ``fetch → dedup → fresh → unseen → score → select_top_k → draft``.
+    Étages : ``fetch → dedup → fresh → unseen → score → filter_by_min_score
+    → select_top_k → draft``.
 
     - **Budget LLM** : au plus ``config.max_scored`` items sont scorés.
-    - **Seuil de pertinence** : seuls les items de score ≥ ``config.min_score``
-      sont draftés ; si aucun ne l'atteint, aucun brouillon n'est produit.
+    - **Seuil de pertinence** : ``filter_by_min_score`` retire, avant la
+      sélection du top-K, les items de score < ``config.min_score`` (ils ne
+      consomment donc pas une place de ``k`` au détriment d'un item
+      pertinent) ; ``n_above_threshold`` compte les items retenus à ce stade.
+      Si aucun n'atteint le seuil, aucun brouillon n'est produit.
     - **Idempotence** : seuls les items **draftés avec succès** sont marqués
-      vus dans ``seen_store``. Un item non retenu (budget/top-k) ou dont le
-      draft échoue reste « à voir » et sera retenté au run suivant.
+      vus dans ``seen_store``. Un item non retenu (budget/seuil/top-k) ou
+      dont le draft échoue reste « à voir » et sera retenté au run suivant.
     - **Isolation des échecs** : seul l'appel ``llm.complete`` est isolé (un
       échec LLM est compté dans ``n_failures`` sans tuer le run) ; un bug de
       code dans la construction du prompt ou le parsing se propage.
@@ -75,13 +102,12 @@ def run_pipeline(
         n_llm_calls += 1
         scored.append(ScoredItem(item=item, score=score_item(item, llm).score))
 
-    top = select_top_k(scored, config.k)
+    above_threshold = filter_by_min_score(scored, config.min_score)
+    top = select_top_k(above_threshold, config.k)
 
     drafts: list[ScoredDraft] = []
     n_failures = 0
     for entry in top:
-        if entry.score < config.min_score:
-            continue  # sous le seuil de pertinence : pas de brouillon
         prompt = build_draft_prompt(entry.item)
         n_llm_calls += 1
         try:
@@ -103,6 +129,7 @@ def run_pipeline(
         n_fresh=len(fresh_items),
         n_unseen=len(unseen_items),
         n_scored=len(scored),
+        n_above_threshold=len(above_threshold),
         n_drafted=len(drafts),
         n_llm_calls=n_llm_calls,
         n_failures=n_failures,

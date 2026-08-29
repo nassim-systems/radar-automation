@@ -1,8 +1,14 @@
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 
 from radar.domain import RawItem
 from radar.llm.fake import FakeLLM
-from radar.pipeline import PipelineConfig, ScoredDraft, run_pipeline
+from radar.pipeline import (
+    PipelineConfig,
+    ScoredDraft,
+    run_pipeline,
+    write_report_json,
+)
 from radar.tools.seen_store import InMemorySeenStore
 
 NOW = datetime(2026, 8, 18, 12, 0, tzinfo=UTC)
@@ -184,5 +190,31 @@ def test_run_pipeline_skips_drafts_below_min_score() -> None:
     )
 
     assert report.n_scored == len(items)
+    assert report.n_above_threshold == 0
     assert report.n_drafted == 0
     assert report.drafts == []
+
+
+def test_pipeline_report_survives_utf8_round_trip(tmp_path: Path) -> None:
+    """Non-régression : les accents ne doivent pas se corrompre à l'écriture.
+
+    ``r├®seau`` est la mojibake caractéristique d'un octet UTF-8 relu avec un
+    codepage Windows (cp850/cp1252) — le symptôme exact du bug corrigé par
+    l'écriture UTF-8 explicite de ``write_report_json``.
+    """
+    items = [_item("1", "Le réseau électrique sous tension", FRESH)]
+    store = InMemorySeenStore()
+
+    report = run_pipeline(
+        fetch_items=lambda: list(items),
+        seen_store=store,
+        llm=FakeLLM(canned="7"),
+        config=_config(k=5, max_scored=10),
+    )
+
+    out = tmp_path / "run_report.json"
+    write_report_json(report, out)
+    contenu = out.read_text(encoding="utf-8")
+
+    assert "réseau" in contenu
+    assert "r├®seau" not in contenu
