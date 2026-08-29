@@ -29,6 +29,11 @@ de vrais positifs PME** : cela nécessiterait un held-out plus riche en items
 pertinents (piste « élargir le held-out avec de vrais positifs et des cas
 limites »).
 
+**Suite (module 3.5)** : [`QUALITY.md`](QUALITY.md) comble ce manque avec un
+second held-out, construit celui-là pour couvrir les trois paliers de
+pertinence (hors-sujet / moyen / très pertinent), et l'utilise pour calibrer
+`min_score` par précision/rappel plutôt qu'au jugé.
+
 ## Reproductibilité
 
 - Jeu figé et annoté : [`src/radar/eval/heldout_labeled.json`](src/radar/eval/heldout_labeled.json)

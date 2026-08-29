@@ -1,0 +1,272 @@
+[
+  {
+    "source": "heldout_pme_automation",
+    "external_id": "h00",
+    "title": "Sophie Adenot achève sa sortie spatiale historique hors de l'ISS",
+    "url": "",
+    "published_at": "2026-08-01T00:00:00Z",
+    "summary": "Retour en images sur la sortie extravéhiculaire de l'astronaute française, une première pour un membre de l'agence spatiale européenne.",
+    "label": 0
+  },
+  {
+    "source": "heldout_pme_automation",
+    "external_id": "h01",
+    "title": "Ligue 1 : le PSG s'impose 3-0 face à Lyon au Parc des Princes",
+    "url": "",
+    "published_at": "2026-08-02T00:00:00Z",
+    "summary": "Résumé et statistiques du match de la 3e journée de championnat.",
+    "label": 0
+  },
+  {
+    "source": "heldout_pme_automation",
+    "external_id": "h02",
+    "title": "Critique : le dernier film de Denis Villeneuve impressionne la critique",
+    "url": "",
+    "published_at": "2026-08-03T00:00:00Z",
+    "summary": "Notre avis complet sur le nouveau long-métrage, en salles ce mercredi.",
+    "label": 0
+  },
+  {
+    "source": "heldout_pme_automation",
+    "external_id": "h03",
+    "title": "Les 10 destinations de vacances les plus tendance pour l'été 2027",
+    "url": "",
+    "published_at": "2026-08-04T00:00:00Z",
+    "summary": "Notre sélection de destinations à prix doux pour préparer les prochaines vacances.",
+    "label": 0
+  },
+  {
+    "source": "heldout_pme_automation",
+    "external_id": "h04",
+    "title": "Sommet climatique : les négociations s'enlisent sur la sortie du charbon",
+    "url": "",
+    "published_at": "2026-08-05T00:00:00Z",
+    "summary": "Les délégations peinent à s'accorder sur un calendrier commun de sortie des énergies fossiles.",
+    "label": 1
+  },
+  {
+    "source": "heldout_pme_automation",
+    "external_id": "h05",
+    "title": "Quels sont les emojis les plus utilisés sur les réseaux sociaux en 2026 ?",
+    "url": "",
+    "published_at": "2026-08-06T00:00:00Z",
+    "summary": "Classement annuel des emojis les plus populaires, tous réseaux confondus.",
+    "label": 0
+  },
+  {
+    "source": "heldout_pme_automation",
+    "external_id": "h06",
+    "title": "Recette : comment réussir une pâte à pizza maison en 5 étapes",
+    "url": "",
+    "published_at": "2026-08-07T00:00:00Z",
+    "summary": "Notre méthode simple pour une pâte à pizza digne d'une pizzeria napolitaine.",
+    "label": 0
+  },
+  {
+    "source": "heldout_pme_automation",
+    "external_id": "h07",
+    "title": "Un randonneur secouru après trois jours perdu dans les Alpes",
+    "url": "",
+    "published_at": "2026-08-08T00:00:00Z",
+    "summary": "Les secours en montagne ont retrouvé le randonneur sain et sauf après une importante opération de recherche.",
+    "label": 0
+  },
+  {
+    "source": "heldout_pme_automation",
+    "external_id": "h08",
+    "title": "Mode : les tendances vestimentaires de la rentrée selon les podiums parisiens",
+    "url": "",
+    "published_at": "2026-08-09T00:00:00Z",
+    "summary": "Tour d'horizon des couleurs et coupes qui feront la rentrée, vues lors de la fashion week.",
+    "label": 1
+  },
+  {
+    "source": "heldout_pme_automation",
+    "external_id": "h09",
+    "title": "Top 5 des séries à ne pas manquer ce mois-ci sur les plateformes de streaming",
+    "url": "",
+    "published_at": "2026-08-10T00:00:00Z",
+    "summary": "Notre sélection de séries pour combler les longues soirées d'été.",
+    "label": 0
+  },
+  {
+    "source": "heldout_pme_automation",
+    "external_id": "h10",
+    "title": "Étude : 61 % des salariés français ont déjà utilisé une IA générative au travail",
+    "url": "",
+    "published_at": "2026-08-11T00:00:00Z",
+    "summary": "Un baromètre national mesure l'adoption de l'IA générative en entreprise, tous secteurs confondus.",
+    "label": 6
+  },
+  {
+    "source": "heldout_pme_automation",
+    "external_id": "h11",
+    "title": "Cybersécurité : les attaques par rançongiciel visant les PME en hausse de 30 %",
+    "url": "",
+    "published_at": "2026-08-12T00:00:00Z",
+    "summary": "Un rapport annuel alerte sur la montée des cyberattaques ciblant spécifiquement les petites structures.",
+    "label": 5
+  },
+  {
+    "source": "heldout_pme_automation",
+    "external_id": "h12",
+    "title": "Comparatif 2026 des meilleurs smartphones professionnels sous 600 €",
+    "url": "",
+    "published_at": "2026-08-13T00:00:00Z",
+    "summary": "Notre banc d'essai des smartphones les plus adaptés à un usage professionnel à petit budget.",
+    "label": 5
+  },
+  {
+    "source": "heldout_pme_automation",
+    "external_id": "h13",
+    "title": "Le marché du cloud computing devrait croître de 20 % en France d'ici 2028",
+    "url": "",
+    "published_at": "2026-08-14T00:00:00Z",
+    "summary": "Une étude de marché anticipe une forte croissance du secteur cloud dans l'Hexagone.",
+    "label": 5
+  },
+  {
+    "source": "heldout_pme_automation",
+    "external_id": "h14",
+    "title": "Intelligence artificielle : la Commission européenne prépare un nouveau cadre réglementaire",
+    "url": "",
+    "published_at": "2026-08-15T00:00:00Z",
+    "summary": "Bruxelles travaille sur une révision de l'AI Act pour encadrer les usages professionnels de l'IA.",
+    "label": 6
+  },
+  {
+    "source": "heldout_pme_automation",
+    "external_id": "h15",
+    "title": "Levée de fonds : une start-up française spécialisée en IA générative lève 15 millions d'euros",
+    "url": "",
+    "published_at": "2026-08-16T00:00:00Z",
+    "summary": "La jeune pousse compte utiliser ces fonds pour accélérer son développement à l'international.",
+    "label": 5
+  },
+  {
+    "source": "heldout_pme_automation",
+    "external_id": "h16",
+    "title": "Télétravail : les entreprises françaises généralisent la semaine de 4 jours",
+    "url": "",
+    "published_at": "2026-08-17T00:00:00Z",
+    "summary": "De plus en plus d'entreprises expérimentent la semaine de 4 jours, avec des résultats contrastés.",
+    "label": 6
+  },
+  {
+    "source": "heldout_pme_automation",
+    "external_id": "h17",
+    "title": "Les grandes tendances du marketing digital à surveiller en 2027",
+    "url": "",
+    "published_at": "2026-08-18T00:00:00Z",
+    "summary": "Tour d'horizon des tendances marketing attendues pour l'année à venir, du SEO à l'IA générative.",
+    "label": 5
+  },
+  {
+    "source": "heldout_pme_automation",
+    "external_id": "h18",
+    "title": "Pourquoi la cybersécurité devient un enjeu stratégique pour les PME françaises",
+    "url": "",
+    "published_at": "2026-08-19T00:00:00Z",
+    "summary": "Décryptage des raisons pour lesquelles les petites entreprises sont de plus en plus ciblées.",
+    "label": 6
+  },
+  {
+    "source": "heldout_pme_automation",
+    "external_id": "h19",
+    "title": "Étude Insee : la transformation numérique des TPE-PME progresse lentement",
+    "url": "",
+    "published_at": "2026-08-20T00:00:00Z",
+    "summary": "L'Insee publie de nouveaux chiffres sur le niveau d'équipement numérique des petites entreprises françaises.",
+    "label": 6
+  },
+  {
+    "source": "heldout_pme_automation",
+    "external_id": "h20",
+    "title": "Comment automatiser sa facturation avec Make.com : guide pas à pas pour les TPE",
+    "url": "",
+    "published_at": "2026-08-21T00:00:00Z",
+    "summary": "Tutoriel complet pour connecter son outil de facturation et générer automatiquement ses factures clients.",
+    "label": 10
+  },
+  {
+    "source": "heldout_pme_automation",
+    "external_id": "h21",
+    "title": "5 workflows Zapier indispensables pour automatiser le service client d'une PME",
+    "url": "",
+    "published_at": "2026-08-22T00:00:00Z",
+    "summary": "Cinq automatisations concrètes pour gagner du temps sur le support client, sans écrire une ligne de code.",
+    "label": 10
+  },
+  {
+    "source": "heldout_pme_automation",
+    "external_id": "h22",
+    "title": "n8n : créer un agent IA qui répond automatiquement aux emails clients",
+    "url": "",
+    "published_at": "2026-08-23T00:00:00Z",
+    "summary": "Pas à pas pour construire un agent qui trie et répond aux emails entrants les plus courants.",
+    "label": 10
+  },
+  {
+    "source": "heldout_pme_automation",
+    "external_id": "h23",
+    "title": "No-code : comment une PME de 8 salariés a automatisé sa gestion de devis avec Airtable",
+    "url": "",
+    "published_at": "2026-08-24T00:00:00Z",
+    "summary": "Retour d'expérience concret d'une petite entreprise ayant remplacé ses tableurs par une base no-code.",
+    "label": 9
+  },
+  {
+    "source": "heldout_pme_automation",
+    "external_id": "h24",
+    "title": "Chatbot IA pour PME : réduire de 40 % le temps de traitement des demandes clients",
+    "url": "",
+    "published_at": "2026-08-25T00:00:00Z",
+    "summary": "Étude de cas chiffrée sur le déploiement d'un chatbot IA dans une petite structure de service.",
+    "label": 9
+  },
+  {
+    "source": "heldout_pme_automation",
+    "external_id": "h25",
+    "title": "Automatiser sa comptabilité : les meilleurs outils no-code pour les indépendants en 2026",
+    "url": "",
+    "published_at": "2026-08-26T00:00:00Z",
+    "summary": "Comparatif des solutions no-code permettant d'automatiser la saisie comptable sans expertise technique.",
+    "label": 9
+  },
+  {
+    "source": "heldout_pme_automation",
+    "external_id": "h26",
+    "title": "CRM automatisé : comment une TPE a gagné 10 heures par semaine grâce à HubSpot Workflows",
+    "url": "",
+    "published_at": "2026-08-27T00:00:00Z",
+    "summary": "Retour d'expérience sur l'automatisation du suivi commercial d'une petite entreprise de services.",
+    "label": 9
+  },
+  {
+    "source": "heldout_pme_automation",
+    "external_id": "h27",
+    "title": "Agents IA en entreprise : le guide pratique pour automatiser les tâches répétitives d'une PME",
+    "url": "",
+    "published_at": "2026-08-28T00:00:00Z",
+    "summary": "Guide opérationnel pour identifier et automatiser les tâches chronophages grâce aux agents IA.",
+    "label": 10
+  },
+  {
+    "source": "heldout_pme_automation",
+    "external_id": "h28",
+    "title": "RPA pour les petites entreprises : automatiser la saisie de données sans coder",
+    "url": "",
+    "published_at": "2026-08-29T00:00:00Z",
+    "summary": "Présentation d'outils de RPA accessibles aux petites structures pour automatiser des tâches administratives.",
+    "label": 8
+  },
+  {
+    "source": "heldout_pme_automation",
+    "external_id": "h29",
+    "title": "Zapier lance de nouveaux agents IA pour automatiser les workflows des petites entreprises",
+    "url": "",
+    "published_at": "2026-08-30T00:00:00Z",
+    "summary": "La plateforme d'automatisation annonce des agents capables d'exécuter des tâches multi-étapes de bout en bout.",
+    "label": 9
+  }
+]

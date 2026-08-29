@@ -88,3 +88,63 @@ def spearman(predictions: list[int], labels: list[int]) -> float:
     if var_pred == 0 or var_label == 0:
         return 0.0
     return cov / (var_pred * var_label) ** 0.5
+
+
+def precision_at_threshold(
+    predictions: list[int], labels: list[int], threshold: int
+) -> float:
+    """Précision du gate ``score >= threshold`` (celui qu'utilise ``min_score``).
+
+    Parmi les items que le modèle **retiendrait** à ce seuil, quelle fraction
+    est **vraiment pertinente** selon le label humain ?
+
+        precision = |retenus ∩ pertinents| / |retenus|
+
+    « Retenu » = ``prediction >= threshold`` ; « pertinent » = ``label >=
+    threshold`` (même seuil des deux côtés : c'est la question qu'on pose à
+    ``min_score`` — si on ne draft qu'à partir de ce score, a-t-on raison ?).
+
+    Convention : si le modèle ne retient aucun item à ce seuil, la précision
+    vaut 1.0 — aucun faux positif n'est possible (cohérent avec l'usage réel :
+    ``min_score`` qui ne fait rien drafter n'est jamais une erreur de
+    précision, cf. ``run_pipeline``/``filter_by_min_score``).
+
+    :raises ValueError: si les deux listes n'ont pas la même longueur.
+    """
+    if len(predictions) != len(labels):
+        raise ValueError("predictions et labels doivent avoir la même longueur")
+    retained_are_relevant = [
+        label >= threshold
+        for pred, label in zip(predictions, labels, strict=True)
+        if pred >= threshold
+    ]
+    if not retained_are_relevant:
+        return 1.0
+    return sum(retained_are_relevant) / len(retained_are_relevant)
+
+
+def recall_at_threshold(
+    predictions: list[int], labels: list[int], threshold: int
+) -> float:
+    """Rappel du gate ``score >= threshold`` (celui qu'utilise ``min_score``).
+
+    Parmi les items **vraiment pertinents** selon le label humain, quelle
+    fraction le modèle **retient**-il à ce seuil ?
+
+        recall = |retenus ∩ pertinents| / |pertinents|
+
+    Convention : si aucun item n'est vraiment pertinent à ce seuil, le rappel
+    vaut 1.0 — rien à retrouver, donc aucun faux négatif possible.
+
+    :raises ValueError: si les deux listes n'ont pas la même longueur.
+    """
+    if len(predictions) != len(labels):
+        raise ValueError("predictions et labels doivent avoir la même longueur")
+    relevant_are_retained = [
+        pred >= threshold
+        for pred, label in zip(predictions, labels, strict=True)
+        if label >= threshold
+    ]
+    if not relevant_are_retained:
+        return 1.0
+    return sum(relevant_are_retained) / len(relevant_are_retained)

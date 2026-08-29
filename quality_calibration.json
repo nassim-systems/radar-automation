@@ -1,0 +1,188 @@
+{
+  "source": "heldout_pme_automation (held-out représentatif, module 3.5)",
+  "n": 30,
+  "thresholds": [
+    {
+      "threshold": 4,
+      "precision": 1.0,
+      "recall": 0.75
+    },
+    {
+      "threshold": 5,
+      "precision": 1.0,
+      "recall": 0.75
+    },
+    {
+      "threshold": 6,
+      "precision": 0.8462,
+      "recall": 0.7333
+    },
+    {
+      "threshold": 7,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    {
+      "threshold": 8,
+      "precision": 1.0,
+      "recall": 1.0
+    }
+  ],
+  "usage": {
+    "input_tokens": 13697,
+    "output_tokens": 150,
+    "cost_usd": 0.014447
+  },
+  "items": [
+    {
+      "title": "Sophie Adenot achève sa sortie spatiale historique hors de l'ISS",
+      "human_label": 0,
+      "model_score": 0
+    },
+    {
+      "title": "Ligue 1 : le PSG s'impose 3-0 face à Lyon au Parc des Princes",
+      "human_label": 0,
+      "model_score": 0
+    },
+    {
+      "title": "Critique : le dernier film de Denis Villeneuve impressionne la critique",
+      "human_label": 0,
+      "model_score": 0
+    },
+    {
+      "title": "Les 10 destinations de vacances les plus tendance pour l'été 2027",
+      "human_label": 0,
+      "model_score": 0
+    },
+    {
+      "title": "Sommet climatique : les négociations s'enlisent sur la sortie du charbon",
+      "human_label": 1,
+      "model_score": 0
+    },
+    {
+      "title": "Quels sont les emojis les plus utilisés sur les réseaux sociaux en 2026 ?",
+      "human_label": 0,
+      "model_score": 0
+    },
+    {
+      "title": "Recette : comment réussir une pâte à pizza maison en 5 étapes",
+      "human_label": 0,
+      "model_score": 0
+    },
+    {
+      "title": "Un randonneur secouru après trois jours perdu dans les Alpes",
+      "human_label": 0,
+      "model_score": 0
+    },
+    {
+      "title": "Mode : les tendances vestimentaires de la rentrée selon les podiums parisiens",
+      "human_label": 1,
+      "model_score": 0
+    },
+    {
+      "title": "Top 5 des séries à ne pas manquer ce mois-ci sur les plateformes de streaming",
+      "human_label": 0,
+      "model_score": 0
+    },
+    {
+      "title": "Étude : 61 % des salariés français ont déjà utilisé une IA générative au travail",
+      "human_label": 6,
+      "model_score": 5
+    },
+    {
+      "title": "Cybersécurité : les attaques par rançongiciel visant les PME en hausse de 30 %",
+      "human_label": 5,
+      "model_score": 6
+    },
+    {
+      "title": "Comparatif 2026 des meilleurs smartphones professionnels sous 600 €",
+      "human_label": 5,
+      "model_score": 2
+    },
+    {
+      "title": "Le marché du cloud computing devrait croître de 20 % en France d'ici 2028",
+      "human_label": 5,
+      "model_score": 3
+    },
+    {
+      "title": "Intelligence artificielle : la Commission européenne prépare un nouveau cadre réglementaire",
+      "human_label": 6,
+      "model_score": 3
+    },
+    {
+      "title": "Levée de fonds : une start-up française spécialisée en IA générative lève 15 millions d'euros",
+      "human_label": 5,
+      "model_score": 2
+    },
+    {
+      "title": "Télétravail : les entreprises françaises généralisent la semaine de 4 jours",
+      "human_label": 6,
+      "model_score": 2
+    },
+    {
+      "title": "Les grandes tendances du marketing digital à surveiller en 2027",
+      "human_label": 5,
+      "model_score": 6
+    },
+    {
+      "title": "Pourquoi la cybersécurité devient un enjeu stratégique pour les PME françaises",
+      "human_label": 6,
+      "model_score": 6
+    },
+    {
+      "title": "Étude Insee : la transformation numérique des TPE-PME progresse lentement",
+      "human_label": 6,
+      "model_score": 5
+    },
+    {
+      "title": "Comment automatiser sa facturation avec Make.com : guide pas à pas pour les TPE",
+      "human_label": 10,
+      "model_score": 9
+    },
+    {
+      "title": "5 workflows Zapier indispensables pour automatiser le service client d'une PME",
+      "human_label": 10,
+      "model_score": 9
+    },
+    {
+      "title": "n8n : créer un agent IA qui répond automatiquement aux emails clients",
+      "human_label": 10,
+      "model_score": 9
+    },
+    {
+      "title": "No-code : comment une PME de 8 salariés a automatisé sa gestion de devis avec Airtable",
+      "human_label": 9,
+      "model_score": 9
+    },
+    {
+      "title": "Chatbot IA pour PME : réduire de 40 % le temps de traitement des demandes clients",
+      "human_label": 9,
+      "model_score": 8
+    },
+    {
+      "title": "Automatiser sa comptabilité : les meilleurs outils no-code pour les indépendants en 2026",
+      "human_label": 9,
+      "model_score": 8
+    },
+    {
+      "title": "CRM automatisé : comment une TPE a gagné 10 heures par semaine grâce à HubSpot Workflows",
+      "human_label": 9,
+      "model_score": 8
+    },
+    {
+      "title": "Agents IA en entreprise : le guide pratique pour automatiser les tâches répétitives d'une PME",
+      "human_label": 10,
+      "model_score": 9
+    },
+    {
+      "title": "RPA pour les petites entreprises : automatiser la saisie de données sans coder",
+      "human_label": 8,
+      "model_score": 8
+    },
+    {
+      "title": "Zapier lance de nouveaux agents IA pour automatiser les workflows des petites entreprises",
+      "human_label": 9,
+      "model_score": 9
+    }
+  ]
+}
