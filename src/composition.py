@@ -17,6 +17,7 @@ from agent.conversation.store import JsonConversationStore
 from agent.intake.models import InboundMessage
 from agent.tools.read import CrmReadTool, KnowledgeBaseReadTool
 from agent.tools.registry import ReadToolRegistry
+from core.usage import ListUsageSink
 from executor.execute import (
     ExecutionResult,
     JsonExecutionLedger,
@@ -26,7 +27,6 @@ from executor.execute import (
 from executor.models import ApprovedAction
 from radar.domain import RawItem
 from radar.llm.anthropic_client import AnthropicClient
-from radar.llm.usage import ListUsageSink
 from radar.observability.history import JsonRunHistoryStore
 from radar.observability.models import RunRecord
 from radar.pipeline import PipelineConfig, run_pipeline

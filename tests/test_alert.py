@@ -1,6 +1,6 @@
 from datetime import UTC, datetime
 
-from radar.llm.usage import LlmUsage
+from core.usage import LlmUsage
 from radar.observability.alert import check_alert
 from radar.observability.models import RunRecord
 from radar.pipeline import PipelineReport

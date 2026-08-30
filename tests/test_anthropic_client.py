@@ -1,9 +1,9 @@
 from types import SimpleNamespace
 from unittest.mock import patch
 
+from core.usage import LlmUsage
 from radar.llm.anthropic_client import MODEL, AnthropicClient
 from radar.llm.pricing import estimate_cost
-from radar.llm.usage import LlmUsage
 
 INPUT_TOKENS = 100
 OUTPUT_TOKENS = 20

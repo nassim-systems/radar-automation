@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
-from radar.llm.usage import LlmUsage
+from core.usage import LlmUsage
 from radar.pipeline import PipelineReport
 
 

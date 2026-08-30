@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 from app import EXIT_ALERT, EXIT_CONFIG_ERROR, EXIT_OK, main
-from radar.llm.usage import LlmUsage
+from core.usage import LlmUsage
 from radar.observability.models import RunRecord
 from radar.pipeline import PipelineReport
 from settings import Settings

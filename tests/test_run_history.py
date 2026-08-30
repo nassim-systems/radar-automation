@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 from pathlib import Path
 
-from radar.llm.usage import LlmUsage
+from core.usage import LlmUsage
 from radar.observability.history import InMemoryRunHistoryStore, JsonRunHistoryStore
 from radar.observability.models import RunRecord
 from radar.pipeline import PipelineReport

@@ -12,10 +12,10 @@ script alimentent ``QUALITY.md`` (module 3.5).
 import json
 from pathlib import Path
 
+from core.usage import ListUsageSink
 from radar.eval import harness
 from radar.eval.metrics import precision_at_threshold, recall_at_threshold
 from radar.llm.anthropic_client import AnthropicClient
-from radar.llm.usage import ListUsageSink
 
 HELDOUT_PATH = Path(harness.__file__).parent / "heldout_representative.json"
 OUTPUT_PATH = Path("quality_calibration.json")

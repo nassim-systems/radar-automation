@@ -13,9 +13,9 @@ comporterait dessus.
 import json
 from pathlib import Path
 
+from core.usage import ListUsageSink
 from radar.eval import harness
 from radar.llm.anthropic_client import AnthropicClient
-from radar.llm.usage import ListUsageSink
 
 DATASET_PATH = Path(harness.__file__).parent / "production_recall_check.json"
 OUTPUT_PATH = Path("production_recall_check_results.json")
