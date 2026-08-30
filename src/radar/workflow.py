@@ -1,22 +1,26 @@
 """Le pipeline radar exprimé comme un ``Workflow`` (module 4.1) — avec la
 variante décomposée AngleAgent + WriterAgent (module 4.2, retenue après
-mesure : voir ``ANGLE_AGENT.md``).
+mesure : voir ``ANGLE_AGENT.md``) et un ``ScoreStep`` concurrent borné
+(module 4.3 : voir ``CONCURRENCY.md``).
 
 Ne réimplémente AUCUNE logique : chaque ``Step`` délègue à la même fonction
 pure que ``run_pipeline`` (``radar/pipeline.py``) utilise déjà —
 ``deduplicate``, ``filter_fresh``, ``filter_unseen``, ``score_item``,
 ``filter_by_min_score``, ``select_top_k``, ``build_draft_prompt``/
-``parse_draft`` (mono-appel), ``decide_angle``/``write_draft`` (décomposé).
-``run_pipeline`` n'est pas modifié et reste le chemin de production
-(``composition.py``) : ce module est une démonstration parallèle de
-l'abstraction ``core.workflow``, pas un remplacement. Voir ``WORKFLOW.md``.
+``parse_draft`` (mono-appel), ``decide_angle``/``write_draft`` (décomposé),
+``score_items_concurrently`` (concurrent). ``run_pipeline`` n'est pas
+modifié et reste le chemin de production (``composition.py``) : ce module
+est une démonstration parallèle de l'abstraction ``core.workflow``, pas un
+remplacement. Voir ``WORKFLOW.md``.
 """
 from collections.abc import Callable
 
 from pydantic import Field
 
+from core.usage import ListUsageSink
 from core.workflow.engine import Step
 from core.workflow.models import WorkflowState
+from radar.concurrent_scoring import ConcurrentScoringConfig, score_items_concurrently
 from radar.decision.models import ScoredItem
 from radar.decision.select_top_k import select_top_k
 from radar.domain import RawItem
@@ -124,6 +128,46 @@ class ScoreStep:
             for item in s.unseen[: self._config.max_scored]
         ]
         return s.model_copy(update={"scored": scored})
+
+
+class ConcurrentScoreStep:
+    """Variante concurrente de ``ScoreStep`` (module 4.3) — même champ de
+    sortie (``state.scored``, dans l'ordre d'entrée des items), bornée par
+    ``ConcurrentScoringConfig`` (concurrence, budget dur, retry/backoff)
+    plutôt que par une boucle séquentielle. Drop-in : remplace ``ScoreStep``
+    dans n'importe quelle liste de ``Step`` sans toucher aux autres étapes.
+    Voir ``CONCURRENCY.md`` pour les décisions (défauts, politique de
+    budget, retry)."""
+
+    name = "score"
+
+    def __init__(
+        self,
+        llm: LLMClient,
+        pipeline_config: PipelineConfig,
+        concurrency_config: ConcurrentScoringConfig | None = None,
+        usage_sink: ListUsageSink | None = None,
+    ) -> None:
+        self._llm = llm
+        self._pipeline_config = pipeline_config
+        self._concurrency_config = concurrency_config
+        self._usage_sink = usage_sink
+
+    def run(self, state: WorkflowState) -> WorkflowState:
+        s = _as_radar_state(state)
+        candidates = s.unseen[: self._pipeline_config.max_scored]
+        report = score_items_concurrently(
+            candidates,
+            self._llm,
+            config=self._concurrency_config,
+            usage_sink=self._usage_sink,
+        )
+        return s.model_copy(
+            update={
+                "scored": report.scored,
+                "n_failures": s.n_failures + report.n_failures,
+            }
+        )
 
 
 class FilterByMinScoreStep:

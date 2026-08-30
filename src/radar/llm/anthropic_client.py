@@ -1,10 +1,15 @@
-from anthropic import Anthropic
+from anthropic import Anthropic, OverloadedError, RateLimitError
 
 from core.usage import LlmUsage, UsageSink
+from radar.llm.errors import TransientLLMError
 from radar.llm.pricing import estimate_cost
 
 MODEL = "claude-haiku-4-5"
 MAX_TOKENS = 16  # suffit au scoring (un entier) ; le drafting en demande plus
+# Erreurs traduites en TransientLLMError (module 4.3) : rate limit (429) et
+# surcharge (529) uniquement — choix explicite documenté dans CONCURRENCY.md,
+# qui exclut volontairement les 5xx génériques (InternalServerError).
+_RETRIABLE_ANTHROPIC_ERRORS = (RateLimitError, OverloadedError)
 
 
 class AnthropicClient:
@@ -32,12 +37,15 @@ class AnthropicClient:
         self._usage_sink = usage_sink
 
     def complete(self, prompt: str) -> str:
-        response = self._client.messages.create(
-            model=self._model,
-            max_tokens=self._max_tokens,
-            temperature=0,
-            messages=[{"role": "user", "content": prompt}],
-        )
+        try:
+            response = self._client.messages.create(
+                model=self._model,
+                max_tokens=self._max_tokens,
+                temperature=0,
+                messages=[{"role": "user", "content": prompt}],
+            )
+        except _RETRIABLE_ANTHROPIC_ERRORS as error:
+            raise TransientLLMError(str(error)) from error
         if self._usage_sink is not None:
             self._usage_sink.record(
                 LlmUsage(

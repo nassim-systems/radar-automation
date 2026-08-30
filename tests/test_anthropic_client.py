@@ -1,12 +1,18 @@
 from types import SimpleNamespace
 from unittest.mock import patch
 
+import httpx
+import pytest
+from anthropic import BadRequestError, OverloadedError, RateLimitError
+
 from core.usage import LlmUsage
 from radar.llm.anthropic_client import MODEL, AnthropicClient
+from radar.llm.errors import TransientLLMError
 from radar.llm.pricing import estimate_cost
 
 INPUT_TOKENS = 100
 OUTPUT_TOKENS = 20
+_REQUEST = httpx.Request("POST", "https://api.anthropic.com/v1/messages")
 
 
 def test_anthropic_client_complete_extracts_text() -> None:
@@ -69,3 +75,52 @@ def test_anthropic_client_without_sink_does_not_touch_usage() -> None:
         client = AnthropicClient()
 
         assert client.complete("un prompt") == "7"
+
+
+def test_anthropic_client_translates_rate_limit_to_transient_error() -> None:
+    original = RateLimitError(
+        "rate limited",
+        response=httpx.Response(status_code=429, request=_REQUEST),
+        body=None,
+    )
+
+    with patch("radar.llm.anthropic_client.Anthropic") as anthropic_cls:
+        anthropic_cls.return_value.messages.create.side_effect = original
+        client = AnthropicClient()
+
+        with pytest.raises(TransientLLMError) as exc_info:
+            client.complete("un prompt")
+
+    assert exc_info.value.__cause__ is original  # chaîne préservée (raise ... from)
+
+
+def test_anthropic_client_translates_overloaded_to_transient_error() -> None:
+    original = OverloadedError(
+        "overloaded",
+        response=httpx.Response(status_code=529, request=_REQUEST),
+        body=None,
+    )
+
+    with patch("radar.llm.anthropic_client.Anthropic") as anthropic_cls:
+        anthropic_cls.return_value.messages.create.side_effect = original
+        client = AnthropicClient()
+
+        with pytest.raises(TransientLLMError):
+            client.complete("un prompt")
+
+
+def test_anthropic_client_does_not_translate_non_transient_errors() -> None:
+    # 400 Bad Request : pas une erreur transitoire, ne doit jamais devenir un
+    # TransientLLMError (donc jamais retentée par la politique de retry).
+    original = BadRequestError(
+        "requête invalide",
+        response=httpx.Response(status_code=400, request=_REQUEST),
+        body=None,
+    )
+
+    with patch("radar.llm.anthropic_client.Anthropic") as anthropic_cls:
+        anthropic_cls.return_value.messages.create.side_effect = original
+        client = AnthropicClient()
+
+        with pytest.raises(BadRequestError):
+            client.complete("un prompt")
