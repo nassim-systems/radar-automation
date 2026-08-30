@@ -1,0 +1,164 @@
+{
+  "n_total": 14,
+  "n_defective": 8,
+  "n_good": 6,
+  "n_detected": 8,
+  "detection_rate": 1.0,
+  "n_false_rejections": 4,
+  "false_rejection_rate": 0.6666666666666666,
+  "usage": {
+    "input_tokens": 5621,
+    "output_tokens": 933,
+    "cost_usd": 0.010286
+  },
+  "results": [
+    {
+      "id": "good-rozas",
+      "expected_accepted": true,
+      "defect_category": null,
+      "actual_accepted": false,
+      "reasons": [
+        "Fait inventé - le délai de \"2 minutes\" n'est pas mentionné dans l'article (qui parle de \"2-minute headstart\" pour les leads, pas du traitement global)",
+        "Angle forcé - l'article ne précise pas que Rozas est une PME, et le lien PME n'est pas établi de façon honnête."
+      ],
+      "correct": false
+    },
+    {
+      "id": "good-zapier-mcp",
+      "expected_accepted": true,
+      "defect_category": null,
+      "actual_accepted": true,
+      "reasons": [],
+      "correct": true
+    },
+    {
+      "id": "good-goose",
+      "expected_accepted": true,
+      "defect_category": null,
+      "actual_accepted": false,
+      "reasons": [
+        "Angle forcé",
+        "le brouillon ajoute des affirmations (« fini la dépendance aux API cloud payantes », « vous gardez le contrôle de vos données ») et un positionnement PME qui ne figurent pas dans l'article résumé, qui se limite à décrire Goose comme « un logiciel pour exécuter des tâches avec un agent IA local »."
+      ],
+      "correct": false
+    },
+    {
+      "id": "good-base44",
+      "expected_accepted": true,
+      "defect_category": null,
+      "actual_accepted": false,
+      "reasons": [
+        "Angle forcé - le brouillon affirme que Base44 permet de \"créer des applications sans coder\" alors que l'article parle de \"vibe coding\" (une approche différente, pas une absence totale de code)",
+        "absence de confirmation dans l'article que l'outil cible spécifiquement les PME ou résout leurs problèmes de ressources dev."
+      ],
+      "correct": false
+    },
+    {
+      "id": "good-just-eat-spain",
+      "expected_accepted": true,
+      "defect_category": null,
+      "actual_accepted": false,
+      "reasons": [
+        "Angle forcé",
+        "le brouillon généralise abusivement l'exemple de Just Eat Spain (grande entreprise) en conseil PME sans que l'article n'offre cette perspective de manière honnête."
+      ],
+      "correct": false
+    },
+    {
+      "id": "good-scraper-studio",
+      "expected_accepted": true,
+      "defect_category": null,
+      "actual_accepted": true,
+      "reasons": [],
+      "correct": true
+    },
+    {
+      "id": "defect-invented-fact-goose",
+      "expected_accepted": false,
+      "defect_category": "fait_invente",
+      "actual_accepted": false,
+      "reasons": [
+        "Fait inventé (chiffre \"68 %\" et \"étude interne\" absents de l'article)",
+        "Angle forcé (lien PME artificiel non présent dans la source)"
+      ],
+      "correct": true
+    },
+    {
+      "id": "defect-invented-fact-base44",
+      "expected_accepted": false,
+      "defect_category": "fait_invente",
+      "actual_accepted": false,
+      "reasons": [
+        "Fait inventé - le chiffre \"plus de 50 000 PME en France\" n'apparaît pas dans l'article fourni",
+        "Angle forcé - le lien PME est plaqué artificiellement alors que l'article ne mentionne que \"Base44\" sans préciser son adoption par les PME françaises."
+      ],
+      "correct": true
+    },
+    {
+      "id": "defect-forced-angle-bedrock",
+      "expected_accepted": false,
+      "defect_category": "angle_force",
+      "actual_accepted": false,
+      "reasons": [
+        "Angle forcé",
+        "l'article ne mentionne pas les PME, ce segment est artificiellement ajouté au brouillon sans fondement dans la source."
+      ],
+      "correct": true
+    },
+    {
+      "id": "defect-forced-angle-rhine-group",
+      "expected_accepted": false,
+      "defect_category": "angle_force",
+      "actual_accepted": false,
+      "reasons": [
+        "Angle forcé",
+        "le lien PME n'est pas fondé sur l'article qui ne mentionne pas d'opportunités de financement ou de soutien spécifiques pour les PME."
+      ],
+      "correct": true
+    },
+    {
+      "id": "defect-off-brand-hype-spam",
+      "expected_accepted": false,
+      "defect_category": "hors_ligne_editoriale",
+      "actual_accepted": false,
+      "reasons": [
+        "Ton non professionnel (spam d'emoji, majuscules criardes, style putaclic, hashtags)",
+        "absence totale de contenu informatif sur l'outil Goose",
+        "angle forcé PME sans lien honnête avec l'article"
+      ],
+      "correct": true
+    },
+    {
+      "id": "defect-off-brand-english",
+      "expected_accepted": false,
+      "defect_category": "hors_ligne_editoriale",
+      "actual_accepted": false,
+      "reasons": [
+        "Hors ligne éditoriale - ton putaclic (\"You won't believe\", \"amazing tool that will change forever\") et majuscules criardes",
+        "texte en anglais alors que le radar est en français",
+        "style spam commercial incompatible avec une veille professionnelle"
+      ],
+      "correct": true
+    },
+    {
+      "id": "defect-too-long-goose",
+      "expected_accepted": false,
+      "defect_category": "trop_long",
+      "actual_accepted": false,
+      "reasons": [
+        "trop long : 10 phrases détectées (max 6)"
+      ],
+      "correct": true
+    },
+    {
+      "id": "defect-too-long-zapier-mcp",
+      "expected_accepted": false,
+      "defect_category": "trop_long",
+      "actual_accepted": false,
+      "reasons": [
+        "trop long : 9 phrases détectées (max 6)"
+      ],
+      "correct": true
+    }
+  ]
+}
