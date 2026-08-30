@@ -102,10 +102,14 @@ de `PipelineConfig.max_scored` (inchangé, toujours la source de la
 troncature amont). Testé comme remplacement direct dans une liste de
 `Step` existante, avec résultat identique à `ScoreStep` sur `FakeLLM`
 (`tests/test_radar_workflow_concurrent.py::
-test_concurrent_score_step_is_a_drop_in_replacement_for_score_step`). Non
-câblé dans `composition.py` — même portée que les modules 4.1/4.2 : une
-capacité mesurée et testée, pas une migration de la production sans qu'on
-le demande.
+test_concurrent_score_step_is_a_drop_in_replacement_for_score_step`). Au
+moment de ce module, non câblé dans `composition.py` — même portée que les
+modules 4.1/4.2 : une capacité mesurée et testée, pas une migration de la
+production sans qu'on le demande.
+
+**Mise à jour (module 4.5, `MIGRATION.md`)** : `ConcurrentScoreStep` est
+désormais en production, câblé dans `composition.py` via
+`build_radar_steps_production`.
 
 ## Tests
 

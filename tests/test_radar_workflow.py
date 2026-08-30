@@ -4,7 +4,7 @@ from core.usage import ListUsageSink, LlmUsage
 from core.workflow.engine import WorkflowError, run_workflow
 from radar.domain import RawItem
 from radar.llm.fake import FakeLLM
-from radar.pipeline import PipelineConfig, run_pipeline
+from radar.pipeline import PipelineConfig
 from radar.tools.seen_store import InMemorySeenStore
 from radar.workflow import (
     RadarWorkflowState,
@@ -28,6 +28,8 @@ EXPECTED_STEP_NAMES = [
     "mark_seen",
 ]
 N_DRY_RUN_ITEMS = 2
+N_FRESH_AFTER_DEDUP = 3  # 5 items, 1 doublon, 1 STALE -> 3 frais
+SCORE = 7
 
 
 class _UsageReportingFakeLLM:
@@ -72,7 +74,12 @@ def test_build_radar_steps_has_expected_order() -> None:
     assert [step.name for step in steps] == EXPECTED_STEP_NAMES
 
 
-def test_radar_workflow_produces_same_drafts_as_run_pipeline() -> None:
+def test_radar_workflow_matches_known_expected_result() -> None:
+    """Fige en dur les valeurs que l'ancienne preuve d'équivalence contre
+    ``run_pipeline`` (module 4.1) avait validées — ``run_pipeline`` a été
+    supprimée au module 4.5 (chemin de production unique, cf.
+    ``MIGRATION.md``), donc plus de cible de comparaison directe, mais cette
+    étape de la migration reste sous garde-fou."""
     items = [
         _item("1", "Alpha", FRESH),
         _item("1", "Alpha (doublon)", FRESH),
@@ -81,13 +88,6 @@ def test_radar_workflow_produces_same_drafts_as_run_pipeline() -> None:
         _item("4", "Vieux", STALE),
     ]
     config = _config(k=2, max_scored=10)
-
-    pipeline_report = run_pipeline(
-        fetch_items=lambda: list(items),
-        seen_store=InMemorySeenStore(),
-        llm=FakeLLM(canned="7"),
-        config=config,
-    )
 
     steps = build_radar_steps(
         fetch_items=lambda: list(items),
@@ -99,15 +99,12 @@ def test_radar_workflow_produces_same_drafts_as_run_pipeline() -> None:
     state = run.final_state
     assert isinstance(state, RadarWorkflowState)
 
-    # Même flux, même moteur de scoring, mêmes fonctions pures réutilisées :
-    # les deux chemins doivent produire EXACTEMENT le même résultat.
-    assert len(state.drafts) == pipeline_report.n_drafted
-    assert {d.item.external_id for d in state.drafts} == {
-        d.item.external_id for d in pipeline_report.drafts
-    }
-    assert [d.score for d in state.drafts] == [d.score for d in pipeline_report.drafts]
-    assert len(state.scored) == pipeline_report.n_scored
-    assert len(state.above_threshold) == pipeline_report.n_above_threshold
+    # 5 items -> dédoublonnés à 4 (doublon "1") -> 3 frais (Vieux est STALE)
+    # -> tous scorés 7 -> top-2 par item_key ("rss:1", "rss:2").
+    assert len(state.scored) == N_FRESH_AFTER_DEDUP
+    assert len(state.above_threshold) == N_FRESH_AFTER_DEDUP  # min_score=0
+    assert {d.item.external_id for d in state.drafts} == {"1", "2"}
+    assert [d.score for d in state.drafts] == [SCORE, SCORE]
 
 
 def test_radar_workflow_marks_only_drafted_items_as_seen() -> None:
@@ -181,8 +178,8 @@ def test_radar_workflow_aborts_with_partial_trace_when_fetch_fails() -> None:
 def test_radar_workflow_recomposes_a_scoring_only_dry_run() -> None:
     """Preuve concrète de recomposition : un sous-ensemble des mêmes étapes
     (sans draft ni mark_seen) donne un dry-run de scoring, sans dupliquer de
-    code ni toucher au seen_store — impossible avec ``run_pipeline`` sans
-    l'éditer ou le copier-coller."""
+    code ni toucher au seen_store — impossible avec une fonction monolithique
+    (l'ancienne ``run_pipeline``) sans l'éditer ou la copier-coller."""
     items = [_item("1", "Alpha", FRESH), _item("2", "Beta", FRESH)]
     seen_store = InMemorySeenStore()
     full_steps = build_radar_steps(

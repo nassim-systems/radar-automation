@@ -5,7 +5,10 @@
 **Gardé.** Câblé comme `AngleStep` + `WriteStep` dans
 [`radar/workflow.py`](src/radar/workflow.py)
 (`build_radar_steps_decomposed`). Pas câblé dans `composition.py` /
-`run_pipeline` (production) — cf. « Portée » en fin de document.
+`run_pipeline` (production) au moment de ce module — cf. « Portée » en fin de
+document. **Mise à jour (module 4.5)** : `AngleStep`/`WriteStep` sont
+désormais en production, via `build_radar_steps_production` — voir
+`MIGRATION.md`.
 
 ## 1. Contexte
 
@@ -141,10 +144,16 @@ Testé : `tests/test_radar_workflow_decomposed.py` (ordre des étapes, skip
 effectif, non-marquage des items skippés, capture d'usage à travers
 score+angle+write).
 
-**Portée** : non câblé dans `composition.py::build_radar_pipeline`
-(production, toujours `run_pipeline` + mono-appel). Cohérent avec la portée
-déjà posée dans `WORKFLOW.md` : ce module ajoute une capacité mesurée et
-testée, il ne migre pas le chemin de production sans qu'on le demande.
+**Portée (au moment de ce module)** : non câblé dans
+`composition.py::build_radar_pipeline` (production, toujours `run_pipeline`
++ mono-appel). Cohérent avec la portée déjà posée dans `WORKFLOW.md` : ce
+module ajoute une capacité mesurée et testée, il ne migre pas le chemin de
+production sans qu'on le demande.
+
+**Mise à jour (module 4.5, `MIGRATION.md`)** : le chemin de production a
+depuis été consolidé sur ce workflow — `AngleStep`/`WriteStep` sont
+désormais câblés dans `composition.py` via `build_radar_steps_production`,
+et `run_pipeline` a été supprimée.
 
 ## Reproductibilité
 

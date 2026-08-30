@@ -18,6 +18,7 @@ from agent.intake.models import InboundMessage
 from agent.tools.read import CrmReadTool, KnowledgeBaseReadTool
 from agent.tools.registry import ReadToolRegistry
 from core.usage import ListUsageSink
+from core.workflow.engine import run_workflow
 from executor.execute import (
     ExecutionResult,
     JsonExecutionLedger,
@@ -25,13 +26,19 @@ from executor.execute import (
     execute,
 )
 from executor.models import ApprovedAction
+from radar.concurrent_scoring import ConcurrentScoringConfig
 from radar.domain import RawItem
 from radar.llm.anthropic_client import AnthropicClient
 from radar.observability.history import JsonRunHistoryStore
 from radar.observability.models import RunRecord
-from radar.pipeline import PipelineConfig, run_pipeline
+from radar.pipeline import PipelineConfig
 from radar.sources.rss import parse_rss
 from radar.tools.seen_store import JsonSeenStore
+from radar.workflow import (
+    RadarWorkflowState,
+    build_radar_steps_production,
+    radar_workflow_state_to_pipeline_report,
+)
 from settings import Settings
 
 _USER_AGENT = "Mozilla/5.0 (compatible; radar-automation/0.1; RSS reader)"
@@ -45,13 +52,22 @@ _MAX_SCORED = 30
 _MIN_SCORE = 8  # calibré module 3.5 : voir QUALITY.md (precision/recall par seuil)
 _MAX_HISTORY_TURNS = 20
 _LLM_MAX_TOKENS = 512  # marge pour le drafting ; le scoring reste court de fait
+_MAX_CONCURRENCY = 5  # défaut prudent, cf. CONCURRENCY.md
 
 
 def build_radar_pipeline(settings: Settings) -> Callable[[], RunRecord]:
-    """Câble ``run_pipeline`` avec les vraies implémentations. Renvoie un runner.
+    """Câble le workflow radar de production avec les vraies implémentations.
+
+    Chemin unique depuis le module 4.5 (``MIGRATION.md``) : scoring
+    concurrent borné (module 4.3) + drafting décomposé AngleAgent/
+    WriterAgent (module 4.2) via ``build_radar_steps_production``.
+    ``run_pipeline`` (module 1.x) a été supprimée — plus de voie morte.
 
     Le runner renvoie un ``RunRecord`` (rapport + usage LLM agrégé du run,
-    horodaté) et l'archive dans l'historique persistant (module 3.4).
+    horodaté) et l'archive dans l'historique persistant (module 3.4). Le
+    ``PipelineReport`` qu'il contient a exactement le même schéma qu'avant
+    cette migration (``radar_workflow_state_to_pipeline_report``) : aucune
+    régression pour ``run_report.json``/``RunHistoryStore``.
     """
     usage_sink = ListUsageSink()
     llm = AnthropicClient(
@@ -62,6 +78,7 @@ def build_radar_pipeline(settings: Settings) -> Callable[[], RunRecord]:
     seen_store = JsonSeenStore(settings.store_dir / "seen.json")
     history_store = JsonRunHistoryStore(settings.store_dir / "run_history.json")
     fetch_items = _make_feed_fetcher(settings.feed_urls)
+    concurrency_config = ConcurrentScoringConfig(max_concurrency=_MAX_CONCURRENCY)
 
     def run() -> RunRecord:
         usage_sink.calls.clear()
@@ -72,11 +89,20 @@ def build_radar_pipeline(settings: Settings) -> Callable[[], RunRecord]:
             max_scored=_MAX_SCORED,
             min_score=_MIN_SCORE,
         )
-        report = run_pipeline(
-            fetch_items=fetch_items, seen_store=seen_store, llm=llm, config=config
+        steps = build_radar_steps_production(
+            fetch_items=fetch_items,
+            seen_store=seen_store,
+            llm=llm,
+            config=config,
+            concurrency_config=concurrency_config,
+            usage_sink=usage_sink,
         )
+        workflow_run = run_workflow(
+            steps, RadarWorkflowState(), usage_sink=usage_sink
+        )
+        report = radar_workflow_state_to_pipeline_report(workflow_run.final_state)
         record = RunRecord(
-            at=datetime.now(tz=UTC), report=report, usage=usage_sink.total()
+            at=datetime.now(tz=UTC), report=report, usage=workflow_run.usage
         )
         history_store.append(record)
         return record

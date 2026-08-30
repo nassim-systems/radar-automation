@@ -1,198 +1,84 @@
-from datetime import UTC, datetime, timedelta
+"""Fonctions et types purs survivants de ``run_pipeline`` (supprimée au
+module 4.5 — voir ``MIGRATION.md``). Le comportement du pipeline complet
+(fetch → ... → mark_seen, idempotence, isolation des échecs, seuil) est
+désormais testé au niveau du workflow de production :
+``tests/test_radar_workflow_production.py``.
+"""
+from datetime import UTC, datetime
 from pathlib import Path
 
+from radar.decision.models import ScoredItem
 from radar.domain import RawItem
-from radar.llm.fake import FakeLLM
+from radar.drafting.parse import Draft
 from radar.pipeline import (
-    PipelineConfig,
+    PipelineReport,
     ScoredDraft,
-    run_pipeline,
+    filter_by_min_score,
     write_report_json,
 )
-from radar.tools.seen_store import InMemorySeenStore
 
 NOW = datetime(2026, 8, 18, 12, 0, tzinfo=UTC)
-FRESH = NOW - timedelta(days=1)
-STALE = NOW - timedelta(days=30)
-MAX_AGE = timedelta(days=7)
-
-N_FETCHED = 5
-N_DEDUP = 4
-N_FRESH = 3
-TOP_K = 2
-LLM_CALLS = 5
-SCORE = 7
-
-N_BUDGET = 5
-MAX_SCORED = 2
-
-N_ROBUST = 3
 
 
-class _BoomOnDraftLLM:
-    """Fake LLM : score normalement mais lève sur le draft d'un item marqué."""
+def _scored_item(external_id: str, score: int) -> ScoredItem:
+    return ScoredItem(
+        item=RawItem(
+            source="rss",
+            external_id=external_id,
+            title="Titre",
+            url="",
+            published_at=NOW,
+            summary="résumé",
+        ),
+        score=score,
+    )
 
-    def __init__(self, canned: str, boom_marker: str) -> None:
-        self.canned = canned
-        self.boom_marker = boom_marker
 
-    def complete(self, prompt: str) -> str:
-        if "brouillon" in prompt and self.boom_marker in prompt:
-            raise RuntimeError("draft boom")
-        return self.canned
+def test_filter_by_min_score_keeps_items_at_or_above_threshold() -> None:
+    items = [_scored_item("1", 5), _scored_item("2", 8), _scored_item("3", 10)]
+
+    result = filter_by_min_score(items, min_score=8)
+
+    assert {i.item.external_id for i in result} == {"2", "3"}
 
 
-def _item(external_id: str, title: str, published_at: datetime) -> RawItem:
-    return RawItem(
+def test_filter_by_min_score_excludes_items_below_threshold() -> None:
+    items = [_scored_item("1", 3), _scored_item("2", 5)]
+
+    assert filter_by_min_score(items, min_score=6) == []
+
+
+def test_filter_by_min_score_is_pure() -> None:
+    items = [_scored_item("1", 5)]
+    original = list(items)
+
+    filter_by_min_score(items, min_score=6)
+
+    assert items == original
+
+
+def _report_with_accented_draft(title: str) -> PipelineReport:
+    item = RawItem(
         source="rss",
-        external_id=external_id,
+        external_id="1",
         title=title,
         url="",
-        published_at=published_at,
+        published_at=NOW,
         summary="résumé",
     )
-
-
-def _config(*, k: int, max_scored: int, min_score: int = 0) -> PipelineConfig:
-    return PipelineConfig(
-        now=NOW, max_age=MAX_AGE, k=k, max_scored=max_scored, min_score=min_score
+    draft = ScoredDraft(item=item, score=7, draft=Draft(text=f"Brouillon : {title}"))
+    return PipelineReport(
+        n_fetched=1,
+        n_dedup=1,
+        n_fresh=1,
+        n_unseen=1,
+        n_scored=1,
+        n_above_threshold=1,
+        n_drafted=1,
+        n_llm_calls=1,
+        n_failures=0,
+        drafts=[draft],
     )
-
-
-def test_run_pipeline_end_to_end() -> None:
-    items = [
-        _item("1", "Alpha", FRESH),
-        _item("1", "Alpha (doublon)", FRESH),
-        _item("2", "Beta", FRESH),
-        _item("3", "Gamma", FRESH),
-        _item("4", "Vieux", STALE),
-    ]
-    store = InMemorySeenStore()
-
-    report = run_pipeline(
-        fetch_items=lambda: list(items),
-        seen_store=store,
-        llm=FakeLLM(canned="7"),
-        config=_config(k=2, max_scored=10),
-    )
-
-    assert report.n_fetched == N_FETCHED
-    assert report.n_dedup == N_DEDUP
-    assert report.n_fresh == N_FRESH
-    assert report.n_unseen == N_FRESH
-    assert report.n_scored == N_FRESH
-    assert report.n_drafted == TOP_K
-    assert report.n_failures == 0
-    assert report.n_llm_calls == LLM_CALLS
-    assert all(isinstance(d, ScoredDraft) for d in report.drafts)
-    assert {d.item.external_id for d in report.drafts} == {"1", "2"}
-    assert all(d.score == SCORE for d in report.drafts)
-
-
-def test_run_pipeline_is_idempotent() -> None:
-    items = [_item("1", "Alpha", FRESH), _item("2", "Beta", FRESH)]
-    store = InMemorySeenStore()
-    config = _config(k=5, max_scored=10)
-
-    first = run_pipeline(
-        fetch_items=lambda: list(items),
-        seen_store=store,
-        llm=FakeLLM(canned="5"),
-        config=config,
-    )
-    second = run_pipeline(
-        fetch_items=lambda: list(items),
-        seen_store=store,
-        llm=FakeLLM(canned="5"),
-        config=config,
-    )
-
-    assert first.n_drafted > 0
-    assert second.n_unseen == 0
-    assert second.n_scored == 0
-    assert second.n_drafted == 0
-    assert second.drafts == []
-
-
-def test_run_pipeline_respects_max_scored() -> None:
-    items = [_item(str(i), f"Item {i}", FRESH) for i in range(N_BUDGET)]
-    store = InMemorySeenStore()
-
-    report = run_pipeline(
-        fetch_items=lambda: list(items),
-        seen_store=store,
-        llm=FakeLLM(canned="5"),
-        config=_config(k=10, max_scored=MAX_SCORED),
-    )
-
-    assert report.n_unseen == N_BUDGET
-    assert report.n_scored == MAX_SCORED
-    assert report.n_drafted == MAX_SCORED
-
-
-def test_run_pipeline_isolates_draft_failure() -> None:
-    items = [
-        _item("1", "Alpha", FRESH),
-        _item("2", "BOOM", FRESH),
-        _item("3", "Gamma", FRESH),
-    ]
-    store = InMemorySeenStore()
-
-    report = run_pipeline(
-        fetch_items=lambda: list(items),
-        seen_store=store,
-        llm=_BoomOnDraftLLM(canned="5", boom_marker="BOOM"),
-        config=_config(k=10, max_scored=10),
-    )
-
-    assert report.n_scored == N_ROBUST
-    assert report.n_failures == 1
-    assert report.n_drafted == N_ROBUST - 1
-    assert "BOOM" not in {d.item.title for d in report.drafts}
-
-
-def test_run_pipeline_retries_failed_draft() -> None:
-    items = [_item("1", "Alpha", FRESH), _item("2", "BOOM", FRESH)]
-    store = InMemorySeenStore()
-    config = _config(k=10, max_scored=10)
-
-    # run 1 : le draft de BOOM échoue -> BOOM n'est PAS marqué vu
-    first = run_pipeline(
-        fetch_items=lambda: list(items),
-        seen_store=store,
-        llm=_BoomOnDraftLLM(canned="5", boom_marker="BOOM"),
-        config=config,
-    )
-    assert first.n_failures == 1
-    assert "BOOM" not in {d.item.title for d in first.drafts}
-
-    # run 2 : LLM sain -> BOOM, resté à voir, est retenté et drafté
-    second = run_pipeline(
-        fetch_items=lambda: list(items),
-        seen_store=store,
-        llm=FakeLLM(canned="5"),
-        config=config,
-    )
-    assert second.n_unseen == 1
-    assert second.n_drafted == 1
-    assert {d.item.title for d in second.drafts} == {"BOOM"}
-
-
-def test_run_pipeline_skips_drafts_below_min_score() -> None:
-    items = [_item("1", "Alpha", FRESH), _item("2", "Beta", FRESH)]
-    store = InMemorySeenStore()
-
-    report = run_pipeline(
-        fetch_items=lambda: list(items),
-        seen_store=store,
-        llm=FakeLLM(canned="3"),  # score 3, sous le seuil 6
-        config=_config(k=5, max_scored=10, min_score=6),
-    )
-
-    assert report.n_scored == len(items)
-    assert report.n_above_threshold == 0
-    assert report.n_drafted == 0
-    assert report.drafts == []
 
 
 def test_pipeline_report_survives_utf8_round_trip(tmp_path: Path) -> None:
@@ -202,15 +88,7 @@ def test_pipeline_report_survives_utf8_round_trip(tmp_path: Path) -> None:
     codepage Windows (cp850/cp1252) — le symptôme exact du bug corrigé par
     l'écriture UTF-8 explicite de ``write_report_json``.
     """
-    items = [_item("1", "Le réseau électrique sous tension", FRESH)]
-    store = InMemorySeenStore()
-
-    report = run_pipeline(
-        fetch_items=lambda: list(items),
-        seen_store=store,
-        llm=FakeLLM(canned="7"),
-        config=_config(k=5, max_scored=10),
-    )
+    report = _report_with_accented_draft("Le réseau électrique sous tension")
 
     out = tmp_path / "run_report.json"
     write_report_json(report, out)

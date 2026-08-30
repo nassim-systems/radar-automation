@@ -182,6 +182,13 @@ ce module ajoute une seconde voie, il n'en retire aucune.
   de ce module (« au moins un workflow réel »), mais la forme s'y prêterait
   de la même façon.
 
+> **Mise à jour (module 4.5, voir `MIGRATION.md`)** : la migration
+> initialement différée ci-dessus a eu lieu. `run_pipeline` a été
+> **supprimée** — `composition.py::build_radar_pipeline` câble désormais
+> `build_radar_steps_production` (scoring concurrent + drafting décomposé).
+> C'est précisément l'équivalence prouvée dans ce document qui a rendu la
+> migration sûre.
+
 ## Tests
 
 - `tests/test_workflow_engine.py` : moteur générique isolé (état factice,

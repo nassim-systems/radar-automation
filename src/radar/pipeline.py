@@ -1,19 +1,22 @@
+"""Types et fonctions pures partagés par le pipeline radar.
+
+``run_pipeline`` (la fonction monolithique séquentielle du module 1.x) a été
+supprimée au module 4.5 : ``radar/workflow.py`` (``build_radar_steps_production``,
+scoring concurrent + drafting décomposé) est désormais l'unique chemin de
+production, câblé dans ``composition.py``. Voir ``MIGRATION.md`` pour
+l'arbitrage. Ce module conserve les types et fonctions pures que le workflow
+réutilise : ``PipelineConfig``, ``PipelineReport``, ``ScoredDraft``,
+``filter_by_min_score``, ``write_report_json``.
+"""
 import json
-from collections.abc import Callable
 from datetime import datetime, timedelta
 from pathlib import Path
 
 from pydantic import BaseModel
 
 from radar.decision.models import ScoredItem
-from radar.decision.select_top_k import select_top_k
 from radar.domain import RawItem
-from radar.drafting.parse import Draft, parse_draft
-from radar.drafting.prompt import build_draft_prompt
-from radar.ingest import deduplicate, filter_fresh, filter_unseen, item_key
-from radar.llm.base import LLMClient
-from radar.scoring import score_item
-from radar.tools.seen_store import SeenStore
+from radar.drafting.parse import Draft
 
 
 class PipelineConfig(BaseModel):
@@ -62,76 +65,4 @@ def write_report_json(report: PipelineReport, out: str | Path) -> None:
     Path(out).write_text(
         json.dumps(report.model_dump(mode="json"), ensure_ascii=False, indent=2),
         encoding="utf-8",
-    )
-
-
-def run_pipeline(
-    *,
-    fetch_items: Callable[[], list[RawItem]],
-    seen_store: SeenStore,
-    llm: LLMClient,
-    config: PipelineConfig,
-) -> PipelineReport:
-    """Exécute le pipeline complet avec dépendances injectées.
-
-    Étages : ``fetch → dedup → fresh → unseen → score → filter_by_min_score
-    → select_top_k → draft``.
-
-    - **Budget LLM** : au plus ``config.max_scored`` items sont scorés.
-    - **Seuil de pertinence** : ``filter_by_min_score`` retire, avant la
-      sélection du top-K, les items de score < ``config.min_score`` (ils ne
-      consomment donc pas une place de ``k`` au détriment d'un item
-      pertinent) ; ``n_above_threshold`` compte les items retenus à ce stade.
-      Si aucun n'atteint le seuil, aucun brouillon n'est produit.
-    - **Idempotence** : seuls les items **draftés avec succès** sont marqués
-      vus dans ``seen_store``. Un item non retenu (budget/seuil/top-k) ou
-      dont le draft échoue reste « à voir » et sera retenté au run suivant.
-    - **Isolation des échecs** : seul l'appel ``llm.complete`` est isolé (un
-      échec LLM est compté dans ``n_failures`` sans tuer le run) ; un bug de
-      code dans la construction du prompt ou le parsing se propage.
-    - **Appariement** : chaque brouillon est un ``ScoredDraft`` (item + score).
-    """
-    fetched = fetch_items()
-    deduped = deduplicate(fetched)
-    fresh_items = filter_fresh(deduped, now=config.now, max_age=config.max_age)
-    unseen_items = filter_unseen(fresh_items, seen_store.load_seen())
-
-    n_llm_calls = 0
-    scored: list[ScoredItem] = []
-    for item in unseen_items[: config.max_scored]:
-        n_llm_calls += 1
-        scored.append(ScoredItem(item=item, score=score_item(item, llm).score))
-
-    above_threshold = filter_by_min_score(scored, config.min_score)
-    top = select_top_k(above_threshold, config.k)
-
-    drafts: list[ScoredDraft] = []
-    n_failures = 0
-    for entry in top:
-        prompt = build_draft_prompt(entry.item)
-        n_llm_calls += 1
-        try:
-            response = llm.complete(prompt)
-        except Exception:
-            # Seul l'appel LLM est isolé ; build_draft_prompt/parse_draft
-            # (code pur) se propagent volontairement.
-            n_failures += 1
-            continue
-        draft = parse_draft(response)
-        drafts.append(ScoredDraft(item=entry.item, score=entry.score, draft=draft))
-
-    # Idempotence : ne marquer vus QUE les items draftés avec succès.
-    seen_store.add_seen(item_key(sd.item) for sd in drafts)
-
-    return PipelineReport(
-        n_fetched=len(fetched),
-        n_dedup=len(deduped),
-        n_fresh=len(fresh_items),
-        n_unseen=len(unseen_items),
-        n_scored=len(scored),
-        n_above_threshold=len(above_threshold),
-        n_drafted=len(drafts),
-        n_llm_calls=n_llm_calls,
-        n_failures=n_failures,
-        drafts=drafts,
     )
