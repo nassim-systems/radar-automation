@@ -1,0 +1,98 @@
+{
+  "source": "heldout_representative.json, items label>=8 (module 4.2)",
+  "n_items": 10,
+  "mono_usage": {
+    "input_tokens": 2235,
+    "output_tokens": 1340,
+    "cost_usd": 0.008935
+  },
+  "decomposed_usage": {
+    "input_tokens": 5927,
+    "output_tokens": 1796,
+    "cost_usd": 0.014907
+  },
+  "n_decomposed_drafted": 9,
+  "n_decomposed_skipped_no_angle": 1,
+  "results": [
+    {
+      "title": "The best automation software for small business in 2026",
+      "human_label": 10,
+      "mono_draft": "# Brouillon de post\nVous cherchez à automatiser vos tâches sans multiplier les outils ? Zapier pourrait être la solution : cet outil se connecte à pratiquement toutes vos applications et fonctionne sur tous les domaines de votre activité. Le meilleur ? Il grandit avec vous, du plan gratuit jusqu'aux workflows avancés, sans jamais avoir besoin de changer de plateforme. Gagnez du temps et simplifiez votre gestion opérationnelle ! 🚀",
+      "angle_has_angle": true,
+      "angle_text": "Comment choisir entre un outil généraliste (Zapier) et des solutions spécialisées selon la maturité et les besoins spécifiques de sa PME",
+      "decomposed_draft": "# Brouillon de post\n**Zapier ou solutions spécialisées : quel choix pour votre PME ?**\nZapier s'impose comme la solution généraliste idéale si vous cherchez un outil unique capable de connecter tous vos logiciels et d'évoluer avec votre entreprise, du plan gratuit aux workflows d'envergure. Cependant, si vos besoins demandent une approche plus ciblée et spécialisée, d'autres solutions peuvent mieux répondre à votre contexte spécifique. Le choix dépend vraiment de votre maturité actuelle et de vos priorités métier."
+    },
+    {
+      "title": "How Rozas uses Zapier to give every lead a 2-minute headstart",
+      "human_label": 9,
+      "mono_draft": "# Brouillon de post\nGérer 1 800 appels par semaine, c'est un défi ! Chez Rozas, ils ont trouvé la solution : automatiser le passage des demandes clients vers leur système de gestion avec Zapier. Résultat ? Chaque nouveau dossier gagne 2 minutes précieuses, éliminant les délais manuels et permettant à l'équipe de se concentrer sur ce qui compte vraiment : servir les clients. Une petite optimisation qui fait toute la différence quand on traite des centaines de dossiers.",
+      "angle_has_angle": true,
+      "angle_text": "Comment automatiser le premier contact client pour gagner du temps opérationnel quand on gère un fort volume d'appels entrants (cas applicable aux PME de services B2C avec intake/qualification).",
+      "decomposed_draft": "# Brouillon de post\n**Gérer 1 800 appels par semaine sans perdre de temps ?** Chez Rozas, cabinet d'immigration, le défi était de taille. La solution : automatiser le premier contact client pour que chaque demande soit traitée en 2 minutes, sans attendre que l'équipe d'intake la saisisse manuellement. En éliminant ce gap critique entre l'appel et l'enregistrement, le cabinet gagne en réactivité et en efficacité opérationnelle. **Un gain de temps précieux quand chaque lead compte.**"
+    },
+    {
+      "title": "Zapier MCP: Perform tens of thousands of actions in your AI tool",
+      "human_label": 8,
+      "mono_draft": "# Brouillon de post\n🤖 **L'IA au service de vos processus métier**\nLes modèles d'IA peuvent analyser et rédiger, mais exécuter des actions concrètes dans vos outils ? C'était compliqué jusqu'à présent. Grâce au Model Context Protocol (MCP), fini les intégrations complexes : votre IA peut désormais agir directement dans les applications que vous utilisez au quotidien. Une vraie simplification pour automatiser vos tâches sans prise de tête technique !\n#IA #Automatisation #PME",
+      "angle_has_angle": true,
+      "angle_text": "Comment les PME peuvent automatiser des actions répétitives dans leurs outils métier (CRM, comptabilité, etc.) sans développeur, grâce aux protocoles MCP qui connectent directement l'IA à leurs applications existantes.",
+      "decomposed_draft": "# Brouillon de post\n**Automatiser sans développeur : le MCP change la donne pour les PME**\nJusqu'à présent, faire agir l'IA directement dans vos outils métier (CRM, comptabilité…) nécessitait l'intervention d'un développeur pour construire des intégrations complexes. Le Model Context Protocol (MCP) change la donne : ce protocole agit comme un traducteur entre vos outils IA et vos applications existantes, permettant à l'IA d'exécuter des actions en votre nom sans lourd travail technique. Avec le MCP, les PME peuvent enfin automatiser des tâches répétitives directement dans leurs logiciels habituels, simplement et rapidement."
+    },
+    {
+      "title": "The Zappy Award winner behind Just Eat Spain’s faster partner onboarding",
+      "human_label": 9,
+      "mono_draft": "# Brouillon de post\n**Optimiser l'onboarding de vos partenaires : la clé pour accélérer votre croissance**\nChez Just Eat Spain, une nouvelle automation a permis de réduire le délai de mise en ligne des restaurants partenaires de 13 jours à seulement 5 jours. Comment ? En automatisant les échanges entre les équipes (ventes, opérations, logistique et gestion de compte) et en éliminant les tâches manuelles répétitives. Pour une PME, cela signifie des partenaires opérationnels plus rapidement et moins de ressources consacrées aux tâches administratives. Une belle leçon d'efficacité ! 🚀",
+      "angle_has_angle": true,
+      "angle_text": "Comment automatiser les handoffs entre départements pour réduire drastiquement les délais de mise en production (exemple concret : passer de 13 à 5 jours en éliminant les ressaisies manuelles).",
+      "decomposed_draft": "# Brouillon de post\n**Passer de 13 à 5 jours : comment automatiser les handoffs entre départements**\nChez Just Eat Spain, Rubén del Fresno a conçu un système d'automatisation qui réduit drastiquement le délai de mise en ligne des restaurants partenaires. Avant, chaque département (Sales, Operations, Logistique, Account Management) devait rechercher manuellement les données du partenaire, consulter un tableau de bord et ressaisir les informations pour l'étape suivante. En éliminant ces ressaisies manuelles et en automatisant les handoffs entre les cinq équipes, le temps de traitement est passé de 13 jours à environ 5 jours. Une preuve que l'automatisation des transitions inter-départements libère du temps et accélère la mise en production."
+    },
+    {
+      "title": "Build multi-agent teams that remember every customer with Amazon Bedrock AgentCore",
+      "human_label": 8,
+      "mono_draft": "# Brouillon de post\nImaginez des agents IA spécialisés qui travaillent ensemble pour vos clients, sans jamais leur demander de répéter leurs questions. Avec Amazon Bedrock AgentCore, créez des équipes d'agents intelligents qui partagent une mémoire commune par client : un agent oriente les demandes, tandis que d'autres calculent, recherchent des solutions ou enquêtent. Résultat : une expérience client plus fluide et efficace, même pour les PME.",
+      "angle_has_angle": false,
+      "angle_text": null,
+      "decomposed_draft": null
+    },
+    {
+      "title": "RPA vs. Workflow Automation: Building Automation That Lasts",
+      "human_label": 8,
+      "mono_draft": "# Brouillon de post\nVous hésitez entre RPA et workflow automation pour automatiser vos processus ? Ces deux approches n'offrent pas les mêmes garanties en termes de fiabilité, sécurité et scalabilité. Découvrez comment les comparer pour choisir la solution qui s'adapte vraiment à votre PME et garantit une automatisation durable dans le temps.",
+      "angle_has_angle": true,
+      "angle_text": "Choisir entre RPA et workflow automation selon ses contraintes réelles (fiabilité, sécurité, scalabilité) plutôt que de suivre la tendance, pour éviter une mauvaise implémentation coûteuse.",
+      "decomposed_draft": "# Brouillon de post\nRPA ou workflow automation ? Avant de choisir en suivant la tendance, il faut d'abord évaluer vos vrais besoins : fiabilité, sécurité, scalabilité et maintenabilité à long terme. Ces deux approches ne répondent pas aux mêmes contraintes opérationnelles. Comparer leur performance sur ces critères concrets vous permettra d'éviter une implémentation coûteuse qui ne tiendrait pas dans le temps."
+    },
+    {
+      "title": "Workflow Versioning for Reliable Automation and Maintenance",
+      "human_label": 8,
+      "mono_draft": "# Brouillon de post\n**Maîtrisez vos automatisations avec le versioning de workflows** 🔄\nVous utilisez des workflows pour automatiser vos processus ? Découvrez comment le versioning basé sur Git vous permet de suivre chaque modification, de gérer vos différents environnements et surtout de revenir en arrière en toute sécurité en cas de problème en production. Une solution simple pour gagner en fiabilité et en tranquillité d'esprit !",
+      "angle_has_angle": true,
+      "angle_text": "Comment une PME peut sécuriser ses automatisations métier en versionnant ses workflows comme du code, pour éviter les blocages en production et faciliter les corrections rapides.",
+      "decomposed_draft": "# Brouillon de post\nVos workflows métier sont critiques, mais difficiles à corriger rapidement en production ? Le versioning de workflows fonctionne comme du code : avec Git, vous tracez chaque modification, gérez vos environnements et pouvez revenir en arrière en cas de problème. Une approche simple pour sécuriser vos automatisations et éviter les blocages coûteux."
+    },
+    {
+      "title": "Goose",
+      "human_label": 9,
+      "mono_draft": "# Brouillon de post\nDécouvrez Goose, un agent IA local qui automatise vos tâches quotidiennes directement sur votre ordinateur. Contrairement aux solutions cloud, ce logiciel vous permet de garder le contrôle de vos données tout en gagnant du temps sur les opérations répétitives. Idéal pour les PME qui cherchent à optimiser leur productivité sans dépendre d'une connexion externe. Une solution simple et efficace pour moderniser votre workflow ! 🚀",
+      "angle_has_angle": true,
+      "angle_text": "Un outil pour automatiser des tâches répétitives sans dépendre d'API cloud payantes, réduisant les coûts d'infrastructure pour les PME avec des ressources informatiques limitées.",
+      "decomposed_draft": "# Brouillon de post\nDécouvrez Goose, un logiciel qui vous permet d'exécuter des tâches automatisées directement en local grâce à un agent IA. Fini la dépendance aux API cloud payantes : vous gardez le contrôle de vos données et maîtrisez vos coûts d'infrastructure. Une solution idéale pour les PME qui souhaitent automatiser sans surcharger leur budget informatique."
+    },
+    {
+      "title": "Base44",
+      "human_label": 9,
+      "mono_draft": "# Brouillon de post\nDécouvrez Base44, l'outil de vibe coding qui révolutionne la création d'applications ! 🚀 Fini les barrières techniques : créez vos propres solutions sans avoir besoin de compétences en programmation. Idéal pour les PME qui souhaitent gagner du temps et réduire leurs coûts de développement. Simplifiez votre transformation numérique dès aujourd'hui !",
+      "angle_has_angle": true,
+      "angle_text": "Une PME sans ressources dev peut prototyper rapidement des applications métier en décrivant simplement ce qu'elle veut, sans recruter de développeur ou sous-traiter du code.",
+      "decomposed_draft": "# Brouillon de post\n**Base44 : créer vos apps métier sans développeur**\nVous avez une idée d'application pour votre PME mais pas de ressources dev ? Base44 change la donne en vous permettant de créer des applications sans coder. Il suffit de décrire ce que vous voulez, et l'outil se charge du reste. Fini les délais d'attente et les coûts de développement : prototypez rapidement vos solutions métier en interne."
+    },
+    {
+      "title": "Scraper Studio by Bright Data",
+      "human_label": 8,
+      "mono_draft": "# Brouillon de post\nDécouvrez Scraper Studio by Bright Data, une solution de scraping web révolutionnaire ! Grâce à la génération automatique de scrapers par IA, collectez les données web dont vous avez besoin sans compétences techniques complexes. Gagnez du temps et optimisez votre veille concurrentielle, vos études de marché ou votre prospection commerciale. Une solution pensée pour simplifier l'accès aux données pour les PME.",
+      "angle_has_angle": true,
+      "angle_text": "Automatiser la collecte de données web (prix concurrents, leads, données marché) sans développeur, pour les PME qui manquent de ressources techniques internes.",
+      "decomposed_draft": "# Brouillon de post\nScraper Studio by Bright Data propose une solution de scraping web pilotée par IA, capable de générer automatiquement des scrapers sans nécessiter de compétences en développement. Pour les PME qui manquent de ressources techniques internes, c'est une opportunité de collecter facilement des données web — prix concurrents, leads, données marché — sans dépendre d'un développeur. Une approche qui démocratise l'accès à l'intelligence commerciale."
+    }
+  ]
+}

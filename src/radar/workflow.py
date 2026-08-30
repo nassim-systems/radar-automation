@@ -1,12 +1,15 @@
-"""Le pipeline radar exprimé comme un ``Workflow`` (module 4.1).
+"""Le pipeline radar exprimé comme un ``Workflow`` (module 4.1) — avec la
+variante décomposée AngleAgent + WriterAgent (module 4.2, retenue après
+mesure : voir ``ANGLE_AGENT.md``).
 
 Ne réimplémente AUCUNE logique : chaque ``Step`` délègue à la même fonction
 pure que ``run_pipeline`` (``radar/pipeline.py``) utilise déjà —
 ``deduplicate``, ``filter_fresh``, ``filter_unseen``, ``score_item``,
 ``filter_by_min_score``, ``select_top_k``, ``build_draft_prompt``/
-``parse_draft``. ``run_pipeline`` n'est pas modifié et reste le chemin de
-production (``composition.py``) : ce module est une démonstration parallèle
-de l'abstraction ``core.workflow``, pas un remplacement. Voir ``WORKFLOW.md``.
+``parse_draft`` (mono-appel), ``decide_angle``/``write_draft`` (décomposé).
+``run_pipeline`` n'est pas modifié et reste le chemin de production
+(``composition.py``) : ce module est une démonstration parallèle de
+l'abstraction ``core.workflow``, pas un remplacement. Voir ``WORKFLOW.md``.
 """
 from collections.abc import Callable
 
@@ -17,8 +20,10 @@ from core.workflow.models import WorkflowState
 from radar.decision.models import ScoredItem
 from radar.decision.select_top_k import select_top_k
 from radar.domain import RawItem
+from radar.drafting.angle import Angle, decide_angle
 from radar.drafting.parse import parse_draft
 from radar.drafting.prompt import build_draft_prompt
+from radar.drafting.writer import write_draft
 from radar.ingest import deduplicate, filter_fresh, filter_unseen, item_key
 from radar.llm.base import LLMClient
 from radar.pipeline import PipelineConfig, ScoredDraft, filter_by_min_score
@@ -40,8 +45,10 @@ class RadarWorkflowState(WorkflowState):
     scored: list[ScoredItem] = Field(default_factory=list)
     above_threshold: list[ScoredItem] = Field(default_factory=list)
     top_k: list[ScoredItem] = Field(default_factory=list)
+    angled: list[tuple[ScoredItem, Angle]] = Field(default_factory=list)
     drafts: list[ScoredDraft] = Field(default_factory=list)
     n_failures: int = 0
+    n_skipped_no_angle: int = 0
 
 
 def _as_radar_state(state: WorkflowState) -> RadarWorkflowState:
@@ -171,6 +178,59 @@ class DraftStep:
         return s.model_copy(update={"drafts": drafts, "n_failures": n_failures})
 
 
+class AngleStep:
+    """Décide l'angle éditorial de chaque item du top-k (module 4.2).
+
+    ``Angle.has_angle=False`` est une issue légitime, pas un échec : c'est
+    précisément ce qui manquait au mono-appel ``DraftStep``, qui rédige
+    toujours quelque chose même quand aucun angle PME honnête n'existe. Voir
+    ``ANGLE_AGENT.md`` pour la mesure ayant motivé ce choix."""
+
+    name = "angle"
+
+    def __init__(self, llm: LLMClient) -> None:
+        self._llm = llm
+
+    def run(self, state: WorkflowState) -> WorkflowState:
+        s = _as_radar_state(state)
+        angled = [(entry, decide_angle(entry.item, self._llm)) for entry in s.top_k]
+        return s.model_copy(update={"angled": angled})
+
+
+class WriteStep:
+    """Rédige uniquement les items avec un angle retenu par ``AngleStep`` —
+    remplace ``DraftStep`` dans la composition décomposée. Même isolation
+    des échecs LLM item par item que ``DraftStep``."""
+
+    name = "write"
+
+    def __init__(self, llm: LLMClient) -> None:
+        self._llm = llm
+
+    def run(self, state: WorkflowState) -> WorkflowState:
+        s = _as_radar_state(state)
+        drafts: list[ScoredDraft] = []
+        n_failures = 0
+        n_skipped = 0
+        for entry, angle in s.angled:
+            if not angle.has_angle:
+                n_skipped += 1
+                continue
+            try:
+                draft = write_draft(entry.item, angle, self._llm)
+            except Exception:
+                n_failures += 1
+                continue
+            drafts.append(ScoredDraft(item=entry.item, score=entry.score, draft=draft))
+        return s.model_copy(
+            update={
+                "drafts": drafts,
+                "n_failures": s.n_failures + n_failures,
+                "n_skipped_no_angle": n_skipped,
+            }
+        )
+
+
 class MarkSeenStep:
     """Idempotence : ne marque vus que les items draftés avec succès — comme
     ``run_pipeline``. Étape à part entière (pas un effet de bord caché dans
@@ -213,5 +273,30 @@ def build_radar_steps(
         FilterByMinScoreStep(config),
         SelectTopKStep(config),
         DraftStep(llm),
+        MarkSeenStep(seen_store),
+    ]
+
+
+def build_radar_steps_decomposed(
+    *,
+    fetch_items: Callable[[], list[RawItem]],
+    seen_store: SeenStore,
+    llm: LLMClient,
+    config: PipelineConfig,
+) -> list[Step]:
+    """Variante décomposée (module 4.2) : ``AngleStep`` + ``WriteStep``
+    remplacent ``DraftStep``. Retenue après comparaison mesurée sur le
+    held-out réel — voir ``ANGLE_AGENT.md`` (décision, coût, exemples).
+    """
+    return [
+        FetchStep(fetch_items),
+        DeduplicateStep(),
+        FilterFreshStep(config),
+        FilterUnseenStep(seen_store),
+        ScoreStep(llm, config),
+        FilterByMinScoreStep(config),
+        SelectTopKStep(config),
+        AngleStep(llm),
+        WriteStep(llm),
         MarkSeenStep(seen_store),
     ]
