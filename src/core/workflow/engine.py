@@ -1,4 +1,5 @@
 import time
+from datetime import UTC, datetime
 from typing import Protocol
 
 from core.usage import ListUsageSink, LlmUsage
@@ -53,6 +54,11 @@ def run_workflow(
       suivantes qui dépendent de son résultat. La résilience fine (item par
       item, ex. un échec LLM isolé) reste la responsabilité de chaque étape,
       pas de l'orchestrateur — cf. ``WORKFLOW.md``.
+    - **Horodatage (module 4.6)** : chaque étape porte son instant de début
+      et de fin (UTC) en plus de sa durée monotone, et le run porte les
+      siens. La latence de bout en bout du run n'est pas la somme des
+      étapes : l'écart mesure le coût d'orchestration, gardé visible plutôt
+      que dissous. Cf. ``OBSERVABILITY.md``.
     - **Observabilité réutilisée, pas réinventée** : ``usage_sink`` est le
       ``ListUsageSink`` du module 3.4, injecté dans les clients LLM que les
       étapes utilisent en interne. ``run_workflow`` ne fait qu'en lire le
@@ -63,7 +69,10 @@ def run_workflow(
     sink = usage_sink if usage_sink is not None else ListUsageSink()
     state = initial
     trace: list[StepTrace] = []
+    run_started_at = datetime.now(tz=UTC)
+    run_started = time.monotonic()
     for step in steps:
+        step_started_at = datetime.now(tz=UTC)
         started = time.monotonic()
         try:
             state = step.run(state)
@@ -71,6 +80,8 @@ def run_workflow(
             trace.append(
                 StepTrace(
                     name=step.name,
+                    started_at=step_started_at,
+                    ended_at=datetime.now(tz=UTC),
                     duration_seconds=time.monotonic() - started,
                     ok=False,
                     error=str(error),
@@ -85,8 +96,17 @@ def run_workflow(
         trace.append(
             StepTrace(
                 name=step.name,
+                started_at=step_started_at,
+                ended_at=datetime.now(tz=UTC),
                 duration_seconds=time.monotonic() - started,
                 ok=True,
             )
         )
-    return WorkflowRun(final_state=state, trace=trace, usage=sink.total())
+    return WorkflowRun(
+        final_state=state,
+        trace=trace,
+        usage=sink.total(),
+        started_at=run_started_at,
+        ended_at=datetime.now(tz=UTC),
+        duration_seconds=time.monotonic() - run_started,
+    )

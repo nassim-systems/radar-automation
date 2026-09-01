@@ -39,3 +39,25 @@ class ListUsageSink:
             output_tokens=sum(u.output_tokens for u in self.calls),
             cost_usd=sum(u.cost_usd for u in self.calls),
         )
+
+
+class TeeUsageSink:
+    """Diffuse chaque usage à plusieurs sinks, dans l'ordre donné.
+
+    Nécessaire depuis le module 4.6 (``OBSERVABILITY.md``) : le budget dur du
+    scoring concurrent lit le total agrégé d'un ``ListUsageSink`` (module 4.3)
+    tandis que la timeline d'appels attribue le même usage à l'appel LLM en
+    cours. Deux consommateurs, une seule source — plutôt que deux comptages
+    parallèles qui pourraient diverger.
+
+    Aucune politique propre : ni filtrage, ni transformation, ni absorption
+    d'erreur. Si un sink lève, l'erreur se propage (un sink cassé est un bug,
+    pas un incident à avaler).
+    """
+
+    def __init__(self, sinks: list[UsageSink]) -> None:
+        self._sinks = sinks
+
+    def record(self, usage: LlmUsage) -> None:
+        for sink in self._sinks:
+            sink.record(usage)

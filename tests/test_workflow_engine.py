@@ -73,6 +73,13 @@ def test_run_workflow_records_trace_with_names_order_and_success() -> None:
     assert all(t.ok for t in run.trace)
     assert all(t.duration_seconds >= 0 for t in run.trace)
     assert all(t.error is None for t in run.trace)
+    # Horodatage (module 4.6) : chaque étape est situable dans le temps réel,
+    # et les étapes se suivent dans l'ordre où le moteur les a exécutées.
+    assert all(t.started_at <= t.ended_at for t in run.trace)
+    assert run.trace[0].started_at <= run.trace[1].started_at
+    assert run.started_at <= run.trace[0].started_at
+    assert run.ended_at >= run.trace[-1].ended_at
+    assert run.duration_seconds >= sum(t.duration_seconds for t in run.trace)
 
 
 def test_run_workflow_empty_steps_returns_initial_state_unchanged() -> None:
@@ -82,6 +89,9 @@ def test_run_workflow_empty_steps_returns_initial_state_unchanged() -> None:
 
     assert run.final_state == initial
     assert run.trace == []
+    # Un workflow vide reste un run mesuré : durée nulle, pas d'absence de trace.
+    assert run.duration_seconds >= 0
+    assert run.started_at <= run.ended_at
 
 
 def test_run_workflow_creates_default_sink_when_none_provided() -> None:
@@ -117,6 +127,9 @@ def test_run_workflow_aborts_on_step_failure_and_wraps_with_partial_trace() -> N
     assert [t.name for t in error.trace] == ["a", "boom"]
     assert error.trace[0].ok is True
     assert error.trace[1].ok is False
+    # L'étape en échec est horodatée comme les autres : c'est précisément
+    # celle dont on veut savoir quand et combien de temps elle a échoué.
+    assert error.trace[1].started_at <= error.trace[1].ended_at
     assert "boom" in (error.trace[1].error or "")
     assert isinstance(error.original, RuntimeError)
 

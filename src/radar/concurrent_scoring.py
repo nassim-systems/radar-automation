@@ -89,13 +89,14 @@ def _score_one_with_retry(
             return None, retries
 
 
-def score_items_concurrently(
+def score_items_concurrently(  # noqa: PLR0913
     items: list[RawItem],
     llm: LLMClient,
     *,
     config: ConcurrentScoringConfig | None = None,
     usage_sink: ListUsageSink | None = None,
     sleep: Callable[[float], None] = time.sleep,
+    wrap_llm: Callable[[RawItem], LLMClient] | None = None,
 ) -> ConcurrentScoreReport:
     """Score ``items`` en parallèle, borné à ``config.max_concurrency`` appels
     simultanés, réassemblés dans l'ordre d'entrée.
@@ -107,11 +108,24 @@ def score_items_concurrently(
     est borné à un lot (``max_concurrency`` appels), jamais illimité. Cf.
     ``CONCURRENCY.md`` pour la politique complète (troncature, pas d'erreur
     levée).
+
+    ``wrap_llm`` (module 4.6) est un seam d'instrumentation : si fourni, il
+    est appelé une fois par item pour obtenir le client à utiliser pour cet
+    item — c'est ainsi que la ``CallTimeline`` attribue chaque appel à son
+    item sans que ce module connaisse quoi que ce soit à l'observabilité. Le
+    défaut (aucun wrapping) laisse le comportement strictement inchangé.
+    Six paramètres pour six seams réellement distincts : ``noqa`` assumé,
+    comme pour ``build_radar_steps_production`` (module 4.5), plutôt qu'un
+    objet de configuration artificiel qui mélangerait réglages et
+    dépendances injectées.
     """
     cfg = config if config is not None else ConcurrentScoringConfig()
     if cfg.max_concurrency < 1:
         raise ValueError("max_concurrency doit être >= 1")
     sink = usage_sink if usage_sink is not None else ListUsageSink()
+
+    def wrap(item: RawItem) -> LLMClient:
+        return llm if wrap_llm is None else wrap_llm(item)
 
     indexed = list(enumerate(items))
     ordered: list[tuple[int, ScoredItem]] = []
@@ -133,7 +147,7 @@ def score_items_concurrently(
             n_attempted += len(batch)
             futures = {
                 executor.submit(
-                    _score_one_with_retry, item, llm, cfg.retry, sleep
+                    _score_one_with_retry, item, wrap(item), cfg.retry, sleep
                 ): index
                 for index, item in batch
             }

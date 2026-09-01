@@ -35,6 +35,7 @@ from radar.drafting.prompt import build_draft_prompt
 from radar.drafting.writer import write_draft
 from radar.ingest import deduplicate, filter_fresh, filter_unseen, item_key
 from radar.llm.base import LLMClient
+from radar.llm.timing import CallSubject, CallTimeline, TimedLLMClient
 from radar.pipeline import (
     PipelineConfig,
     PipelineReport,
@@ -78,6 +79,30 @@ def _as_radar_state(state: WorkflowState) -> RadarWorkflowState:
             f"attendu RadarWorkflowState, reçu {type(state).__name__}"
         )
     return state
+
+
+def _timed(
+    llm: LLMClient,
+    timeline: CallTimeline | None,
+    phase: str,
+    item: RawItem,
+) -> LLMClient:
+    """Décore ``llm`` pour attribuer ses appels à ``item`` dans ``phase``.
+
+    Sans timeline, renvoie le client tel quel : l'instrumentation est
+    strictement optionnelle et n'introduit aucun chemin de code différent
+    dans les étapes (module 4.6, cf. ``OBSERVABILITY.md``). Le nom de phase
+    est celui de l'étape — c'est ce qui permet de rapprocher plus tard le
+    temps cumulé des appels du temps réel de l'étape.
+    """
+    if timeline is None:
+        return llm
+    return TimedLLMClient(
+        llm,
+        timeline,
+        phase=phase,
+        subject=CallSubject(key=item_key(item), title=item.title, url=item.url),
+    )
 
 
 class FetchStep:
@@ -128,15 +153,26 @@ class FilterUnseenStep:
 class ScoreStep:
     name = "score"
 
-    def __init__(self, llm: LLMClient, config: PipelineConfig) -> None:
+    def __init__(
+        self,
+        llm: LLMClient,
+        config: PipelineConfig,
+        timeline: CallTimeline | None = None,
+    ) -> None:
         self._llm = llm
         self._config = config
+        self._timeline = timeline
 
     def run(self, state: WorkflowState) -> WorkflowState:
         s = _as_radar_state(state)
         candidates = s.unseen[: self._config.max_scored]
         scored = [
-            ScoredItem(item=item, score=score_item(item, self._llm).score)
+            ScoredItem(
+                item=item,
+                score=score_item(
+                    item, _timed(self._llm, self._timeline, self.name, item)
+                ).score,
+            )
             for item in candidates
         ]
         return s.model_copy(
@@ -164,11 +200,13 @@ class ConcurrentScoreStep:
         pipeline_config: PipelineConfig,
         concurrency_config: ConcurrentScoringConfig | None = None,
         usage_sink: ListUsageSink | None = None,
+        timeline: CallTimeline | None = None,
     ) -> None:
         self._llm = llm
         self._pipeline_config = pipeline_config
         self._concurrency_config = concurrency_config
         self._usage_sink = usage_sink
+        self._timeline = timeline
 
     def run(self, state: WorkflowState) -> WorkflowState:
         s = _as_radar_state(state)
@@ -178,6 +216,11 @@ class ConcurrentScoreStep:
             self._llm,
             config=self._concurrency_config,
             usage_sink=self._usage_sink,
+            wrap_llm=(
+                None
+                if self._timeline is None
+                else lambda item: _timed(self._llm, self._timeline, self.name, item)
+            ),
         )
         return s.model_copy(
             update={
@@ -221,8 +264,9 @@ class DraftStep:
 
     name = "draft"
 
-    def __init__(self, llm: LLMClient) -> None:
+    def __init__(self, llm: LLMClient, timeline: CallTimeline | None = None) -> None:
         self._llm = llm
+        self._timeline = timeline
 
     def run(self, state: WorkflowState) -> WorkflowState:
         s = _as_radar_state(state)
@@ -230,8 +274,9 @@ class DraftStep:
         n_failures = 0
         for entry in s.top_k:
             prompt = build_draft_prompt(entry.item)
+            llm = _timed(self._llm, self._timeline, self.name, entry.item)
             try:
-                response = self._llm.complete(prompt)
+                response = llm.complete(prompt)
             except Exception:
                 n_failures += 1
                 continue
@@ -265,16 +310,18 @@ class AngleStep:
 
     name = "angle"
 
-    def __init__(self, llm: LLMClient) -> None:
+    def __init__(self, llm: LLMClient, timeline: CallTimeline | None = None) -> None:
         self._llm = llm
+        self._timeline = timeline
 
     def run(self, state: WorkflowState) -> WorkflowState:
         s = _as_radar_state(state)
         angled: list[tuple[ScoredItem, Angle]] = []
         n_failures = 0
         for entry in s.top_k:
+            llm = _timed(self._llm, self._timeline, self.name, entry.item)
             try:
-                angle = decide_angle(entry.item, self._llm)
+                angle = decide_angle(entry.item, llm)
             except Exception:
                 n_failures += 1
                 continue
@@ -295,8 +342,9 @@ class WriteStep:
 
     name = "write"
 
-    def __init__(self, llm: LLMClient) -> None:
+    def __init__(self, llm: LLMClient, timeline: CallTimeline | None = None) -> None:
         self._llm = llm
+        self._timeline = timeline
 
     def run(self, state: WorkflowState) -> WorkflowState:
         s = _as_radar_state(state)
@@ -309,8 +357,9 @@ class WriteStep:
                 n_skipped += 1
                 continue
             n_attempted += 1
+            llm = _timed(self._llm, self._timeline, self.name, entry.item)
             try:
-                draft = write_draft(entry.item, angle, self._llm)
+                draft = write_draft(entry.item, angle, llm)
             except Exception:
                 n_failures += 1
                 continue
@@ -348,6 +397,7 @@ def build_radar_steps(
     seen_store: SeenStore,
     llm: LLMClient,
     config: PipelineConfig,
+    timeline: CallTimeline | None = None,
 ) -> list[Step]:
     """Câble les 9 étapes du radar dans l'ordre de ``run_pipeline``.
 
@@ -364,10 +414,10 @@ def build_radar_steps(
         DeduplicateStep(),
         FilterFreshStep(config),
         FilterUnseenStep(seen_store),
-        ScoreStep(llm, config),
+        ScoreStep(llm, config, timeline),
         FilterByMinScoreStep(config),
         SelectTopKStep(config),
-        DraftStep(llm),
+        DraftStep(llm, timeline),
         MarkSeenStep(seen_store),
     ]
 
@@ -378,6 +428,7 @@ def build_radar_steps_decomposed(
     seen_store: SeenStore,
     llm: LLMClient,
     config: PipelineConfig,
+    timeline: CallTimeline | None = None,
 ) -> list[Step]:
     """Variante décomposée (module 4.2) : ``AngleStep`` + ``WriteStep``
     remplacent ``DraftStep``. Retenue après comparaison mesurée sur le
@@ -388,11 +439,11 @@ def build_radar_steps_decomposed(
         DeduplicateStep(),
         FilterFreshStep(config),
         FilterUnseenStep(seen_store),
-        ScoreStep(llm, config),
+        ScoreStep(llm, config, timeline),
         FilterByMinScoreStep(config),
         SelectTopKStep(config),
-        AngleStep(llm),
-        WriteStep(llm),
+        AngleStep(llm, timeline),
+        WriteStep(llm, timeline),
         MarkSeenStep(seen_store),
     ]
 
@@ -405,15 +456,20 @@ def build_radar_steps_production(  # noqa: PLR0913
     config: PipelineConfig,
     concurrency_config: ConcurrentScoringConfig | None = None,
     usage_sink: ListUsageSink | None = None,
+    timeline: CallTimeline | None = None,
 ) -> list[Step]:
     """Composition de production (module 4.5, voir ``MIGRATION.md``) :
     scoring concurrent borné (module 4.3) + drafting décomposé AngleAgent/
     WriterAgent (module 4.2 — seule décomposition mesurée et retenue).
     C'est l'unique composition câblée dans ``composition.py``.
 
-    6 paramètres, 6 seams d'injection réellement distincts (pas de
+    7 paramètres, 7 seams d'injection réellement distincts (pas de
     regroupement naturel comme ``PipelineConfig`` pour les autres composeurs
     — ``noqa`` assumé plutôt qu'un objet de config artificiel).
+
+    ``timeline`` (module 4.6) est facultative : sans elle, la composition est
+    identique à ce qu'elle était, et aucune étape ne prend un chemin de code
+    différent. Cf. ``OBSERVABILITY.md``.
 
     ``usage_sink`` doit être le **même** sink que celui injecté dans
     l'``AnthropicClient`` de l'appelant : ``ConcurrentScoreStep`` s'en sert
@@ -426,11 +482,11 @@ def build_radar_steps_production(  # noqa: PLR0913
         DeduplicateStep(),
         FilterFreshStep(config),
         FilterUnseenStep(seen_store),
-        ConcurrentScoreStep(llm, config, concurrency_config, usage_sink),
+        ConcurrentScoreStep(llm, config, concurrency_config, usage_sink, timeline),
         FilterByMinScoreStep(config),
         SelectTopKStep(config),
-        AngleStep(llm),
-        WriteStep(llm),
+        AngleStep(llm, timeline),
+        WriteStep(llm, timeline),
         MarkSeenStep(seen_store),
     ]
 

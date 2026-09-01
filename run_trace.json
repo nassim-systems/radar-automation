@@ -1,0 +1,674 @@
+{
+  "run_at": "2026-09-01T20:24:06.206125Z",
+  "started_at": "2026-09-01T20:24:02.427066Z",
+  "ended_at": "2026-09-01T20:24:06.206103Z",
+  "counters": {
+    "n_fetched": 17,
+    "n_dedup": 17,
+    "n_fresh": 17,
+    "n_unseen": 17,
+    "n_scored": 17,
+    "n_above_threshold": 0,
+    "n_drafted": 0,
+    "n_llm_calls": 17,
+    "n_failures": 0
+  },
+  "latency": {
+    "run_seconds": 3.779,
+    "steps_seconds": 3.779,
+    "orchestration_seconds": 0.0001,
+    "llm_cumulative_seconds": 13.383,
+    "llm_mean_call_seconds": 0.787,
+    "llm_slowest_call_seconds": 1.061,
+    "slowest_step": "score",
+    "slowest_step_seconds": 3.344
+  },
+  "usage": {
+    "input_tokens": 7761,
+    "output_tokens": 85,
+    "cost_usd": 0.008186
+  },
+  "n_llm_calls_traced": 17,
+  "steps": [
+    {
+      "name": "fetch",
+      "started_at": "2026-09-01T20:24:02.427067Z",
+      "ended_at": "2026-09-01T20:24:02.851556Z",
+      "duration_seconds": 0.4244907000102103,
+      "ok": true,
+      "error": null
+    },
+    {
+      "name": "deduplicate",
+      "started_at": "2026-09-01T20:24:02.851568Z",
+      "ended_at": "2026-09-01T20:24:02.851591Z",
+      "duration_seconds": 2.2800173610448837e-05,
+      "ok": true,
+      "error": null
+    },
+    {
+      "name": "filter_fresh",
+      "started_at": "2026-09-01T20:24:02.851594Z",
+      "ended_at": "2026-09-01T20:24:02.851604Z",
+      "duration_seconds": 1.0200077667832375e-05,
+      "ok": true,
+      "error": null
+    },
+    {
+      "name": "filter_unseen",
+      "started_at": "2026-09-01T20:24:02.851606Z",
+      "ended_at": "2026-09-01T20:24:02.860906Z",
+      "duration_seconds": 0.009302499936893582,
+      "ok": true,
+      "error": null
+    },
+    {
+      "name": "score",
+      "started_at": "2026-09-01T20:24:02.860925Z",
+      "ended_at": "2026-09-01T20:24:06.205335Z",
+      "duration_seconds": 3.344411199912429,
+      "ok": true,
+      "error": null
+    },
+    {
+      "name": "filter_by_min_score",
+      "started_at": "2026-09-01T20:24:06.205344Z",
+      "ended_at": "2026-09-01T20:24:06.205363Z",
+      "duration_seconds": 1.9399914890527725e-05,
+      "ok": true,
+      "error": null
+    },
+    {
+      "name": "select_top_k",
+      "started_at": "2026-09-01T20:24:06.205366Z",
+      "ended_at": "2026-09-01T20:24:06.205373Z",
+      "duration_seconds": 6.800051778554916e-06,
+      "ok": true,
+      "error": null
+    },
+    {
+      "name": "angle",
+      "started_at": "2026-09-01T20:24:06.205374Z",
+      "ended_at": "2026-09-01T20:24:06.205379Z",
+      "duration_seconds": 4.600035026669502e-06,
+      "ok": true,
+      "error": null
+    },
+    {
+      "name": "write",
+      "started_at": "2026-09-01T20:24:06.205381Z",
+      "ended_at": "2026-09-01T20:24:06.205385Z",
+      "duration_seconds": 3.700144588947296e-06,
+      "ok": true,
+      "error": null
+    },
+    {
+      "name": "mark_seen",
+      "started_at": "2026-09-01T20:24:06.205386Z",
+      "ended_at": "2026-09-01T20:24:06.206074Z",
+      "duration_seconds": 0.0006895000115036964,
+      "ok": true,
+      "error": null
+    }
+  ],
+  "phases": [
+    {
+      "phase": "score",
+      "n_calls": 17,
+      "n_failures": 0,
+      "cumulative_seconds": 13.383,
+      "mean_seconds": 0.787,
+      "max_seconds": 1.061,
+      "step_wall_seconds": 3.344,
+      "speedup": 4.0,
+      "input_tokens": 7761,
+      "output_tokens": 85,
+      "cost_usd": 0.008186
+    }
+  ],
+  "items": [
+    {
+      "subject": {
+        "key": "rss:https://www.usine-digitale.fr/intelligence-artificielle/openai/openai-proposerait-a-certains-grands-clients-de-ne-payer-que-lorsque-son-ia-reussit-sa-tache.Y4JQ455CX5E33AD62C52Z3WKHU.html",
+        "title": "OpenAI proposerait à certains grands clients de ne payer que lorsque son IA réussit sa tâche",
+        "url": "https://www.usine-digitale.fr/intelligence-artificielle/openai/openai-proposerait-a-certains-grands-clients-de-ne-payer-que-lorsque-son-ia-reussit-sa-tache.Y4JQ455CX5E33AD62C52Z3WKHU.html"
+      },
+      "n_calls": 1,
+      "phases": [
+        "score"
+      ],
+      "total_seconds": 0.899,
+      "cost_usd": 0.000462,
+      "ok": true
+    },
+    {
+      "subject": {
+        "key": "rss:https://www.usine-digitale.fr/intelligence-artificielle/ia-generative/cerebras-execute-son-plan-dexpansion-en-europe-un-data-center-de-165-mw-doit-voir-le-jour-en-finlande.ZJ5ED4ADENFU5FW2KSSTV4FEEY.html",
+        "title": "Cerebras exécute son plan d’expansion en Europe : un data center de 165 MW doit voir le jour en Finlande",
+        "url": "https://www.usine-digitale.fr/intelligence-artificielle/ia-generative/cerebras-execute-son-plan-dexpansion-en-europe-un-data-center-de-165-mw-doit-voir-le-jour-en-finlande.ZJ5ED4ADENFU5FW2KSSTV4FEEY.html"
+      },
+      "n_calls": 1,
+      "phases": [
+        "score"
+      ],
+      "total_seconds": 1.042,
+      "cost_usd": 0.000465,
+      "ok": true
+    },
+    {
+      "subject": {
+        "key": "rss:https://www.usine-digitale.fr/informatique/cloud/cloud-de-confiance-le-marche-des-offres-qualifiees-secnumcloud-selargit-pousse-par-les-contraintes-reglementaires.INOZUVHVONEL7IHPME6JHEGA6A.html",
+        "title": "Cloud de confiance : le marché des offres qualifiées SecNumCloud s’élargit, poussé par les contraintes réglementaires",
+        "url": "https://www.usine-digitale.fr/informatique/cloud/cloud-de-confiance-le-marche-des-offres-qualifiees-secnumcloud-selargit-pousse-par-les-contraintes-reglementaires.INOZUVHVONEL7IHPME6JHEGA6A.html"
+      },
+      "n_calls": 1,
+      "phases": [
+        "score"
+      ],
+      "total_seconds": 0.835,
+      "cost_usd": 0.000467,
+      "ok": true
+    },
+    {
+      "subject": {
+        "key": "rss:https://www.usine-digitale.fr/intelligence-artificielle/robotique/agents-ia-robotique-materiaux-avances-les-trois-paris-de-leurope-pour-renforcer-sa-souverainete-technologique.I3HG4M7AMZD3FMHZHVJKLVWNJU.html",
+        "title": "Agents IA, robotique, matériaux avancés : les trois paris de l’Europe pour renforcer sa souveraineté technologique",
+        "url": "https://www.usine-digitale.fr/intelligence-artificielle/robotique/agents-ia-robotique-materiaux-avances-les-trois-paris-de-leurope-pour-renforcer-sa-souverainete-technologique.I3HG4M7AMZD3FMHZHVJKLVWNJU.html"
+      },
+      "n_calls": 1,
+      "phases": [
+        "score"
+      ],
+      "total_seconds": 1.061,
+      "cost_usd": 0.000529,
+      "ok": true
+    },
+    {
+      "subject": {
+        "key": "rss:https://www.usine-digitale.fr/electronique/nvidia/nvidia-mise-35-milliards-sur-mediatek-pour-ne-pas-perdre-la-main-sur-les-puces-maison-de-ses-clients.37HABP5TTBAXDEHK5XVC36DEFY.html",
+        "title": "Nvidia mise 3,5 milliards sur MediaTek pour ne pas perdre la main sur les puces maison de ses clients",
+        "url": "https://www.usine-digitale.fr/electronique/nvidia/nvidia-mise-35-milliards-sur-mediatek-pour-ne-pas-perdre-la-main-sur-les-puces-maison-de-ses-clients.37HABP5TTBAXDEHK5XVC36DEFY.html"
+      },
+      "n_calls": 1,
+      "phases": [
+        "score"
+      ],
+      "total_seconds": 0.929,
+      "cost_usd": 0.000564,
+      "ok": true
+    },
+    {
+      "subject": {
+        "key": "rss:https://www.usine-digitale.fr/intelligence-artificielle/openai/un-milliard-de-dollars-en-moins-de-200-jours-comment-openai-installe-la-publicite-au-coeur-de-son-modele.RRBOKAJUG5DAXF2IKCISOTVKEQ.html",
+        "title": "Un milliard de dollars en moins de 200 jours : comment OpenAI installe la publicité au cœur de son modèle",
+        "url": "https://www.usine-digitale.fr/intelligence-artificielle/openai/un-milliard-de-dollars-en-moins-de-200-jours-comment-openai-installe-la-publicite-au-coeur-de-son-modele.RRBOKAJUG5DAXF2IKCISOTVKEQ.html"
+      },
+      "n_calls": 1,
+      "phases": [
+        "score"
+      ],
+      "total_seconds": 0.698,
+      "cost_usd": 0.000466,
+      "ok": true
+    },
+    {
+      "subject": {
+        "key": "rss:https://www.usine-digitale.fr/intelligence-artificielle/le-cout-du-token-cest-le-probleme-le-plus-interessant-dans-le-secteur-de-lia-a-lheure-actuelle-peter-desantis-amazon.4Y7HFY3VUZDHFGE2DMOBELWIAI.html",
+        "title": "“Le coût du token, c’est le problème le plus intéressant dans le secteur de l’IA à l’heure actuelle”, Peter DeSantis, Amazon",
+        "url": "https://www.usine-digitale.fr/intelligence-artificielle/le-cout-du-token-cest-le-probleme-le-plus-interessant-dans-le-secteur-de-lia-a-lheure-actuelle-peter-desantis-amazon.4Y7HFY3VUZDHFGE2DMOBELWIAI.html"
+      },
+      "n_calls": 1,
+      "phases": [
+        "score"
+      ],
+      "total_seconds": 0.738,
+      "cost_usd": 0.000476,
+      "ok": true
+    },
+    {
+      "subject": {
+        "key": "rss:https://www.usine-digitale.fr/intelligence-artificielle/ai-act-bruxelles-passe-a-loffensive-et-commence-a-controler-les-fournisseurs-de-modeles.BZTTV2J53BBXJASEE32Z3BAO7Q.html",
+        "title": "AI Act : Bruxelles passe à l’offensive et commence à contrôler les fournisseurs de modèles",
+        "url": "https://www.usine-digitale.fr/intelligence-artificielle/ai-act-bruxelles-passe-a-loffensive-et-commence-a-controler-les-fournisseurs-de-modeles.BZTTV2J53BBXJASEE32Z3BAO7Q.html"
+      },
+      "n_calls": 1,
+      "phases": [
+        "score"
+      ],
+      "total_seconds": 0.737,
+      "cost_usd": 0.000461,
+      "ok": true
+    },
+    {
+      "subject": {
+        "key": "rss:https://www.usine-digitale.fr/secteur-public/gouvernement/gemini-gpt-grok-le-pentagone-etoffe-sa-plateforme-dacces-aux-modeles-dia-generative-et-limite-la-dependance-a-un-fournisseur-unique.FZI2BHYHSNGPDAGF5WMZEL76ME.html",
+        "title": "Gemini, GPT, Grok : Le Pentagone étoffe sa plateforme d’accès aux modèles d’IA générative et limite la dépendance à un fournisseur unique",
+        "url": "https://www.usine-digitale.fr/secteur-public/gouvernement/gemini-gpt-grok-le-pentagone-etoffe-sa-plateforme-dacces-aux-modeles-dia-generative-et-limite-la-dependance-a-un-fournisseur-unique.FZI2BHYHSNGPDAGF5WMZEL76ME.html"
+      },
+      "n_calls": 1,
+      "phases": [
+        "score"
+      ],
+      "total_seconds": 0.783,
+      "cost_usd": 0.000484,
+      "ok": true
+    },
+    {
+      "subject": {
+        "key": "rss:https://www.usine-digitale.fr/reglementation/dsa-dma/chatgpt-nest-plus-seulement-un-chatbot-aux-yeux-de-bruxelles-il-devient-un-tres-grand-moteur-de-recherche-et-passe-sous-surveillance-renforcee.U3SLDBCPMBFH7EWWHWXZOSDID4.html",
+        "title": "ChatGPT n’est plus seulement un chatbot aux yeux de Bruxelles : il devient un très grand moteur de recherche et passe sous surveillance renforcée",
+        "url": "https://www.usine-digitale.fr/reglementation/dsa-dma/chatgpt-nest-plus-seulement-un-chatbot-aux-yeux-de-bruxelles-il-devient-un-tres-grand-moteur-de-recherche-et-passe-sous-surveillance-renforcee.U3SLDBCPMBFH7EWWHWXZOSDID4.html"
+      },
+      "n_calls": 1,
+      "phases": [
+        "score"
+      ],
+      "total_seconds": 0.688,
+      "cost_usd": 0.000475,
+      "ok": true
+    },
+    {
+      "subject": {
+        "key": "rss:https://www.usine-digitale.fr/souverainete/souverainete-numerique-jamespot-rachete-alinto-pour-integrer-la-messagerie-a-sa-suite-collaborative-et-rivaliser-avec-microsoft-et-google.YT27UMWCRZCEPGM7INUAYIHH5A.html",
+        "title": "Souveraineté numérique : Jamespot rachète Alinto pour intégrer la messagerie à sa suite collaborative et rivaliser avec Microsoft et Google",
+        "url": "https://www.usine-digitale.fr/souverainete/souverainete-numerique-jamespot-rachete-alinto-pour-integrer-la-messagerie-a-sa-suite-collaborative-et-rivaliser-avec-microsoft-et-google.YT27UMWCRZCEPGM7INUAYIHH5A.html"
+      },
+      "n_calls": 1,
+      "phases": [
+        "score"
+      ],
+      "total_seconds": 0.697,
+      "cost_usd": 0.000528,
+      "ok": true
+    },
+    {
+      "subject": {
+        "key": "rss:https://www.usine-digitale.fr/start-up/financement/investissement/machine-age-fund-ce-que-veut-financer-a16z-avec-son-nouveau-fonds-de-11-milliard-de-dollars-dedie-a-lia.3KNULSKCQFBU5ABGM3BCBF3NKA.html",
+        "title": "Machine Age Fund : Ce que veut financer a16z avec son nouveau fonds de 1,1 milliard de dollars dédié à l’IA",
+        "url": "https://www.usine-digitale.fr/start-up/financement/investissement/machine-age-fund-ce-que-veut-financer-a16z-avec-son-nouveau-fonds-de-11-milliard-de-dollars-dedie-a-lia.3KNULSKCQFBU5ABGM3BCBF3NKA.html"
+      },
+      "n_calls": 1,
+      "phases": [
+        "score"
+      ],
+      "total_seconds": 0.73,
+      "cost_usd": 0.00047,
+      "ok": true
+    },
+    {
+      "subject": {
+        "key": "rss:https://www.usine-digitale.fr/informatique/calcul-haute-performance-hpc/intelligence-artificielle-bull-decroche-un-contrat-de-3878-millions-deuros-pour-renforcer-les-capacites-de-calcul-europeennes.YKYHWML65ZB6BPG42WLPUDTKXA.html",
+        "title": "Intelligence artificielle : Bull décroche un contrat de 387,8 millions d’euros pour renforcer les capacités de calcul européennes",
+        "url": "https://www.usine-digitale.fr/informatique/calcul-haute-performance-hpc/intelligence-artificielle-bull-decroche-un-contrat-de-3878-millions-deuros-pour-renforcer-les-capacites-de-calcul-europeennes.YKYHWML65ZB6BPG42WLPUDTKXA.html"
+      },
+      "n_calls": 1,
+      "phases": [
+        "score"
+      ],
+      "total_seconds": 0.691,
+      "cost_usd": 0.000466,
+      "ok": true
+    },
+    {
+      "subject": {
+        "key": "rss:https://www.usine-digitale.fr/cybersecurite/course-a-larmement-cyber-dopee-a-lia-les-geants-de-la-tech-sonnent-lalarme-et-prescrivent-toujours-plus-dia.SJDSDEUX4VFLZLSUH6WPLSZ4E4.html",
+        "title": "Course à l’armement cyber dopée à l’IA : les géants de la tech sonnent l’alarme et prescrivent… toujours plus d’IA",
+        "url": "https://www.usine-digitale.fr/cybersecurite/course-a-larmement-cyber-dopee-a-lia-les-geants-de-la-tech-sonnent-lalarme-et-prescrivent-toujours-plus-dia.SJDSDEUX4VFLZLSUH6WPLSZ4E4.html"
+      },
+      "n_calls": 1,
+      "phases": [
+        "score"
+      ],
+      "total_seconds": 0.667,
+      "cost_usd": 0.000473,
+      "ok": true
+    },
+    {
+      "subject": {
+        "key": "rss:https://www.usine-digitale.fr/intelligence-artificielle/comment-totalenergie-veut-transformer-ses-milliards-de-donnees-industrielles-en-carburant-pour-ses-modeles-dia.JCPQYR6HP5C2FKUAMDBMCWUHKU.html",
+        "title": "Comment TotalEnergie veut transformer ses milliards de données industrielles en carburant pour ses modèles d’IA",
+        "url": "https://www.usine-digitale.fr/intelligence-artificielle/comment-totalenergie-veut-transformer-ses-milliards-de-donnees-industrielles-en-carburant-pour-ses-modeles-dia.JCPQYR6HP5C2FKUAMDBMCWUHKU.html"
+      },
+      "n_calls": 1,
+      "phases": [
+        "score"
+      ],
+      "total_seconds": 0.697,
+      "cost_usd": 0.000463,
+      "ok": true
+    },
+    {
+      "subject": {
+        "key": "rss:https://www.usine-digitale.fr/quantique/pasqal-fait-ses-debuts-au-nasdaq-avec-360-millions-de-dollars-en-poche-pour-accelerer-dans-linformatique-quantique.XTA237IARJAWPKTRSRZD7Q47IA.html",
+        "title": "Pasqal fait ses débuts au Nasdaq avec 360 millions de dollars en poche pour accélérer dans l’informatique quantique",
+        "url": "https://www.usine-digitale.fr/quantique/pasqal-fait-ses-debuts-au-nasdaq-avec-360-millions-de-dollars-en-poche-pour-accelerer-dans-linformatique-quantique.XTA237IARJAWPKTRSRZD7Q47IA.html"
+      },
+      "n_calls": 1,
+      "phases": [
+        "score"
+      ],
+      "total_seconds": 0.73,
+      "cost_usd": 0.000466,
+      "ok": true
+    },
+    {
+      "subject": {
+        "key": "rss:https://www.usine-digitale.fr/reglementation/apres-une-serie-de-fuites-de-donnees-dans-le-secteur-public-la-cybersecurite-sinvite-au-coeur-du-lancement-de-la-facturation-electronique.V2CD7NAWSRAUDJQSQFEEH4QX6I.html",
+        "title": "Après une série de fuites de données dans le secteur public, la cybersécurité s’invite au cœur du lancement de la facturation électronique",
+        "url": "https://www.usine-digitale.fr/reglementation/apres-une-serie-de-fuites-de-donnees-dans-le-secteur-public-la-cybersecurite-sinvite-au-coeur-du-lancement-de-la-facturation-electronique.V2CD7NAWSRAUDJQSQFEEH4QX6I.html"
+      },
+      "n_calls": 1,
+      "phases": [
+        "score"
+      ],
+      "total_seconds": 0.762,
+      "cost_usd": 0.000471,
+      "ok": true
+    }
+  ],
+  "calls": [
+    {
+      "phase": "score",
+      "subject": {
+        "key": "rss:https://www.usine-digitale.fr/intelligence-artificielle/openai/openai-proposerait-a-certains-grands-clients-de-ne-payer-que-lorsque-son-ia-reussit-sa-tache.Y4JQ455CX5E33AD62C52Z3WKHU.html",
+        "title": "OpenAI proposerait à certains grands clients de ne payer que lorsque son IA réussit sa tâche",
+        "url": "https://www.usine-digitale.fr/intelligence-artificielle/openai/openai-proposerait-a-certains-grands-clients-de-ne-payer-que-lorsque-son-ia-reussit-sa-tache.Y4JQ455CX5E33AD62C52Z3WKHU.html"
+      },
+      "started_at": "2026-09-01T20:24:02.861586Z",
+      "ended_at": "2026-09-01T20:24:03.760466Z",
+      "duration_seconds": 0.8988816998898983,
+      "ok": true,
+      "error": null,
+      "input_tokens": 437,
+      "output_tokens": 5,
+      "cost_usd": 0.000462
+    },
+    {
+      "phase": "score",
+      "subject": {
+        "key": "rss:https://www.usine-digitale.fr/intelligence-artificielle/ia-generative/cerebras-execute-son-plan-dexpansion-en-europe-un-data-center-de-165-mw-doit-voir-le-jour-en-finlande.ZJ5ED4ADENFU5FW2KSSTV4FEEY.html",
+        "title": "Cerebras exécute son plan d’expansion en Europe : un data center de 165 MW doit voir le jour en Finlande",
+        "url": "https://www.usine-digitale.fr/intelligence-artificielle/ia-generative/cerebras-execute-son-plan-dexpansion-en-europe-un-data-center-de-165-mw-doit-voir-le-jour-en-finlande.ZJ5ED4ADENFU5FW2KSSTV4FEEY.html"
+      },
+      "started_at": "2026-09-01T20:24:02.862801Z",
+      "ended_at": "2026-09-01T20:24:03.904596Z",
+      "duration_seconds": 1.041795999975875,
+      "ok": true,
+      "error": null,
+      "input_tokens": 440,
+      "output_tokens": 5,
+      "cost_usd": 0.000465
+    },
+    {
+      "phase": "score",
+      "subject": {
+        "key": "rss:https://www.usine-digitale.fr/informatique/cloud/cloud-de-confiance-le-marche-des-offres-qualifiees-secnumcloud-selargit-pousse-par-les-contraintes-reglementaires.INOZUVHVONEL7IHPME6JHEGA6A.html",
+        "title": "Cloud de confiance : le marché des offres qualifiées SecNumCloud s’élargit, poussé par les contraintes réglementaires",
+        "url": "https://www.usine-digitale.fr/informatique/cloud/cloud-de-confiance-le-marche-des-offres-qualifiees-secnumcloud-selargit-pousse-par-les-contraintes-reglementaires.INOZUVHVONEL7IHPME6JHEGA6A.html"
+      },
+      "started_at": "2026-09-01T20:24:02.863476Z",
+      "ended_at": "2026-09-01T20:24:03.698342Z",
+      "duration_seconds": 0.8348670999985188,
+      "ok": true,
+      "error": null,
+      "input_tokens": 442,
+      "output_tokens": 5,
+      "cost_usd": 0.000467
+    },
+    {
+      "phase": "score",
+      "subject": {
+        "key": "rss:https://www.usine-digitale.fr/intelligence-artificielle/robotique/agents-ia-robotique-materiaux-avances-les-trois-paris-de-leurope-pour-renforcer-sa-souverainete-technologique.I3HG4M7AMZD3FMHZHVJKLVWNJU.html",
+        "title": "Agents IA, robotique, matériaux avancés : les trois paris de l’Europe pour renforcer sa souveraineté technologique",
+        "url": "https://www.usine-digitale.fr/intelligence-artificielle/robotique/agents-ia-robotique-materiaux-avances-les-trois-paris-de-leurope-pour-renforcer-sa-souverainete-technologique.I3HG4M7AMZD3FMHZHVJKLVWNJU.html"
+      },
+      "started_at": "2026-09-01T20:24:02.864060Z",
+      "ended_at": "2026-09-01T20:24:03.925246Z",
+      "duration_seconds": 1.0611875001341105,
+      "ok": true,
+      "error": null,
+      "input_tokens": 504,
+      "output_tokens": 5,
+      "cost_usd": 0.000529
+    },
+    {
+      "phase": "score",
+      "subject": {
+        "key": "rss:https://www.usine-digitale.fr/electronique/nvidia/nvidia-mise-35-milliards-sur-mediatek-pour-ne-pas-perdre-la-main-sur-les-puces-maison-de-ses-clients.37HABP5TTBAXDEHK5XVC36DEFY.html",
+        "title": "Nvidia mise 3,5 milliards sur MediaTek pour ne pas perdre la main sur les puces maison de ses clients",
+        "url": "https://www.usine-digitale.fr/electronique/nvidia/nvidia-mise-35-milliards-sur-mediatek-pour-ne-pas-perdre-la-main-sur-les-puces-maison-de-ses-clients.37HABP5TTBAXDEHK5XVC36DEFY.html"
+      },
+      "started_at": "2026-09-01T20:24:02.864385Z",
+      "ended_at": "2026-09-01T20:24:03.793418Z",
+      "duration_seconds": 0.9290350000374019,
+      "ok": true,
+      "error": null,
+      "input_tokens": 539,
+      "output_tokens": 5,
+      "cost_usd": 0.0005639999999999999
+    },
+    {
+      "phase": "score",
+      "subject": {
+        "key": "rss:https://www.usine-digitale.fr/intelligence-artificielle/openai/un-milliard-de-dollars-en-moins-de-200-jours-comment-openai-installe-la-publicite-au-coeur-de-son-modele.RRBOKAJUG5DAXF2IKCISOTVKEQ.html",
+        "title": "Un milliard de dollars en moins de 200 jours : comment OpenAI installe la publicité au cœur de son modèle",
+        "url": "https://www.usine-digitale.fr/intelligence-artificielle/openai/un-milliard-de-dollars-en-moins-de-200-jours-comment-openai-installe-la-publicite-au-coeur-de-son-modele.RRBOKAJUG5DAXF2IKCISOTVKEQ.html"
+      },
+      "started_at": "2026-09-01T20:24:03.925539Z",
+      "ended_at": "2026-09-01T20:24:04.623646Z",
+      "duration_seconds": 0.6981071000918746,
+      "ok": true,
+      "error": null,
+      "input_tokens": 441,
+      "output_tokens": 5,
+      "cost_usd": 0.000466
+    },
+    {
+      "phase": "score",
+      "subject": {
+        "key": "rss:https://www.usine-digitale.fr/intelligence-artificielle/le-cout-du-token-cest-le-probleme-le-plus-interessant-dans-le-secteur-de-lia-a-lheure-actuelle-peter-desantis-amazon.4Y7HFY3VUZDHFGE2DMOBELWIAI.html",
+        "title": "“Le coût du token, c’est le problème le plus intéressant dans le secteur de l’IA à l’heure actuelle”, Peter DeSantis, Amazon",
+        "url": "https://www.usine-digitale.fr/intelligence-artificielle/le-cout-du-token-cest-le-probleme-le-plus-interessant-dans-le-secteur-de-lia-a-lheure-actuelle-peter-desantis-amazon.4Y7HFY3VUZDHFGE2DMOBELWIAI.html"
+      },
+      "started_at": "2026-09-01T20:24:03.926571Z",
+      "ended_at": "2026-09-01T20:24:04.664082Z",
+      "duration_seconds": 0.73751200013794,
+      "ok": true,
+      "error": null,
+      "input_tokens": 451,
+      "output_tokens": 5,
+      "cost_usd": 0.000476
+    },
+    {
+      "phase": "score",
+      "subject": {
+        "key": "rss:https://www.usine-digitale.fr/intelligence-artificielle/ai-act-bruxelles-passe-a-loffensive-et-commence-a-controler-les-fournisseurs-de-modeles.BZTTV2J53BBXJASEE32Z3BAO7Q.html",
+        "title": "AI Act : Bruxelles passe à l’offensive et commence à contrôler les fournisseurs de modèles",
+        "url": "https://www.usine-digitale.fr/intelligence-artificielle/ai-act-bruxelles-passe-a-loffensive-et-commence-a-controler-les-fournisseurs-de-modeles.BZTTV2J53BBXJASEE32Z3BAO7Q.html"
+      },
+      "started_at": "2026-09-01T20:24:03.927569Z",
+      "ended_at": "2026-09-01T20:24:04.664583Z",
+      "duration_seconds": 0.7370130000635982,
+      "ok": true,
+      "error": null,
+      "input_tokens": 436,
+      "output_tokens": 5,
+      "cost_usd": 0.00046100000000000004
+    },
+    {
+      "phase": "score",
+      "subject": {
+        "key": "rss:https://www.usine-digitale.fr/secteur-public/gouvernement/gemini-gpt-grok-le-pentagone-etoffe-sa-plateforme-dacces-aux-modeles-dia-generative-et-limite-la-dependance-a-un-fournisseur-unique.FZI2BHYHSNGPDAGF5WMZEL76ME.html",
+        "title": "Gemini, GPT, Grok : Le Pentagone étoffe sa plateforme d’accès aux modèles d’IA générative et limite la dépendance à un fournisseur unique",
+        "url": "https://www.usine-digitale.fr/secteur-public/gouvernement/gemini-gpt-grok-le-pentagone-etoffe-sa-plateforme-dacces-aux-modeles-dia-generative-et-limite-la-dependance-a-un-fournisseur-unique.FZI2BHYHSNGPDAGF5WMZEL76ME.html"
+      },
+      "started_at": "2026-09-01T20:24:03.928480Z",
+      "ended_at": "2026-09-01T20:24:04.711415Z",
+      "duration_seconds": 0.7829350000247359,
+      "ok": true,
+      "error": null,
+      "input_tokens": 459,
+      "output_tokens": 5,
+      "cost_usd": 0.000484
+    },
+    {
+      "phase": "score",
+      "subject": {
+        "key": "rss:https://www.usine-digitale.fr/reglementation/dsa-dma/chatgpt-nest-plus-seulement-un-chatbot-aux-yeux-de-bruxelles-il-devient-un-tres-grand-moteur-de-recherche-et-passe-sous-surveillance-renforcee.U3SLDBCPMBFH7EWWHWXZOSDID4.html",
+        "title": "ChatGPT n’est plus seulement un chatbot aux yeux de Bruxelles : il devient un très grand moteur de recherche et passe sous surveillance renforcée",
+        "url": "https://www.usine-digitale.fr/reglementation/dsa-dma/chatgpt-nest-plus-seulement-un-chatbot-aux-yeux-de-bruxelles-il-devient-un-tres-grand-moteur-de-recherche-et-passe-sous-surveillance-renforcee.U3SLDBCPMBFH7EWWHWXZOSDID4.html"
+      },
+      "started_at": "2026-09-01T20:24:03.929495Z",
+      "ended_at": "2026-09-01T20:24:04.617537Z",
+      "duration_seconds": 0.6880431000608951,
+      "ok": true,
+      "error": null,
+      "input_tokens": 450,
+      "output_tokens": 5,
+      "cost_usd": 0.000475
+    },
+    {
+      "phase": "score",
+      "subject": {
+        "key": "rss:https://www.usine-digitale.fr/souverainete/souverainete-numerique-jamespot-rachete-alinto-pour-integrer-la-messagerie-a-sa-suite-collaborative-et-rivaliser-avec-microsoft-et-google.YT27UMWCRZCEPGM7INUAYIHH5A.html",
+        "title": "Souveraineté numérique : Jamespot rachète Alinto pour intégrer la messagerie à sa suite collaborative et rivaliser avec Microsoft et Google",
+        "url": "https://www.usine-digitale.fr/souverainete/souverainete-numerique-jamespot-rachete-alinto-pour-integrer-la-messagerie-a-sa-suite-collaborative-et-rivaliser-avec-microsoft-et-google.YT27UMWCRZCEPGM7INUAYIHH5A.html"
+      },
+      "started_at": "2026-09-01T20:24:04.711686Z",
+      "ended_at": "2026-09-01T20:24:05.408630Z",
+      "duration_seconds": 0.6969449000898749,
+      "ok": true,
+      "error": null,
+      "input_tokens": 503,
+      "output_tokens": 5,
+      "cost_usd": 0.0005279999999999999
+    },
+    {
+      "phase": "score",
+      "subject": {
+        "key": "rss:https://www.usine-digitale.fr/start-up/financement/investissement/machine-age-fund-ce-que-veut-financer-a16z-avec-son-nouveau-fonds-de-11-milliard-de-dollars-dedie-a-lia.3KNULSKCQFBU5ABGM3BCBF3NKA.html",
+        "title": "Machine Age Fund : Ce que veut financer a16z avec son nouveau fonds de 1,1 milliard de dollars dédié à l’IA",
+        "url": "https://www.usine-digitale.fr/start-up/financement/investissement/machine-age-fund-ce-que-veut-financer-a16z-avec-son-nouveau-fonds-de-11-milliard-de-dollars-dedie-a-lia.3KNULSKCQFBU5ABGM3BCBF3NKA.html"
+      },
+      "started_at": "2026-09-01T20:24:04.712456Z",
+      "ended_at": "2026-09-01T20:24:05.442755Z",
+      "duration_seconds": 0.7302997000515461,
+      "ok": true,
+      "error": null,
+      "input_tokens": 445,
+      "output_tokens": 5,
+      "cost_usd": 0.00047
+    },
+    {
+      "phase": "score",
+      "subject": {
+        "key": "rss:https://www.usine-digitale.fr/informatique/calcul-haute-performance-hpc/intelligence-artificielle-bull-decroche-un-contrat-de-3878-millions-deuros-pour-renforcer-les-capacites-de-calcul-europeennes.YKYHWML65ZB6BPG42WLPUDTKXA.html",
+        "title": "Intelligence artificielle : Bull décroche un contrat de 387,8 millions d’euros pour renforcer les capacités de calcul européennes",
+        "url": "https://www.usine-digitale.fr/informatique/calcul-haute-performance-hpc/intelligence-artificielle-bull-decroche-un-contrat-de-3878-millions-deuros-pour-renforcer-les-capacites-de-calcul-europeennes.YKYHWML65ZB6BPG42WLPUDTKXA.html"
+      },
+      "started_at": "2026-09-01T20:24:04.713075Z",
+      "ended_at": "2026-09-01T20:24:05.404089Z",
+      "duration_seconds": 0.6910143001005054,
+      "ok": true,
+      "error": null,
+      "input_tokens": 441,
+      "output_tokens": 5,
+      "cost_usd": 0.000466
+    },
+    {
+      "phase": "score",
+      "subject": {
+        "key": "rss:https://www.usine-digitale.fr/cybersecurite/course-a-larmement-cyber-dopee-a-lia-les-geants-de-la-tech-sonnent-lalarme-et-prescrivent-toujours-plus-dia.SJDSDEUX4VFLZLSUH6WPLSZ4E4.html",
+        "title": "Course à l’armement cyber dopée à l’IA : les géants de la tech sonnent l’alarme et prescrivent… toujours plus d’IA",
+        "url": "https://www.usine-digitale.fr/cybersecurite/course-a-larmement-cyber-dopee-a-lia-les-geants-de-la-tech-sonnent-lalarme-et-prescrivent-toujours-plus-dia.SJDSDEUX4VFLZLSUH6WPLSZ4E4.html"
+      },
+      "started_at": "2026-09-01T20:24:04.713621Z",
+      "ended_at": "2026-09-01T20:24:05.381054Z",
+      "duration_seconds": 0.6674341999460012,
+      "ok": true,
+      "error": null,
+      "input_tokens": 448,
+      "output_tokens": 5,
+      "cost_usd": 0.000473
+    },
+    {
+      "phase": "score",
+      "subject": {
+        "key": "rss:https://www.usine-digitale.fr/intelligence-artificielle/comment-totalenergie-veut-transformer-ses-milliards-de-donnees-industrielles-en-carburant-pour-ses-modeles-dia.JCPQYR6HP5C2FKUAMDBMCWUHKU.html",
+        "title": "Comment TotalEnergie veut transformer ses milliards de données industrielles en carburant pour ses modèles d’IA",
+        "url": "https://www.usine-digitale.fr/intelligence-artificielle/comment-totalenergie-veut-transformer-ses-milliards-de-donnees-industrielles-en-carburant-pour-ses-modeles-dia.JCPQYR6HP5C2FKUAMDBMCWUHKU.html"
+      },
+      "started_at": "2026-09-01T20:24:04.714156Z",
+      "ended_at": "2026-09-01T20:24:05.410714Z",
+      "duration_seconds": 0.6965587001759559,
+      "ok": true,
+      "error": null,
+      "input_tokens": 438,
+      "output_tokens": 5,
+      "cost_usd": 0.00046300000000000003
+    },
+    {
+      "phase": "score",
+      "subject": {
+        "key": "rss:https://www.usine-digitale.fr/quantique/pasqal-fait-ses-debuts-au-nasdaq-avec-360-millions-de-dollars-en-poche-pour-accelerer-dans-linformatique-quantique.XTA237IARJAWPKTRSRZD7Q47IA.html",
+        "title": "Pasqal fait ses débuts au Nasdaq avec 360 millions de dollars en poche pour accélérer dans l’informatique quantique",
+        "url": "https://www.usine-digitale.fr/quantique/pasqal-fait-ses-debuts-au-nasdaq-avec-360-millions-de-dollars-en-poche-pour-accelerer-dans-linformatique-quantique.XTA237IARJAWPKTRSRZD7Q47IA.html"
+      },
+      "started_at": "2026-09-01T20:24:05.442903Z",
+      "ended_at": "2026-09-01T20:24:06.172712Z",
+      "duration_seconds": 0.7298095999285579,
+      "ok": true,
+      "error": null,
+      "input_tokens": 441,
+      "output_tokens": 5,
+      "cost_usd": 0.000466
+    },
+    {
+      "phase": "score",
+      "subject": {
+        "key": "rss:https://www.usine-digitale.fr/reglementation/apres-une-serie-de-fuites-de-donnees-dans-le-secteur-public-la-cybersecurite-sinvite-au-coeur-du-lancement-de-la-facturation-electronique.V2CD7NAWSRAUDJQSQFEEH4QX6I.html",
+        "title": "Après une série de fuites de données dans le secteur public, la cybersécurité s’invite au cœur du lancement de la facturation électronique",
+        "url": "https://www.usine-digitale.fr/reglementation/apres-une-serie-de-fuites-de-donnees-dans-le-secteur-public-la-cybersecurite-sinvite-au-coeur-du-lancement-de-la-facturation-electronique.V2CD7NAWSRAUDJQSQFEEH4QX6I.html"
+      },
+      "started_at": "2026-09-01T20:24:05.443338Z",
+      "ended_at": "2026-09-01T20:24:06.204878Z",
+      "duration_seconds": 0.7615404999814928,
+      "ok": true,
+      "error": null,
+      "input_tokens": 446,
+      "output_tokens": 5,
+      "cost_usd": 0.000471
+    }
+  ],
+  "value": {
+    "baseline": {
+      "seconds_per_item_triage": 25.0,
+      "seconds_per_draft": 480.0,
+      "seconds_per_draft_review": 45.0,
+      "hourly_cost_eur": 50.0,
+      "runs_per_month": 21,
+      "eur_per_usd": 0.92,
+      "measured": false,
+      "measured_at": null,
+      "note": "Valeurs par défaut non mesurées — ordres de grandeur à remplacer par un chronométrage réel (scripts/measure_human_baseline.py)."
+    },
+    "n_items_triaged": 17,
+    "n_drafts": 0,
+    "human_seconds_triage": 425.0,
+    "human_seconds_drafting": 0.0,
+    "human_seconds_total": 425.0,
+    "human_seconds_remaining": 0.0,
+    "human_seconds_saved": 425.0,
+    "machine_seconds": 3.779,
+    "time_compression_ratio": 112.46,
+    "human_cost_total_eur": 5.9,
+    "human_cost_saved_eur": 5.9,
+    "machine_cost_usd": 0.008186,
+    "machine_cost_eur": 0.007531,
+    "net_saving_eur": 5.9,
+    "roi_ratio": 783.8,
+    "monthly_human_hours_saved": 2.48,
+    "monthly_machine_cost_eur": 0.16,
+    "monthly_net_saving_eur": 123.8
+  }
+}

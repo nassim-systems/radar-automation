@@ -17,7 +17,7 @@ from agent.conversation.store import JsonConversationStore
 from agent.intake.models import InboundMessage
 from agent.tools.read import CrmReadTool, KnowledgeBaseReadTool
 from agent.tools.registry import ReadToolRegistry
-from core.usage import ListUsageSink
+from core.usage import ListUsageSink, TeeUsageSink
 from core.workflow.engine import run_workflow
 from executor.execute import (
     ExecutionResult,
@@ -29,8 +29,10 @@ from executor.models import ApprovedAction
 from radar.concurrent_scoring import ConcurrentScoringConfig
 from radar.domain import RawItem
 from radar.llm.anthropic_client import AnthropicClient
+from radar.llm.timing import CallTimeline
 from radar.observability.history import JsonRunHistoryStore
 from radar.observability.models import RunRecord
+from radar.observability.trace import RadarRunOutcome, build_run_trace
 from radar.pipeline import PipelineConfig
 from radar.sources.rss import parse_rss
 from radar.tools.seen_store import JsonSeenStore
@@ -55,7 +57,7 @@ _LLM_MAX_TOKENS = 512  # marge pour le drafting ; le scoring reste court de fait
 _MAX_CONCURRENCY = 5  # défaut prudent, cf. CONCURRENCY.md
 
 
-def build_radar_pipeline(settings: Settings) -> Callable[[], RunRecord]:
+def build_radar_pipeline(settings: Settings) -> Callable[[], RadarRunOutcome]:
     """Câble le workflow radar de production avec les vraies implémentations.
 
     Chemin unique depuis le module 4.5 (``MIGRATION.md``) : scoring
@@ -63,25 +65,33 @@ def build_radar_pipeline(settings: Settings) -> Callable[[], RunRecord]:
     WriterAgent (module 4.2) via ``build_radar_steps_production``.
     ``run_pipeline`` (module 1.x) a été supprimée — plus de voie morte.
 
-    Le runner renvoie un ``RunRecord`` (rapport + usage LLM agrégé du run,
-    horodaté) et l'archive dans l'historique persistant (module 3.4). Le
-    ``PipelineReport`` qu'il contient a exactement le même schéma qu'avant
-    cette migration (``radar_workflow_state_to_pipeline_report``) : aucune
-    régression pour ``run_report.json``/``RunHistoryStore``.
+    Le runner renvoie un ``RadarRunOutcome`` : le ``RunRecord`` (rapport +
+    usage LLM agrégé du run, horodaté), archivé dans l'historique persistant
+    (module 3.4) avec exactement le même schéma qu'avant — aucune régression
+    pour ``run_report.json``/``RunHistoryStore`` — **et** la trace détaillée
+    du même run (module 4.6, ``OBSERVABILITY.md``), qui vit dans son propre
+    artefact plutôt que d'élargir un contrat existant.
+
+    Le ``TeeUsageSink`` est ce qui permet aux deux consommateurs d'usage de
+    coexister sans double comptage : le ``ListUsageSink`` alimente le budget
+    dur du scoring concurrent (module 4.3) et le total du ``RunRecord``, la
+    ``CallTimeline`` attribue le même usage à l'appel LLM qui l'a produit.
     """
     usage_sink = ListUsageSink()
+    timeline = CallTimeline()
     llm = AnthropicClient(
         api_key=settings.anthropic_api_key,
         max_tokens=_LLM_MAX_TOKENS,
-        usage_sink=usage_sink,
+        usage_sink=TeeUsageSink([usage_sink, timeline]),
     )
     seen_store = JsonSeenStore(settings.store_dir / "seen.json")
     history_store = JsonRunHistoryStore(settings.store_dir / "run_history.json")
     fetch_items = _make_feed_fetcher(settings.feed_urls)
     concurrency_config = ConcurrentScoringConfig(max_concurrency=_MAX_CONCURRENCY)
 
-    def run() -> RunRecord:
+    def run() -> RadarRunOutcome:
         usage_sink.calls.clear()
+        timeline.clear()
         config = PipelineConfig(
             now=datetime.now(tz=UTC),
             max_age=_MAX_AGE,
@@ -96,16 +106,24 @@ def build_radar_pipeline(settings: Settings) -> Callable[[], RunRecord]:
             config=config,
             concurrency_config=concurrency_config,
             usage_sink=usage_sink,
+            timeline=timeline,
         )
         workflow_run = run_workflow(
             steps, RadarWorkflowState(), usage_sink=usage_sink
         )
         report = radar_workflow_state_to_pipeline_report(workflow_run.final_state)
-        record = RunRecord(
-            at=datetime.now(tz=UTC), report=report, usage=workflow_run.usage
-        )
+        at = datetime.now(tz=UTC)
+        record = RunRecord(at=at, report=report, usage=workflow_run.usage)
         history_store.append(record)
-        return record
+        return RadarRunOutcome(
+            record=record,
+            trace=build_run_trace(
+                report=report,
+                workflow_run=workflow_run,
+                calls=timeline.snapshot(),
+                run_at=at,
+            ),
+        )
 
     return run
 
