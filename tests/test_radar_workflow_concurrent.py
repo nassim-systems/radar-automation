@@ -43,9 +43,9 @@ def _config(*, k: int = 5, max_scored: int = 10, min_score: int = 0) -> Pipeline
 
 
 def test_concurrent_score_step_is_a_drop_in_replacement_for_score_step() -> None:
-    """Preuve de réutilisation : ConcurrentScoreStep remplace ScoreStep dans
-    la même liste de Step, sans toucher aux autres étapes, avec un résultat
-    identique sur un FakeLLM déterministe."""
+    """Proof of reuse: ConcurrentScoreStep replaces ScoreStep in
+    the same Step list, without touching the other steps, with an identical
+    result on a deterministic FakeLLM."""
     items = [_item(str(i), f"Item{i}") for i in range(4)]
     config = _config(k=2, max_scored=10)
 

@@ -42,9 +42,9 @@ def _recording_sleep() -> tuple[Callable[[float], None], list[float]]:
 
 
 class _VariableLatencyLLM:
-    """Réponse et latence différentes par item (clé = titre), pour forcer un
-    ordre de complétion différent de l'ordre de soumission — c'est
-    précisément ce que le tri final par index doit corriger."""
+    """Different response and latency per item (key = title), to force a
+    completion order that differs from the submission order; this is
+    precisely what the final sort by index must correct."""
 
     def __init__(self, by_title: dict[str, tuple[str, float]]) -> None:
         self._by_title = by_title
@@ -58,7 +58,7 @@ class _VariableLatencyLLM:
 
 
 class _ConcurrencyTrackingLLM:
-    """Compte le nombre d'appels réellement en vol simultanément."""
+    """Count the number of calls actually in flight at the same time."""
 
     def __init__(self, hold_seconds: float) -> None:
         self._lock = threading.Lock()
@@ -77,8 +77,8 @@ class _ConcurrencyTrackingLLM:
 
 
 class _FlakyLLM:
-    """Échoue avec ``TransientLLMError`` les N premiers appels de cet item
-    précis (un seul item dans les tests qui l'utilisent), puis réussit."""
+    """Fail with ``TransientLLMError`` the first N calls of this specific item
+    (a single item in the tests that use it), then succeed."""
 
     def __init__(self, n_failures_before_success: int, canned: str) -> None:
         self._n_failures = n_failures_before_success
@@ -101,7 +101,7 @@ class _AlwaysNonTransientLLM:
 
 
 class _UsageReportingLLM:
-    """Simule un ``AnthropicClient`` : rapporte un coût fixe par appel."""
+    """Simulate an ``AnthropicClient``: report a fixed cost per call."""
 
     def __init__(self, sink: ListUsageSink, canned: str, cost_per_call: float) -> None:
         self._sink = sink
@@ -115,7 +115,7 @@ class _UsageReportingLLM:
         return self._canned
 
 
-# --- 1. Preuve d'équivalence séquentiel/parallèle sous latences variables ---
+# --- 1. Proof of sequential/parallel equivalence, varied latencies ---
 
 
 def test_concurrent_matches_sequential_under_variable_latency() -> None:
@@ -139,7 +139,7 @@ def test_concurrent_matches_sequential_under_variable_latency() -> None:
         config=ConcurrentScoringConfig(max_concurrency=5),
     )
 
-    # Même contenu ET même ordre, malgré un ordre de complétion scrambled
+    # Same content AND same order, despite a scrambled completion order
     # par construction (Item3 finit en premier, Item0 en dernier).
     assert [(s.item.external_id, s.score) for s in report.scored] == [
         (s.item.external_id, s.score) for s in sequential
@@ -147,8 +147,8 @@ def test_concurrent_matches_sequential_under_variable_latency() -> None:
 
 
 def test_concurrent_preserves_input_order_across_multiple_batches() -> None:
-    # 7 items, max_concurrency=3 -> 3 lots ; les délais sont choisis pour que
-    # chaque lot termine dans un ordre différent de sa soumission.
+    # 7 items, max_concurrency=3 -> 3 batches; delays are chosen so that
+    # each batch finishes in a different order than it was submitted.
     by_title = {f"Item{i}": (str(i), 0.05 - (i % 3) * 0.01) for i in range(7)}
     items = [_item(str(i), f"Item{i}") for i in range(7)]
 
@@ -161,7 +161,7 @@ def test_concurrent_preserves_input_order_across_multiple_batches() -> None:
     assert [s.item.external_id for s in report.scored] == [str(i) for i in range(7)]
 
 
-# --- 2. Concurrence réellement bornée ---
+# --- 2. Concurrency is actually bounded ---
 
 
 def test_concurrency_never_exceeds_max_concurrency() -> None:
@@ -214,8 +214,8 @@ def test_budget_truncates_cleanly_after_one_batch() -> None:
     report = score_items_concurrently(
         items,
         llm,
-        # 1er lot (2 appels) coûte 0.02, déjà >= 0.015 -> le 2e lot n'est
-        # jamais soumis : troncature propre, pas d'exception levée.
+        # 1st batch (2 calls) costs 0.02, already >= 0.015 -> the 2nd batch is
+        # never submitted: clean truncation, no exception raised.
         config=ConcurrentScoringConfig(
             max_concurrency=n_first_batch, max_cost_usd=0.015
         ),
@@ -244,7 +244,7 @@ def test_unset_budget_scores_everything() -> None:
     assert len(report.scored) == n_items
 
 
-# --- 4. Dégradation contrôlée : retry borné + backoff ---
+# --- 4. Controlled degradation: bounded retry + backoff ---
 
 
 def test_retries_transient_error_and_eventually_succeeds() -> None:
@@ -305,7 +305,7 @@ def test_non_transient_error_is_never_retried() -> None:
     assert report.scored == []
     assert report.n_failures == 1
     assert report.n_retries == 0
-    assert calls == []  # jamais de backoff pour une erreur de programmation
+    assert calls == []  # never any backoff for a programming error
 
 
 def test_n_attempted_equals_scored_plus_failures_invariant() -> None:

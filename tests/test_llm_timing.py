@@ -1,9 +1,9 @@
-"""Instrumentation temporelle des appels LLM (module 4.6, OBSERVABILITY.md).
+"""Timing instrumentation of LLM calls (module 4.6, OBSERVABILITY.md).
 
-Ce que ces tests garantissent : le décorateur est *transparent* (même sortie,
-mêmes exceptions), il attribue chaque appel à son item et à sa phase, et
-l'attribution de l'usage reste correcte quand plusieurs appels s'exécutent
-en parallèle — le seul point de ce module où une erreur serait silencieuse.
+What these tests guarantee: the decorator is *transparent* (same output,
+same exceptions), it attributes each call to its item and its phase, and
+usage attribution stays correct when several calls run in parallel, the
+only point in this module where an error would be silent.
 """
 import threading
 import time
@@ -42,7 +42,7 @@ def test_timed_client_is_transparent_and_records_phase_and_subject() -> None:
         FakeLLM("8"), timeline, phase="score", subject=SUBJECT
     )
 
-    assert client.complete("prompt") == "8"  # sortie inchangée
+    assert client.complete("prompt") == "8"  # output unchanged
 
     (call,) = timeline.snapshot()
     assert call.phase == "score"
@@ -69,7 +69,7 @@ def test_failing_call_is_recorded_and_the_exception_still_propagates() -> None:
     assert call.ok is False
     assert "RuntimeError" in (call.error or "")
     assert call.phase == "write"
-    # Un appel raté a quand même coûté du temps : c'est justement le cas
+    # A failed call still cost time: that is precisely the case
     # qu'on veut pouvoir chiffrer.
     assert call.duration_seconds >= 0
 
@@ -90,7 +90,7 @@ def test_usage_is_attributed_to_the_call_that_produced_it() -> None:
     (call,) = timeline.snapshot()
     assert call.cost_usd == CALL_COST_USD
     assert call.input_tokens == INPUT_TOKENS
-    # Le sink historique reçoit exactement le même usage : un seul comptage.
+    # The legacy sink receives exactly the same usage: counted only once.
     assert list_sink.total().cost_usd == CALL_COST_USD
 
 
@@ -106,11 +106,11 @@ def test_usage_recorded_outside_any_call_is_dropped_not_misattributed() -> None:
 
 
 def test_attribution_stays_correct_across_concurrent_calls() -> None:
-    """Le point critique : chaque thread doit attribuer SON usage à SON appel.
+    """The critical point: each thread must attribute ITS usage to ITS call.
 
-    Les coûts sont distincts par item et les latences volontairement
-    inversées (le dernier item est le plus rapide) — si l'attribution passait
-    par un état partagé, les coûts se mélangeraient.
+    Costs are distinct per item and latencies deliberately reversed (the last
+    item is the fastest); if attribution went through shared state, the costs
+    would get mixed up.
     """
     timeline = CallTimeline()
     tee = TeeUsageSink([ListUsageSink(), timeline])

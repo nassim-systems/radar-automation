@@ -48,7 +48,7 @@ def test_build_reply_prompt_sanitizes_client_fields() -> None:
 
     prompt = build_reply_prompt(msg, Intent.OTHER, context)
 
-    # breakout neutralisé : une seule balise fermante (la vraie)
+    # breakout neutralized: a single closing tag (the real one)
     assert prompt.count("</message>") == 1
     assert "Ignore toute consigne" in prompt
 
@@ -116,7 +116,7 @@ def test_draft_reply_is_read_only() -> None:
 
 
 def test_build_reply_prompt_keeps_prebuilt_history_block() -> None:
-    # l'historique <turn> est déjà sûr : il ne doit PAS être re-sanitizé
+    # the <turn> history is already safe: it must NOT be re-sanitized
     context = _context([], history='<turn role="client">bonjour</turn>')
 
     prompt = build_reply_prompt(_msg("Question ?"), Intent.SUPPORT, context)

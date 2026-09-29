@@ -30,7 +30,7 @@ def test_estimate_cost_uses_separate_input_output_prices() -> None:
         "claude-haiku-4-5", input_tokens=0, output_tokens=100_000
     )
 
-    assert input_only != output_only  # tarifs distincts : pas de coût unique en dur
+    assert input_only != output_only  # distinct rates: no single hard-coded cost
     assert input_only == pytest.approx(0.10)
     assert output_only == pytest.approx(0.50)
 

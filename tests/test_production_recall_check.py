@@ -1,9 +1,9 @@
-"""Garde-fous sur le jeu de contrôle « rappel réel » (module 3.5, point 4).
+"""Guardrails on the "real recall" control set (module 3.5, point 4).
 
-Substitut au batch exact des 20 items du run réel de 3.3 (non conservé) :
-20 items réels, les plus récents non sélectionnés dans le held-out de
-calibration, donc un échantillon non biaisé plutôt qu'une seconde curation.
-Mêmes garanties de non-contamination que ``heldout_representative.json``.
+Substitute for the exact batch of 20 items from the real run of 3.3 (not
+kept): 20 real items, the most recent ones not selected in the calibration
+held-out set, hence an unbiased sample rather than a second curation.
+Same non-contamination guarantees as ``heldout_representative.json``.
 """
 import json
 from pathlib import Path
@@ -62,8 +62,8 @@ def test_production_recall_check_is_disjoint_from_training_dataset() -> None:
 
 
 def test_production_recall_check_is_disjoint_from_calibration_heldout() -> None:
-    # Échantillon non biaisé distinct du jeu curé pour la calibration : pas
-    # de double-comptage entre les deux mesures.
+    # Unbiased sample distinct from the curated set used for calibration: no
+    # double counting between the two measurements.
     heldout_raw = json.loads(HELDOUT_PATH.read_text(encoding="utf-8"))
     heldout_urls = {item["url"] for item in heldout_raw}
     check_urls = {item["url"] for item in _raw_items()}

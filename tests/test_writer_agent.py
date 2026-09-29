@@ -51,8 +51,8 @@ def test_write_draft_uses_llm_and_reuses_parse_draft_cleanup() -> None:
 
     draft = write_draft(_item(), angle, llm)
 
-    # même nettoyage que parse_draft (module 1.x) : espaces et lignes
-    # vides supprimés, pas de logique de parsing dupliquée.
+    # same cleaning as parse_draft (module 1.x): whitespace and empty
+    # lines removed, no duplicated parsing logic.
     assert draft.text == "Ligne 1\nLigne 2"
 
 

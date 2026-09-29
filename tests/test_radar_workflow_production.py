@@ -1,5 +1,5 @@
-"""Le chemin de production unique (module 4.5) : ``build_radar_steps_production``
-(scoring concurrent + drafting décomposé). Voir ``MIGRATION.md``.
+"""The single production path (module 4.5): ``build_radar_steps_production``
+(concurrent scoring + decomposed drafting). See ``MIGRATION.md``.
 """
 from datetime import UTC, datetime, timedelta
 
@@ -18,7 +18,7 @@ from radar.workflow import (
 NOW = datetime(2026, 8, 18, 12, 0, tzinfo=UTC)
 FRESH = NOW - timedelta(days=1)
 MAX_AGE = timedelta(days=7)
-MIN_SCORE = 8  # même seuil calibré qu'en production (composition.py)
+MIN_SCORE = 8  # same calibrated threshold as in production (composition.py)
 N_ITEMS = 2
 N_LLM_CALLS = 4  # 2 scoring + 1 angle + 1 write
 
@@ -37,10 +37,10 @@ EXPECTED_PRODUCTION_STEP_NAMES = [
 
 
 class _ScriptedProductionLLM:
-    """Distingue scoring / angle / rédaction par un marqueur unique à
-    chaque prompt (cf. radar/scoring.py, radar/drafting/angle.py,
-    radar/drafting/writer.py) — score piloté par item, angle toujours
-    honnête, rédaction canned."""
+    """Tell scoring / angle / writing apart by a marker unique to
+    each prompt (see radar/scoring.py, radar/drafting/angle.py,
+    radar/drafting/writer.py): score driven per item, angle always
+    honest, writing canned."""
 
     def __init__(self, score_by_title: dict[str, str], draft_text: str) -> None:
         self._score_by_title = score_by_title
@@ -167,9 +167,9 @@ def test_radar_workflow_state_to_pipeline_report_maps_all_fields() -> None:
 
 
 def test_production_workflow_produces_a_complete_workflow_run() -> None:
-    """Vérifie que le WorkflowRun produit par la composition de production
-    est complet : trace des 10 étapes avec durées, usage agrégé, brouillons
-    dans l'état final — cf. livrable du module 4.5."""
+    """Check that the WorkflowRun produced by the production composition
+    is complete: trace of the 10 steps with durations, aggregated usage, drafts
+    in the final state; see the module 4.5 deliverable."""
     items = [_item("1", "Alpha")]
     sink = ListUsageSink()
     llm = _ScriptedProductionLLM({"Alpha": "9"}, draft_text="Brouillon complet.")
@@ -188,7 +188,7 @@ def test_production_workflow_produces_a_complete_workflow_run() -> None:
     assert len(run.trace) == len(EXPECTED_PRODUCTION_STEP_NAMES)
     assert all(t.ok for t in run.trace)
     assert all(t.duration_seconds >= 0 for t in run.trace)
-    assert run.usage is not None  # FakeLLM ne rapporte rien : coût à 0, mais présent
+    assert run.usage is not None  # FakeLLM reports nothing: cost is 0, but present
     state = run.final_state
     assert isinstance(state, RadarWorkflowState)
     assert len(state.drafts) == 1
@@ -196,8 +196,8 @@ def test_production_workflow_produces_a_complete_workflow_run() -> None:
 
 
 def test_angle_step_isolates_a_failing_item_instead_of_aborting_the_run() -> None:
-    """Durcissement production (4.5) : une erreur LLM sur la décision
-    d'angle d'un item n'abat pas les autres — cf. AngleStep."""
+    """Production hardening (4.5): an LLM error on one item's angle
+    decision does not take down the others; see AngleStep."""
 
     class _FailsOnBetaAngle:
         def complete(self, prompt: str) -> str:

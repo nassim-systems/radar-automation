@@ -1,10 +1,10 @@
-"""Trace de run exportable (module 4.6, OBSERVABILITY.md).
+"""Exportable run trace (module 4.6, OBSERVABILITY.md).
 
-Deux niveaux : les agrégations pures (phases, items, latences) testées sur
-des données construites, puis un run complet à travers la composition de
-production — le seul endroit où l'on peut vérifier que les compteurs
-reconstruits par les étapes (module 4.5) et les appels réellement tracés
-coïncident.
+Two levels: pure aggregations (phases, items, latencies) tested on
+constructed data, then a full run through the production composition,
+the only place where we can verify that the counters rebuilt by
+the steps (module 4.5) and the actually traced
+calls coincide.
 """
 import json
 from datetime import UTC, datetime, timedelta
@@ -47,8 +47,8 @@ ITEM_SECONDS = 3.5
 
 
 class _ScriptedProductionLLM:
-    """Même convention que ``tests/test_radar_workflow_production.py`` :
-    le marqueur du prompt distingue scoring / angle / rédaction."""
+    """Same convention as ``tests/test_radar_workflow_production.py``:
+    the prompt marker tells scoring / angle / writing apart."""
 
     def __init__(self, score_by_title: dict[str, str]) -> None:
         self._score_by_title = score_by_title
@@ -102,8 +102,8 @@ def _step(name: str, duration: float) -> StepTrace:
 
 
 def test_phase_speedup_compares_cumulative_calls_to_the_step_wall_time() -> None:
-    """La mesure du gain de concurrence (module 4.3) : trois appels d'une
-    seconde recouverts dans une étape d'une seconde valent un speedup de 3."""
+    """The concurrency gain measurement (module 4.3): three one-second calls
+    overlapped within a one-second step amount to a speedup of 3."""
     calls = [_call("score", f"rss:{i}", duration=1.0) for i in range(3)]
 
     (phase,) = summarize_phases(calls, [_step("score", 1.0)])
@@ -119,7 +119,7 @@ def test_phase_without_a_matching_step_reports_no_speedup() -> None:
     (phase,) = summarize_phases([_call("score", "rss:1", 1.0)], [])
 
     assert phase.step_wall_seconds is None
-    assert phase.speedup is None  # pas de dénominateur : pas de ratio inventé
+    assert phase.speedup is None  # no denominator: no invented ratio
 
 
 def test_items_aggregate_all_their_calls_across_phases() -> None:
@@ -183,8 +183,8 @@ def test_production_run_traces_every_llm_call_with_its_item_and_phase() -> None:
     )
 
     assert trace.n_llm_calls_traced == N_EXPECTED_CALLS
-    # Le compteur reconstruit par les étapes (4.5) et les appels réellement
-    # tracés sont obtenus par deux chemins indépendants — ils doivent coller.
+    # The counter rebuilt by the steps (4.5) and the calls actually
+    # traced are obtained via two independent paths; they must match.
     assert trace.counters.n_llm_calls == trace.n_llm_calls_traced
     assert [phase.phase for phase in trace.phases] == ["score", "angle", "write"]
     assert [phase.n_calls for phase in trace.phases] == [
@@ -192,7 +192,7 @@ def test_production_run_traces_every_llm_call_with_its_item_and_phase() -> None:
         N_RELEVANT,
         N_RELEVANT,
     ]
-    # L'item hors-sujet est scoré puis abandonné : un seul appel pour lui.
+    # The off-topic item is scored then dropped: a single call for it.
     by_key = {item.subject.key: item for item in trace.items}
     assert by_key["rss:3"].phases == ["score"]
     assert by_key["rss:1"].phases == ["score", "angle", "write"]
@@ -210,8 +210,8 @@ def test_production_run_reports_step_and_run_latencies() -> None:
     assert all(step.started_at <= step.ended_at for step in trace.steps)
     assert trace.started_at <= trace.ended_at
     assert trace.latency.run_seconds >= 0
-    # La durée du run n'est pas la somme des étapes : l'écart est le coût
-    # d'orchestration, et il est gardé explicite plutôt que dissous.
+    # The run duration is not the sum of the steps: the gap is the cost
+    # of orchestration, and it is kept explicit rather than dissolved.
     assert trace.latency.orchestration_seconds >= 0
     assert trace.latency.slowest_step in {step.name for step in trace.steps}
     assert trace.latency.llm_mean_call_seconds is not None
@@ -233,7 +233,7 @@ def test_trace_is_written_as_utf8_json_and_reloads_identically(
     assert payload["counters"]["n_drafted"] == report.n_drafted
     assert len(payload["calls"]) == N_EXPECTED_CALLS
     assert payload["items"][0]["subject"]["title"] == "Automatiser sa facturation"
-    assert "drafts" not in payload["counters"]  # pas de duplication du rapport
+    assert "drafts" not in payload["counters"]  # no duplication of the report
 
 
 def test_empty_run_produces_a_trace_without_inventing_ratios() -> None:

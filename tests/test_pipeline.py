@@ -1,7 +1,7 @@
-"""Fonctions et types purs survivants de ``run_pipeline`` (supprimée au
-module 4.5 — voir ``MIGRATION.md``). Le comportement du pipeline complet
-(fetch → ... → mark_seen, idempotence, isolation des échecs, seuil) est
-désormais testé au niveau du workflow de production :
+"""Pure functions and types that survive from ``run_pipeline`` (removed in
+module 4.5, see ``MIGRATION.md``). The behavior of the full pipeline
+(fetch → ... → mark_seen, idempotence, failure isolation, threshold) is
+now tested at the production workflow level:
 ``tests/test_radar_workflow_production.py``.
 """
 from datetime import UTC, datetime
@@ -82,11 +82,11 @@ def _report_with_accented_draft(title: str) -> PipelineReport:
 
 
 def test_pipeline_report_survives_utf8_round_trip(tmp_path: Path) -> None:
-    """Non-régression : les accents ne doivent pas se corrompre à l'écriture.
+    """Regression: accented characters must not get corrupted on write.
 
-    ``r├®seau`` est la mojibake caractéristique d'un octet UTF-8 relu avec un
-    codepage Windows (cp850/cp1252) — le symptôme exact du bug corrigé par
-    l'écriture UTF-8 explicite de ``write_report_json``.
+    ``r├®seau`` is the characteristic mojibake of a UTF-8 byte re-read with a
+    Windows codepage (cp850/cp1252), the exact symptom of the bug fixed by the
+    explicit UTF-8 write in ``write_report_json``.
     """
     report = _report_with_accented_draft("Le réseau électrique sous tension")
 

@@ -71,8 +71,8 @@ def test_parse_angle_empty_response_defaults_to_no_angle() -> None:
 
 
 def test_parse_angle_takes_only_first_non_empty_line() -> None:
-    # sortie multilignes inattendue : on ne garde que la ligne utile,
-    # jamais un mélange de plusieurs lignes.
+    # unexpected multiline output: keep only the useful line,
+    # never a mix of several lines.
     angle = parse_angle("ANGLE: Gagner du temps\nPhrase parasite suivante")
 
     assert angle.angle == "Gagner du temps"
@@ -88,8 +88,8 @@ def test_decide_angle_uses_llm_and_parses_response() -> None:
 
 
 def test_decide_angle_scripted_by_item_title() -> None:
-    # Cas ambigu : deux items différents doivent pouvoir recevoir des
-    # verdicts différents du même LLM scénarisé (pas un score figé global).
+    # Ambiguous case: two different items must be able to get
+    # different verdicts from the same scripted LLM (no global fixed score).
     llm = ScriptedFakeLLM(
         canned="ANGLE: AUCUN",
         mapping={"facturation": "ANGLE: Automatiser sa facturation"},

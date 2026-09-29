@@ -28,9 +28,9 @@ EXPECTED_DECOMPOSED_STEP_NAMES = [
 
 
 class _AngleThenWriteLLM:
-    """Distingue la frontière LLM de l'AngleAgent de celle du WriterAgent
-    par un marqueur unique à chaque prompt (cf. angle.py / writer.py) —
-    permet de scénariser un angle différent par item avec un seul LLM."""
+    """Tell the AngleAgent LLM boundary apart from the WriterAgent's
+    by a marker unique to each prompt (see angle.py / writer.py);
+    this allows scripting a different angle per item with a single LLM."""
 
     def __init__(self, angle_for_title: dict[str, str], draft_text: str) -> None:
         self._angle_for_title = angle_for_title
@@ -92,14 +92,14 @@ def test_decomposed_workflow_skips_items_without_a_genuine_angle() -> None:
     assert isinstance(state, RadarWorkflowState)
 
     assert len(state.angled) == N_ITEMS_WITH_ANGLE_DECISION
-    assert len(state.drafts) == 1  # un seul avait un angle honnête
+    assert len(state.drafts) == 1  # only one had an honest angle
     assert state.drafts[0].item.external_id == "1"
     assert state.n_skipped_no_angle == 1
 
 
 def test_decomposed_workflow_only_marks_drafted_items_as_seen() -> None:
-    # Un item sans angle reste "à voir" : comme un échec de draft, il sera
-    # retenté au run suivant plutôt que d'être marqué vu à tort.
+    # An item with no angle stays "unseen": like a draft failure, it is
+    # retried on the next run rather than wrongly marked as seen.
     items = [
         _item("1", "Automatiser sa facturation"),
         _item("2", "Nouvelle levée de fonds sans lien PME"),

@@ -1,12 +1,12 @@
-"""Garde-fous sur le held-out représentatif (module 3.5).
+"""Guardrails on the representative held-out set (module 3.5).
 
-Deux propriétés distinctes sont testées :
-- **scellé** (non-contamination) : le fichier JSON n'a structurellement aucun
-  canal pour transporter un score modèle — seuls des champs ``RawItem`` + un
-  ``label`` humain y figurent. Un score ne peut donc pas s'y être glissé.
-- **représentativité** : la distribution des labels couvre bien les trois
-  paliers voulus (hors-sujet / moyen / très pertinent), et le jeu est
-  disjoint du dataset d'entraînement (pas de fuite train/held-out).
+Two distinct properties are tested:
+- **sealed** (non-contamination): the JSON file structurally has no
+  channel to carry a model score; only ``RawItem`` fields + a human
+  ``label`` appear in it. A score therefore cannot have slipped in.
+- **representativeness**: the label distribution covers the three intended
+  tiers (off-topic / medium / highly relevant), and the set is disjoint
+  from the training dataset (no train/held-out leak).
 """
 import json
 from pathlib import Path
@@ -32,7 +32,7 @@ _ALLOWED_KEYS = {
     "summary",
     "label",
 }
-_MIN_PER_BAND = 8  # tolérance sous les 10/10/10 réels, au cas où le jeu évolue
+_MIN_PER_BAND = 8  # tolerance below the actual 10/10/10, in case the set evolves
 
 
 def _raw_items() -> list[dict[str, object]]:
@@ -44,9 +44,9 @@ def test_heldout_representative_has_expected_size() -> None:
 
 
 def test_heldout_representative_is_sealed_no_model_score_field() -> None:
-    # Le schéma n'admet que RawItem + label humain : aucun champ ne peut
-    # transporter un score modèle. La contamination est donc structurellement
-    # impossible, pas seulement une question de discipline d'auteur.
+    # The schema admits only RawItem + a human label: no field can
+    # carry a model score. Contamination is therefore structurally
+    # impossible, not just a matter of author discipline.
     for raw in _raw_items():
         assert set(raw.keys()) <= _ALLOWED_KEYS
         assert "score" not in raw
@@ -75,8 +75,8 @@ def test_heldout_representative_covers_all_three_relevance_bands() -> None:
     assert n_off_topic >= _MIN_PER_BAND
     assert n_medium >= _MIN_PER_BAND
     assert n_highly_relevant >= _MIN_PER_BAND
-    # Zones grises (3-4, 7) volontairement évitées : paliers nets pour que
-    # precision/recall_at_threshold ne soient pas noyés dans le bruit.
+    # Gray zones (3-4, 7) deliberately avoided: clear tiers so that
+    # precision/recall_at_threshold are not drowned in noise.
     assert n_off_topic + n_medium + n_highly_relevant == len(labels)
 
 

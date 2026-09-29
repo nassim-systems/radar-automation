@@ -15,7 +15,7 @@ def _settings(tmp_path: Path) -> Settings:
 def test_composition_builds_radar_pipeline(tmp_path: Path) -> None:
     run = build_radar_pipeline(_settings(tmp_path))
 
-    assert callable(run)  # câblé sans crash (non exécuté : pas de réseau/LLM)
+    assert callable(run)  # wired without crashing (not executed: no network/LLM)
 
 
 def test_composition_builds_agent(tmp_path: Path) -> None:

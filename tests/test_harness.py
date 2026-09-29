@@ -45,7 +45,7 @@ def test_scripted_fake_llm_falls_back_to_canned() -> None:
 
 def test_evaluate_produces_consistent_report() -> None:
     dataset = [_eval_item("alpha", 8), _eval_item("beta", 2)]
-    # build_prompt insère le titre dans le prompt : on mappe donc sur le titre.
+    # build_prompt inserts the title into the prompt: map on the title.
     llm = ScriptedFakeLLM(canned="0", mapping={"alpha": "8", "beta": "2"})
 
     report = evaluate(dataset, make_llm_scorer(llm))
@@ -56,7 +56,7 @@ def test_evaluate_produces_consistent_report() -> None:
 
 
 def test_evaluate_maps_malformed_output_to_neutral_score() -> None:
-    # coherence avec le module 1.3 : sortie non parsable -> score neutre 0
+    # consistent with module 1.3: unparsable output -> neutral score 0
     dataset = [_eval_item("gamma", 5)]
     llm = ScriptedFakeLLM(canned="pas un nombre")
 

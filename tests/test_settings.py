@@ -36,7 +36,7 @@ def test_env_is_gitignored() -> None:
 
 
 def test_no_secret_in_repo() -> None:
-    marker = "sk-" + "ant-"  # concaténé pour ne pas se signaler soi-même
+    marker = "sk-" + "ant-"  # concatenated so the file does not flag itself
     tracked = subprocess.run(
         ["git", "ls-files"],
         cwd=REPO,

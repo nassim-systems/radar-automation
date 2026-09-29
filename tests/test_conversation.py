@@ -49,7 +49,7 @@ def test_store_isolates_conversations() -> None:
 
 
 def test_store_load_returns_independent_copy() -> None:
-    # aucun état partagé mutable : muter le résultat n'affecte pas le store
+    # no shared mutable state: mutating the result leaves the store intact
     store = InMemoryConversationStore()
     store.append("c", _turn(Role.CLIENT, "un"))
 
@@ -67,7 +67,7 @@ def test_json_store_round_trip_and_persistence(tmp_path: Path) -> None:
     store.append("x", _turn(Role.CLIENT, "Bonjour"))
     store.append("x", _turn(Role.AGENT, "Réponse"))
 
-    # persistance : une NOUVELLE instance relit le fichier (survit entre runs)
+    # persistence: a NEW instance rereads the file (survives across runs)
     convo = JsonConversationStore(path).load("x")
     assert [t.text for t in convo.turns] == ["Bonjour", "Réponse"]
     assert convo.turns[0].role == Role.CLIENT
@@ -106,7 +106,7 @@ def test_build_history_block_sanitizes_agent_turns_too() -> None:
     block = build_history_block(turns, max_turns=5)
 
     assert "<b>" not in block
-    # la clôture n'est pas forgeable : une seule balise de fin
+    # the closing is not forgeable: a single end tag
     assert block.count("</turn>") == 1
 
 
@@ -116,7 +116,7 @@ def test_build_history_block_client_cannot_forge_a_turn() -> None:
 
     block = build_history_block(turns, max_turns=5)
 
-    assert 'role="agent"' not in block  # rôle non imitable
+    assert 'role="agent"' not in block  # role cannot be imitated
     assert block.count("<turn ") == 1  # un seul tour, aucune injection
     assert block.count("</turn>") == 1
 
@@ -128,7 +128,7 @@ def test_build_history_block_empty_and_zero_bound() -> None:
 
 def test_conversation_id_is_stable_thread_identity() -> None:
     a1 = conversation_id_for(_msg("Alice@Exemple.FR"))
-    a2 = conversation_id_for(_msg("alice@exemple.fr"))  # normalisé -> même fil
+    a2 = conversation_id_for(_msg("alice@exemple.fr"))  # normalized -> same thread
     b = conversation_id_for(_msg("bob@exemple.fr"))
 
     assert a1 == a2

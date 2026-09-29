@@ -58,7 +58,7 @@ def test_anthropic_client_reports_usage_via_sink() -> None:
 
         result = client.complete("un prompt")
 
-    assert result == "7"  # le canal usage n'altère pas le retour existant
+    assert result == "7"  # the usage channel does not alter the existing return value
     assert len(sink.calls) == 1
     assert sink.calls[0].input_tokens == INPUT_TOKENS
     assert sink.calls[0].output_tokens == OUTPUT_TOKENS
@@ -66,8 +66,8 @@ def test_anthropic_client_reports_usage_via_sink() -> None:
 
 
 def test_anthropic_client_without_sink_does_not_touch_usage() -> None:
-    # aucune capacité .usage sur cette réponse : ne doit pas lever si
-    # usage_sink n'est pas injecté (comportement par défaut, non-breaking).
+    # no .usage attribute on this response: must not raise if
+    # usage_sink is not injected (default behavior, non-breaking).
     response = SimpleNamespace(content=[SimpleNamespace(type="text", text="7")])
 
     with patch("radar.llm.anthropic_client.Anthropic") as anthropic_cls:
@@ -91,7 +91,7 @@ def test_anthropic_client_translates_rate_limit_to_transient_error() -> None:
         with pytest.raises(TransientLLMError) as exc_info:
             client.complete("un prompt")
 
-    assert exc_info.value.__cause__ is original  # chaîne préservée (raise ... from)
+    assert exc_info.value.__cause__ is original  # chain preserved (raise ... from)
 
 
 def test_anthropic_client_translates_overloaded_to_transient_error() -> None:
@@ -110,8 +110,8 @@ def test_anthropic_client_translates_overloaded_to_transient_error() -> None:
 
 
 def test_anthropic_client_does_not_translate_non_transient_errors() -> None:
-    # 400 Bad Request : pas une erreur transitoire, ne doit jamais devenir un
-    # TransientLLMError (donc jamais retentée par la politique de retry).
+    # 400 Bad Request: not a transient error, must never become a
+    # TransientLLMError (hence never retried by the retry policy).
     original = BadRequestError(
         "requête invalide",
         response=httpx.Response(status_code=400, request=_REQUEST),

@@ -71,7 +71,7 @@ def test_json_run_history_store_is_bounded(tmp_path: Path) -> None:
 
     kept = store.recent(10)
 
-    assert [r.at.minute for r in kept] == [1, 2]  # le run minute=0 a été purgé
+    assert [r.at.minute for r in kept] == [1, 2]  # the minute=0 run was purged
 
 
 def test_in_memory_run_history_store_round_trip() -> None:

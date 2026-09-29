@@ -14,7 +14,7 @@ RECEIVED_AT = datetime(2026, 8, 18, 12, 0, tzinfo=UTC)
 
 
 class _AgentFakeLLM:
-    """FakeLLM : renvoie un label pour la classification, un texte pour le draft."""
+    """FakeLLM: returns a label for classification, a text for the draft."""
 
     def __init__(self, *, intent: str, reply: str) -> None:
         self._intent = intent
@@ -23,7 +23,7 @@ class _AgentFakeLLM:
     def complete(self, prompt: str) -> str:
         if "classifieur" in prompt:  # prompt de classification
             return self._intent
-        return self._reply  # prompt de rédaction
+        return self._reply  # drafting prompt
 
 
 class _BoomLLM:
@@ -80,7 +80,7 @@ def test_handle_message_end_to_end() -> None:
     assert not result.escalated
     assert len(result.proposed_actions) == 1
     assert result.proposed_actions[0].action == "send_email"
-    # le tour client est mémorisé, le fil est identifié
+    # the client turn is stored, the thread is identified
     assert result.conversation_id == conversation_id_for(_msg("x", sender="p@x.fr"))
     turns = conversations.load(result.conversation_id).turns
     assert [t.text for t in turns] == ["Je veux un devis"]
@@ -98,13 +98,13 @@ def test_handle_message_executes_no_write() -> None:
         config=_config(),
     )
 
-    # toute écriture n'est qu'une proposition inerte, human-gated
+    # any write is only an inert, human-gated proposal
     for action in result.proposed_actions:
         assert isinstance(action, ProposedAction)
         assert action.requires_human_approval is True
         assert not hasattr(action, "execute")
 
-    # rien n'a été "envoyé" : aucun tour AGENT n'est ajouté au fil
+    # nothing was "sent": no AGENT turn is added to the thread
     turns = conversations.load(result.conversation_id).turns
     assert all(t.role == Role.CLIENT for t in turns)
 
@@ -123,7 +123,7 @@ def test_handle_message_escalates_on_llm_failure() -> None:
     assert result.escalated is True
     assert result.intent == Intent.OTHER
     assert result.proposed_actions == []
-    # le message reçu est tout de même mémorisé
+    # the received message is stored anyway
     assert len(conversations.load(result.conversation_id).turns) == 1
 
 
@@ -166,12 +166,12 @@ def test_handle_message_appends_client_turn_only() -> None:
 
     cid = conversation_id_for(msg)
     turns = conversations.load(cid).turns
-    # politique : seul le tour CLIENT est mémorisé (le brouillon n'est pas envoyé)
+    # policy: only the CLIENT turn is stored (draft is not sent)
     assert len(turns) == 1
     assert turns[0].role == Role.CLIENT
     assert turns[0].text == "Première question"
 
-    # un second message s'ajoute au même fil
+    # a second message is appended to the same thread
     handle_message(
         msg=_msg("Deuxième question", sender="a@b.fr"),
         conversations=conversations,

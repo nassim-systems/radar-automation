@@ -120,7 +120,7 @@ def test_parse_verdict_rejected_without_reasons_line_gets_a_default_reason() -> 
 
 
 def test_parse_verdict_empty_response_defaults_to_rejected() -> None:
-    # Défaut sûr (fail-closed) : sortie vide -> rejeté, jamais accepté à tort.
+    # Fail-closed: empty output -> rejected, never wrongly accepted.
     verdict = parse_verdict("")
 
     assert verdict.accepted is False
@@ -138,7 +138,7 @@ def test_parse_verdict_is_case_insensitive() -> None:
     assert parse_verdict("verdict: rejeté\nraisons: x").accepted is False
 
 
-# --- critique_draft (frontière LLM) ---
+# --- critique_draft (LLM boundary) ---
 
 
 def test_critique_draft_short_circuits_on_length_without_calling_llm() -> None:

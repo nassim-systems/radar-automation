@@ -24,7 +24,7 @@ def test_agreement_is_zero_for_maximal_distance() -> None:
 
 
 def test_agreement_never_goes_negative() -> None:
-    # prediction hors echelle : la borne basse reste 0.0
+    # out-of-range prediction: the lower bound stays 0.0
     assert agreement([50], [0]) == pytest.approx(0.0)
 
 
@@ -72,7 +72,7 @@ def test_precision_at_threshold_perfect_when_all_retained_are_relevant() -> None
 
 
 def test_precision_at_threshold_penalises_false_positives() -> None:
-    # retenus (pred>=6) : items 0 (label 9, pertinent) et 1 (label 2, pas pertinent)
+    # kept (pred>=6): item 0 (label 9, relevant), item 1 (label 2, not)
     predictions = [8, 6]
     labels = [9, 2]
 
@@ -82,7 +82,7 @@ def test_precision_at_threshold_penalises_false_positives() -> None:
 
 
 def test_precision_at_threshold_is_one_when_nothing_retained() -> None:
-    # aucun item ne passe le seuil -> aucun faux positif possible (convention)
+    # no item passes the threshold -> no false positives (convention)
     predictions = [1, 2, 3]
     labels = [9, 9, 9]
 
@@ -105,7 +105,7 @@ def test_recall_at_threshold_perfect_when_all_relevant_are_retained() -> None:
 
 
 def test_recall_at_threshold_penalises_false_negatives() -> None:
-    # pertinents (label>=6) : items 0 (retenu, pred 8) et 1 (manqué, pred 2)
+    # relevant (label>=6): items 0 (kept, pred 8) and 1 (missed, pred 2)
     predictions = [8, 2]
     labels = [9, 6]
 
@@ -113,7 +113,7 @@ def test_recall_at_threshold_penalises_false_negatives() -> None:
 
 
 def test_recall_at_threshold_is_one_when_nothing_relevant() -> None:
-    # aucun item n'est vraiment pertinent -> rien à manquer (convention)
+    # no item is truly relevant -> nothing to miss (convention)
     predictions = [9, 9, 9]
     labels = [1, 2, 3]
 

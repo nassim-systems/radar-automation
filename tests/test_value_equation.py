@@ -1,11 +1,11 @@
-"""Équation de valeur humaine (module 4.6, OBSERVABILITY.md).
+"""Human value equation (module 4.6, OBSERVABILITY.md).
 
-Ces tests portent sur l'arithmétique et sur l'**honnêteté du modèle**, pas
-sur la justesse des hypothèses : aucun test ne peut valider qu'un humain met
-bien 30 secondes à trier un article. Ce qui est vérifiable, et vérifié ici :
-que le temps de relecture résiduel est bien déduit du gain, qu'un ratio sans
-dénominateur ne se présente pas comme un grand nombre, et qu'une baseline
-non mesurée s'annonce comme telle.
+These tests cover the arithmetic and the **honesty of the model**, not the
+soundness of the assumptions: no test can validate that a human really takes
+30 seconds to triage an article. What is verifiable, and verified here:
+that the residual review time is deducted from the gain, that a ratio with no
+denominator does not present itself as a large number, and that an
+unmeasured baseline announces itself as such.
 """
 from datetime import UTC, datetime
 from pathlib import Path
@@ -82,8 +82,8 @@ def test_value_equation_computes_time_cost_and_roi() -> None:
 
 
 def test_review_time_is_deducted_from_the_gain_not_ignored() -> None:
-    """Le système déplace le travail humain, il ne le supprime pas — la
-    relecture des brouillons produits reste à la charge de l'humain."""
+    """The system moves human work, it does not remove it; reviewing the
+    drafts produced remains the human's responsibility."""
     equation = compute_value_equation(
         report=_report(),
         machine_seconds=MACHINE_SECONDS,
@@ -111,8 +111,8 @@ def test_monthly_projection_scales_with_runs_per_month() -> None:
 
 
 def test_a_run_that_drafts_nothing_produces_no_drafting_gain() -> None:
-    """Comportement voulu : l'équation suit la production réelle du run,
-    y compris quand elle est nulle — pas une capacité théorique."""
+    """Intended behavior: the equation tracks the run's real output,
+    even when it is zero; not a theoretical capacity."""
     equation = compute_value_equation(
         report=_report(n_drafted=0),
         machine_seconds=MACHINE_SECONDS,

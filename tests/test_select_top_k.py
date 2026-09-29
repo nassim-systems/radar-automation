@@ -29,7 +29,7 @@ def test_select_top_k_returns_highest_scores_descending() -> None:
 
 
 def test_select_top_k_breaks_ties_by_item_key() -> None:
-    # même score, ordre d'entrée inverse de l'item_key : le tri suit item_key
+    # same score, input order reverse of item_key: sort follows item_key
     items = [_scored("b", 5), _scored("a", 5), _scored("c", 5)]
 
     top = select_top_k(items, 2)

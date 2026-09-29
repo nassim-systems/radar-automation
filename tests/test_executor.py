@@ -28,9 +28,9 @@ def test_execute_refuses_unapproved_action() -> None:
     ledger = InMemoryExecutionLedger()
 
     with pytest.raises(NotApproved):
-        execute(proposed, sink=sink, ledger=ledger)  # ProposedAction, non approuvée
+        execute(proposed, sink=sink, ledger=ledger)  # ProposedAction, not approved
 
-    assert sink.performed == []  # rien n'a été exécuté
+    assert sink.performed == []  # nothing was executed
 
 
 def test_execute_accepts_approved_action() -> None:
@@ -54,7 +54,7 @@ def test_execute_is_idempotent() -> None:
 
     assert first.status == EXECUTED
     assert second.status == ALREADY_EXECUTED
-    assert len(sink.performed) == 1  # exécutée une seule fois
+    assert len(sink.performed) == 1  # executed only once
 
 
 def test_approve_requires_human_approver() -> None:
@@ -71,5 +71,5 @@ def test_json_execution_ledger_persists(tmp_path: Path) -> None:
     assert not ledger.was_executed("id-1")
     ledger.mark_executed("id-1")
 
-    # une nouvelle instance relit le fichier (idempotence entre runs)
+    # a new instance rereads the file (idempotence across runs)
     assert JsonExecutionLedger(path).was_executed("id-1")

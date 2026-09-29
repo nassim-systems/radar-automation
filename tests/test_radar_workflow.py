@@ -33,8 +33,8 @@ SCORE = 7
 
 
 class _UsageReportingFakeLLM:
-    """Simule un ``AnthropicClient`` : rapporte un usage fixe au sink 3.4 à
-    chaque appel, comme le ferait le vrai client."""
+    """Simulate an ``AnthropicClient``: report a fixed usage to the 3.4 sink at
+    every call, as the real client would."""
 
     def __init__(self, canned: str, sink: ListUsageSink, per_call: LlmUsage) -> None:
         self._canned = canned
@@ -75,11 +75,11 @@ def test_build_radar_steps_has_expected_order() -> None:
 
 
 def test_radar_workflow_matches_known_expected_result() -> None:
-    """Fige en dur les valeurs que l'ancienne preuve d'équivalence contre
-    ``run_pipeline`` (module 4.1) avait validées — ``run_pipeline`` a été
-    supprimée au module 4.5 (chemin de production unique, cf.
-    ``MIGRATION.md``), donc plus de cible de comparaison directe, mais cette
-    étape de la migration reste sous garde-fou."""
+    """Hard-code the values that the former equivalence proof against
+    ``run_pipeline`` (module 4.1) had validated. ``run_pipeline`` was
+    removed in module 4.5 (single production path, see
+    ``MIGRATION.md``), so there is no direct comparison target anymore, but this
+    migration step remains under guardrail."""
     items = [
         _item("1", "Alpha", FRESH),
         _item("1", "Alpha (doublon)", FRESH),
@@ -99,8 +99,8 @@ def test_radar_workflow_matches_known_expected_result() -> None:
     state = run.final_state
     assert isinstance(state, RadarWorkflowState)
 
-    # 5 items -> dédoublonnés à 4 (doublon "1") -> 3 frais (Vieux est STALE)
-    # -> tous scorés 7 -> top-2 par item_key ("rss:1", "rss:2").
+    # 5 items -> dedup to 4 (duplicate "1") -> 3 fresh (Vieux is STALE)
+    # -> all scored 7 -> top-2 by item_key ("rss:1", "rss:2").
     assert len(state.scored) == N_FRESH_AFTER_DEDUP
     assert len(state.above_threshold) == N_FRESH_AFTER_DEDUP  # min_score=0
     assert {d.item.external_id for d in state.drafts} == {"1", "2"}
@@ -151,7 +151,7 @@ def test_radar_workflow_captures_usage_across_score_and_draft_steps() -> None:
 
     run = run_workflow(steps, RadarWorkflowState(), usage_sink=sink)
 
-    # 1 appel de scoring + 1 appel de drafting pour cet item -> usage cumulé x2.
+    # 1 scoring call + 1 drafting call for this item -> cumulative usage x2.
     assert run.usage == LlmUsage(input_tokens=20, output_tokens=2, cost_usd=0.002)
 
 
@@ -176,10 +176,10 @@ def test_radar_workflow_aborts_with_partial_trace_when_fetch_fails() -> None:
 
 
 def test_radar_workflow_recomposes_a_scoring_only_dry_run() -> None:
-    """Preuve concrète de recomposition : un sous-ensemble des mêmes étapes
-    (sans draft ni mark_seen) donne un dry-run de scoring, sans dupliquer de
-    code ni toucher au seen_store — impossible avec une fonction monolithique
-    (l'ancienne ``run_pipeline``) sans l'éditer ou la copier-coller."""
+    """Concrete proof of recomposition: a subset of the same steps
+    (without draft or mark_seen) gives a scoring dry-run, without duplicating
+    code or touching the seen_store; impossible with a monolithic function
+    (the former ``run_pipeline``) without editing or copy-pasting it."""
     items = [_item("1", "Alpha", FRESH), _item("2", "Beta", FRESH)]
     seen_store = InMemorySeenStore()
     full_steps = build_radar_steps(
@@ -204,6 +204,6 @@ def test_radar_workflow_recomposes_a_scoring_only_dry_run() -> None:
         "select_top_k",
     ]
     assert len(state.scored) == N_DRY_RUN_ITEMS
-    assert state.drafts == []  # étape draft omise, jamais exécutée
-    # étape mark_seen omise : aucun effet de bord sur le store
+    assert state.drafts == []  # draft step omitted, never executed
+    # mark_seen step omitted: no side effect on the store
     assert seen_store.load_seen() == set()

@@ -33,12 +33,12 @@ def test_registry_structured_read_selection() -> None:
     assert reg.names() == ["crm_lookup", "kb_search"]
     assert reg.read("crm_lookup", "a@b.fr").data == "ACME"
     assert reg.read("kb_search", "RETOUR").ok
-    # outil inconnu -> échec propre, aucune exception
+    # unknown tool -> clean failure, no exception
     assert not reg.read("inexistant", "x").ok
 
 
 def test_proposed_action_requires_human_approval_is_structural() -> None:
-    # même en forçant False, l'invariant tient (validation)
+    # even when forcing False, the invariant holds (validation)
     action = ProposedAction(
         action="send_email",
         params={"to": "a@b.fr"},
@@ -47,7 +47,7 @@ def test_proposed_action_requires_human_approval_is_structural() -> None:
     )
     assert action.requires_human_approval is True
 
-    # modèle gelé : impossible de le repasser à False après coup
+    # frozen model: cannot be set back to False afterwards
     with pytest.raises(ValidationError):
         action.requires_human_approval = False
 
@@ -57,22 +57,22 @@ def test_no_autonomous_execution_path_for_actions() -> None:
         to="a@b.fr", subject="Bonjour", body="...", reason="réponse client"
     )
 
-    # 1. l'action est une donnée inerte : rien pour l'exécuter
+    # 1. the action is inert data: nothing to execute it
     assert isinstance(action, ProposedAction)
     assert action.requires_human_approval is True
     assert not callable(action)
     for attr in ("execute", "run", "perform", "send", "apply", "dispatch"):
         assert not hasattr(action, attr)
 
-    # 2. une action n'est pas un outil de lecture : ne peut pas entrer au registry
+    # 2. an action is not a read tool: cannot enter the registry
     assert not hasattr(action, "read")
 
-    # 3. la porte d'action ne fait qu'attendre l'humain, jamais exécuter
+    # 3. the action gate only waits for the human, never executes
     decision = gate_action(action)
     assert decision.approved is False
     assert decision.status == "pending_human_approval"
 
-    # 4. aucun module du système n'expose de primitive d'exécution d'action
+    # 4. no module in the system exposes an action-execution primitive
     forbidden = {"execute", "run_action", "perform", "dispatch", "apply"}
     for module in (actions, registry, actions_gate):
         exported = {name for name in dir(module) if not name.startswith("_")}

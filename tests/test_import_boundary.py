@@ -1,18 +1,18 @@
-"""Frontière d'import : le package ``agent`` ne peut agir sur le monde.
+"""Import boundary: the ``agent`` package cannot act on the world.
 
-Mécanisme choisi : un test qui parse l'AST de chaque module de ``src/agent`` et
-vérifie qu'aucun ``import`` ne cible ``executor`` ni un client sortant (SMTP,
+Chosen mechanism: a test that parses the AST of every module in ``src/agent``
+and checks that no ``import`` targets ``executor`` or an outbound client (SMTP,
 requests, urllib/http, socket…).
 
-Justification (AST-grep plutôt qu'import-linter) :
-- Zéro dépendance nouvelle et zéro fichier de config : la garantie vit dans la
-  suite pytest déjà exécutée par ``check.sh`` (invariant testé en continu).
-- Parse réel (pas un grep textuel) : ignore les imports en commentaires ou
-  chaînes, ne relève que de vrais ``import``/``from ... import``.
-- Cible précisément le bon périmètre : les imports DIRECTS du code de ``agent``.
-  C'est exactement la frontière voulue — l'agent ne doit pas, dans son propre
-  code, tenir la capacité d'agir. La séparation en packages (``executor`` à part)
-  rend l'infraction visible et testable.
+Rationale (AST-grep rather than import-linter):
+- Zero new dependency and zero config file: the guarantee lives in the pytest
+  suite already run by ``check.sh`` (invariant tested continuously).
+- Real parse (not a textual grep): ignores imports in comments or strings,
+  only picks up real ``import``/``from ... import`` statements.
+- Targets exactly the right scope: DIRECT imports in ``agent`` code.
+  This is exactly the intended boundary: the agent must not, in its own
+  code, hold the ability to act. Splitting into packages (``executor`` apart)
+  makes a violation visible and testable.
 """
 import ast
 from pathlib import Path
@@ -44,7 +44,7 @@ def _imported_top_modules(path: Path) -> set[str]:
 
 
 def test_agent_dir_exists() -> None:
-    # garde-fou : si le chemin est faux, le test ci-dessous serait vide et faux
+    # guard: if the path is wrong, the test below would be empty and wrong
     assert AGENT_DIR.is_dir()
 
 
@@ -58,7 +58,7 @@ def test_agent_does_not_import_executor_or_outgoing_clients() -> None:
 
 
 def test_only_composition_imports_executor() -> None:
-    # seul le module de composition a le droit d'importer executor
+    # only the composition module may import executor
     src = Path(__file__).resolve().parents[1] / "src"
     offenders: list[str] = []
     for path in sorted(src.rglob("*.py")):
