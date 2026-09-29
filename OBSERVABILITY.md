@@ -230,7 +230,7 @@ de `QUALITY.md` et `ANGLE_AGENT.md` : un seul annotateur, une seule passe.
 - `tests/test_entrypoint.py` (+) : deux artefacts distincts, `run_report.json`
   sans champ de trace, équation présente et annoncée non mesurée.
 
-Suite complète : **258 passed** (235 avant ce module). `ruff check .` clean.
+Suite complète à la livraison de ce module : **258 passed** (235 avant). `ruff check .` clean.
 
 ## Reproductibilité
 

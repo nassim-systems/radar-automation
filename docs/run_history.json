@@ -1,0 +1,105 @@
+[
+  {
+    "at": "2026-08-29T15:58:02.063782Z",
+    "report": {
+      "n_fetched": 20,
+      "n_dedup": 20,
+      "n_fresh": 20,
+      "n_unseen": 20,
+      "n_scored": 20,
+      "n_above_threshold": 0,
+      "n_drafted": 0,
+      "n_llm_calls": 20,
+      "n_failures": 0,
+      "drafts": []
+    },
+    "usage": {
+      "input_tokens": 10051,
+      "output_tokens": 100,
+      "cost_usd": 0.010551
+    }
+  },
+  {
+    "at": "2026-08-30T13:50:54.151977Z",
+    "report": {
+      "n_fetched": 57,
+      "n_dedup": 57,
+      "n_fresh": 32,
+      "n_unseen": 32,
+      "n_scored": 30,
+      "n_above_threshold": 3,
+      "n_drafted": 3,
+      "n_llm_calls": 36,
+      "n_failures": 0,
+      "drafts": [
+        {
+          "item": {
+            "source": "rss",
+            "external_id": "https://zapier.com/blog/automate-claude",
+            "title": "Claude integrations: How to use Zapier with Claude (Sonnet 5, Opus 5, and more)",
+            "url": "https://zapier.com/blog/automate-claude",
+            "published_at": "2026-08-26T07:00:00Z",
+            "summary": "With every new model release, Claude tops almost every benchmark. And chatting with Claude makes it clear why: it's good at everything. But while there's power in a back-and-forth conversation, you can accomplish a lot more when you use Zapier to connect Claude to the rest of your apps and let automation carry out entire workflows for you. Here's how it works. Table of contents: Add Claude's brain to your existing workflows Automate workflows directly from Claude Claude automation FAQ Add Claude"
+          },
+          "score": 8,
+          "draft": {
+            "text": "# Brouillon de post\nConnecter Claude à vos outils métier via Zapier, c'est transformer vos workflows existants sans coder. Plutôt que de discuter avec Claude en mode conversationnel, l'automatisation via Zapier vous permet de chaîner des tâches complètes : enrichir vos contacts CRM, générer des emails personnalisés, traiter vos bases de données. Découvrez comment intégrer l'intelligence de Claude directement dans vos processus métier pour gagner du temps sur les tâches répétitives."
+          }
+        },
+        {
+          "item": {
+            "source": "rss",
+            "external_id": "https://zapier.com/blog/best-ai-website-builder",
+            "title": "The 3 best AI website builders in 2026",
+            "url": "https://zapier.com/blog/best-ai-website-builder",
+            "published_at": "2026-08-25T04:00:00Z",
+            "summary": "Vibe coding tools like Lovable and AI coding agents like Codex and Claude Code have totally changed the concept of building. You can now create a web app from a couple of text prompts, so can you do the same with a website? In short, yes. Though it's not quite as simple as that.  The claim is that AI website builders can streamline everything from designing a site to creating the content, organizing it into the appropriate pages, and even getting it online. It's a bold claim, and it's mostly tru"
+          },
+          "score": 8,
+          "draft": {
+            "text": "# Brouillon de post\nLes constructeurs IA promettent de simplifier la création de sites web : design, contenu, organisation des pages, mise en ligne — tout depuis quelques instructions textuelles. Mais la réalité est plus nuancée. Bien que ces outils aient effectivement transformé le développement web, les PME sans ressources internes doivent vérifier si cette simplicité affichée correspond vraiment à leurs besoins spécifiques, ou si des limitations subsistent selon leur contexte."
+          }
+        },
+        {
+          "item": {
+            "source": "rss",
+            "external_id": "https://zapier.com/blog/claude-for-small-business",
+            "title": "Claude for small business: What it is and how to use it",
+            "url": "https://zapier.com/blog/claude-for-small-business",
+            "published_at": "2026-08-24T04:00:00Z",
+            "summary": "My friend runs a small dog boarding and training business. It's not a casual side hustle, either. She has a waitlist, a roster of regulars, and the kind of five-star reviews that take years to earn. She also has a full-time job. And somehow, she remains unburdened by the common stressors that keep small business owners up at night.  So, on behalf of all of us who are barely holding it together, working just one 9-to-5 (it's me—I am \"us\"), I asked her how she does it all. Her answer: Claude Cowor"
+          },
+          "score": 8,
+          "draft": {
+            "text": "# Brouillon de post\nGérer une PME de services tout en conservant un emploi à temps plein, c'est possible. Une propriétaire de petite entreprise de garde et dressage canin a trouvé la solution : utiliser Claude pour automatiser ses tâches administratives. Résultat ? Elle gère efficacement sa liste d'attente, ses clients réguliers et maintient son excellente réputation, sans augmenter ses ressources. Découvrez comment Claude peut vous aider à gagner du temps sur les tâches qui vous ralentissent."
+          }
+        }
+      ]
+    },
+    "usage": {
+      "input_tokens": 17888,
+      "output_tokens": 705,
+      "cost_usd": 0.021412999999999998
+    }
+  },
+  {
+    "at": "2026-09-01T20:24:06.206125Z",
+    "report": {
+      "n_fetched": 17,
+      "n_dedup": 17,
+      "n_fresh": 17,
+      "n_unseen": 17,
+      "n_scored": 17,
+      "n_above_threshold": 0,
+      "n_drafted": 0,
+      "n_llm_calls": 17,
+      "n_failures": 0,
+      "drafts": []
+    },
+    "usage": {
+      "input_tokens": 7761,
+      "output_tokens": 85,
+      "cost_usd": 0.008186
+    }
+  }
+]

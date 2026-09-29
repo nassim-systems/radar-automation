@@ -22,18 +22,18 @@ jour — et dont chaque brique a été mesurée avant d'être gardée.**
 
 | | Valeur | Source |
 |---|---|---|
-| Runs réels enregistrés | **3** (29/08, 30/08, 01/09) | `run_history.json` |
+| Runs réels enregistrés | **3** (29/08, 30/08, 01/09) | `docs/run_history.json` |
 | Articles traités par run | 17 à 57 selon le jour | idem |
 | Coût d'un run | **0,0082 $ à 0,0214 $** | idem |
-| Coût cumulé des quatre jours | **0,0401 $** | idem |
+| Coût cumulé des trois runs | **≈ 0,040 $** | idem |
 | Appels au modèle | 73 | idem |
 | Échecs | **0 sur 73** | idem |
 | Durée d'un run complet | **3,8 s** (run tracé du 01/09) | `run_trace.json` |
 | Précision du filtre éditorial | **100 %**, zéro faux positif | `QUALITY.md` |
-| Tests automatisés au vert | **258** | suite du dépôt |
+| Tests automatisés au vert | **264** | suite du dépôt |
 | Décisions d'architecture chiffrées | **7, dont 1 refus** | 7 documents |
 
-*Annexe A1 — `run_report.json`, `run_trace.json`, `run_history.json`.*
+*Annexe A1 — `run_report.json`, `run_trace.json`, `docs/run_history.json`.*
 
 ---
 
@@ -174,7 +174,7 @@ instantané : sur le run tracé, elles consomment **0,43 seconde sur 3,78**.
 | **Robustesse** | Une panne d'API ne casse pas le run | ré-essais bornés avec attente croissante sur 429/529 uniquement ; un article en échec est isolé, le run continue |
 | **Idempotence** | Le même article n'est jamais traité deux fois | marquage en dernière étape, après succès ; vérifié sur deux runs consécutifs |
 | **Auditabilité** | Chaque run laisse une trace complète | horodatage, durée, coût et issue **par étape, par article et par appel** |
-| **Non-régression** | Rien n'est livré sans que tout repasse | **258 tests** automatisés, exécutés avant chaque livraison |
+| **Non-régression** | Rien n'est livré sans que tout repasse | **264 tests** automatisés, exécutés avant chaque livraison |
 
 **La latence, mesurée sur le run du 1ᵉʳ septembre :**
 
@@ -300,7 +300,7 @@ non.
 
 | # | Contenu | Pour qui |
 |---|---|---|
-| A1 | `run_report.json`, `run_trace.json`, `run_history.json` — données brutes des trois runs | Qui veut vérifier les chiffres |
+| A1 | `run_report.json`, `run_trace.json`, `docs/run_history.json` — données brutes des trois runs | Qui veut vérifier les chiffres |
 | A2 | Les trois brouillons du 30/08 et leurs articles sources | Qui veut juger la sortie |
 | A3 | `WORKFLOW.md`, `CONCURRENCY.md`, `MIGRATION.md` — architecture et migration | Architecte |
 | A4 | `QUALITY.md`, `HELDOUT.md`, `ANGLE_AGENT.md`, `CRITIC_AGENT.md`, `OBSERVABILITY.md` — les mesures et les décisions | Qui veut auditer la méthode |
