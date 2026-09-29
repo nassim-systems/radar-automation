@@ -2,7 +2,8 @@
 
 > **Historique de révision** : la version précédente de ce document
 > s'appuyait sur un held-out **rédigé à la main** (titres inventés, réalistes
-> mais fictifs). Il a été remplacé par un held-out **réellement collecté**. Ce
+> mais fictifs). Un jeu de calibration fictif ne prouve rien sur des données
+> réelles : il a été remplacé par un held-out **réellement collecté**. Ce
 > document est entièrement refait sur cette base : 30 items **réellement
 > scrapés** depuis 7 flux RSS réels, lus et annotés à la main un par un.
 
