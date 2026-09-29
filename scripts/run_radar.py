@@ -1,8 +1,8 @@
-"""Lanceur du radar — équivalent à la commande console ``radar-run``.
+"""Radar launcher — equivalent to the ``radar-run`` console command.
 
-La logique vit dans ``app`` (module installé, testable) ; ce fichier n'est
-qu'un raccourci. Ordonnancement (cron / Task Scheduler) : voir
-``docs/ordonnancement.md``.
+The logic lives in ``app`` (installed, testable module); this file is just
+a shortcut. Scheduling (cron / Task Scheduler): see
+``docs/scheduling.md``.
 """
 import sys
 

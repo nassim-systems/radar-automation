@@ -91,7 +91,7 @@ def test_entrypoint_runs_with_fake_pipeline(tmp_path: Path) -> None:
     payload = json.loads(out.read_text(encoding="utf-8"))  # UTF-8 explicite
     assert payload["n_fetched"] == outcome.record.report.n_fetched
     assert payload["n_drafted"] == outcome.record.report.n_drafted
-    # Le rapport garde son schéma : la trace vit dans son propre artefact.
+    # The report keeps its schema: the trace lives in its own artifact.
     assert "latency" not in payload
     assert "value" not in payload
 
@@ -119,9 +119,9 @@ def test_entrypoint_writes_a_separate_trace_with_the_value_equation(
     trace = json.loads(trace_out.read_text(encoding="utf-8"))
     assert trace["latency"]["run_seconds"] == FAKE_RUN_SECONDS
     assert trace["counters"]["n_scored"] == outcome.record.report.n_scored
-    # L'équation est appliquée au point d'entrée, pas par le runner...
+    # The equation is applied at the entry point, not by the runner...
     assert trace["value"] is not None
-    # ...et sans fichier de baseline, elle s'annonce comme non mesurée.
+    # ...and without a baseline file, it announces itself as unmeasured.
     assert trace["value"]["baseline"]["measured"] is False
 
 
@@ -138,13 +138,13 @@ def test_entrypoint_exit_code_on_missing_config(
 
     assert code == EXIT_CONFIG_ERROR
     assert "Configuration manquante" in capsys.readouterr().err
-    assert not out.exists()  # aucun rapport écrit si la config manque
+    assert not out.exists()  # no report written if the config is missing
 
 
 def test_entrypoint_returns_alert_exit_code_on_cost_over_threshold(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    outcome = _fake_outcome(cost_usd=999.0)  # au-dessus du seuil par défaut
+    outcome = _fake_outcome(cost_usd=999.0)  # above the default threshold
 
     def _fake_build(settings: Settings) -> Callable[[], RadarRunOutcome]:
         return lambda: outcome
@@ -161,7 +161,7 @@ def test_entrypoint_returns_alert_exit_code_on_cost_over_threshold(
 
     assert code == EXIT_ALERT
     assert "ALERTE" in capsys.readouterr().err
-    assert out.exists()  # le rapport est quand même écrit malgré l'alerte
+    assert out.exists()  # the report is still written despite the alert
 
 
 def test_entrypoint_returns_alert_exit_code_on_llm_failures(
@@ -187,7 +187,7 @@ def test_entrypoint_returns_alert_exit_code_on_llm_failures(
 
 
 def test_scheduling_is_documented() -> None:
-    doc = (REPO / "docs" / "ordonnancement.md").read_text(encoding="utf-8").lower()
+    doc = (REPO / "docs" / "scheduling.md").read_text(encoding="utf-8").lower()
 
     assert "cron" in doc
     assert "task scheduler" in doc or "schtasks" in doc
