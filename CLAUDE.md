@@ -1,12 +1,12 @@
-Définition de terminé
----------------------
+Definition of done
+------------------
 - ruff check . && pytest && git status --porcelain
 
-Règles de discipline du projet
------------------------------
-- pas de duplication
-- imports en haut
-- packaging propre
-- tests d'intégration pour les coutures
-- datetime UTC-aware
-- commits atomiques et ordonnés
+Project discipline rules
+------------------------
+- no duplication
+- imports at the top
+- clean packaging
+- integration tests for the seams
+- UTC-aware datetime
+- atomic, ordered commits
