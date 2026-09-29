@@ -1,10 +1,10 @@
-"""Collecte un pool réel d'items depuis des flux RSS pertinents (automation,
-no-code, PME, productivité), pour construire à la main le held-out du module
-3.5 (correction demandée : held-out RÉELLEMENT scrapé, pas rédigé).
+"""Collect a real pool of items from relevant RSS feeds (automation,
+no-code, SMB, productivity), to hand-build the module 3.5 held-out
+(requested correction: held-out ACTUALLY scraped, not written).
 
-Hors suite de tests : vrais appels réseau. Écrit le pool brut (dédupliqué,
-non labellisé) dans ``scratch_heldout_pool.json`` — l'annotation humaine se
-fait ensuite à la main sur ce fichier, hors de ce script.
+Outside the test suite: real network calls. Writes the raw pool (deduplicated,
+unlabeled) to ``scratch_heldout_pool.json`` — human annotation is then done
+by hand on that file, outside this script.
 
     uv run python scripts/scrape_heldout_pool.py
 """
@@ -22,10 +22,10 @@ from radar.sources.rss import parse_rss
 USER_AGENT = "Mozilla/5.0 (compatible; radar-automation/0.1; RSS reader)"
 OUTPUT_PATH = Path("scratch_heldout_pool.json")
 
-# Flux vérifiés manuellement (probe réseau réel) au moment de l'écriture de ce
-# script — cf. QUALITY.md pour le détail des candidats testés et écartés
-# (Make.com : pas de RSS public trouvé ; Alsacréations : RSS réel mais sans
-# <pubDate>, non supporté par radar.sources.rss.parse_rss).
+# Feeds manually verified (real network probe) when this script was
+# written — see QUALITY.md for the candidates tested and discarded
+# (Make.com: no public RSS found; Alsacréations: real RSS but no
+# <pubDate>, unsupported by radar.sources.rss.parse_rss).
 FEEDS = {
     "zapier_blog": "https://zapier.com/blog/feed/",
     "n8n_blog": "https://blog.n8n.io/rss/",
@@ -62,8 +62,8 @@ def main() -> None:
     OUTPUT_PATH.write_text(
         json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8"
     )
-    print(f"\nTotal brut : {len(pool)}, après dédoublonnage : {len(deduped)}")
-    print(f"Écrit dans {OUTPUT_PATH}")
+    print(f"\nTotal brut : {len(pool)}, after deduplication: {len(deduped)}")
+    print(f"Written to {OUTPUT_PATH}")
 
 
 if __name__ == "__main__":

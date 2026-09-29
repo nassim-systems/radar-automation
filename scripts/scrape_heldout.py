@@ -1,8 +1,8 @@
-"""Held-out : scrape un flux RSS frais et exécute tout le pipeline dessus.
+"""Held-out: scrape a fresh RSS feed and run the whole pipeline on it.
 
-Mesure la vraie généralisation du scorer et du drafting sur des articles
-jamais vus (source différente du jeu annoté). Hors suite de tests : effectue
-de vrais appels réseau et LLM, écrit le résultat dans ``heldout.json``.
+Measures the real generalization of the scorer and drafting on never-seen
+articles (source different from the annotated set). Outside the test suite:
+makes real network and LLM calls, writes the result to ``heldout.json``.
 
     uv run python scripts/scrape_heldout.py [URL_RSS] [K]
 """
@@ -19,10 +19,10 @@ from radar.sources.rss import parse_rss
 
 DEFAULT_URL = "https://www.numerama.com/feed/"
 DEFAULT_K = 5
-# UA honnête d'un client RSS : beaucoup de flux refusent le UA par défaut de
-# urllib. Ne contourne aucun challenge anti-bot (ceux-là échouent toujours).
+# Honest RSS-client UA: many feeds reject urllib's default UA.
+# Does not bypass any anti-bot challenge (those always fail).
 USER_AGENT = "Mozilla/5.0 (compatible; radar-automation/0.1; RSS reader)"
-DRAFT_MAX_TOKENS = 512  # le scoring garde 16 ; le drafting a besoin de marge
+DRAFT_MAX_TOKENS = 512  # scoring keeps 16; drafting needs headroom
 
 
 def main() -> None:
@@ -34,7 +34,7 @@ def main() -> None:
     with urllib.request.urlopen(request) as response:
         feed_xml = response.read().decode("utf-8", errors="replace")
     items = parse_rss(feed_xml)
-    print(f"{len(items)} articles récupérés depuis {url}")
+    print(f"{len(items)} articles fetched from {url}")
 
     scorer_llm = AnthropicClient()
     drafter_llm = AnthropicClient(max_tokens=DRAFT_MAX_TOKENS)
@@ -52,7 +52,7 @@ def main() -> None:
     with open("heldout_scrape.json", "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, indent=2)
 
-    print(f"Top {len(top)} + brouillons écrits dans heldout_scrape.json :")
+    print(f"Top {len(top)} + drafts written to heldout_scrape.json:")
     for entry in payload:
         print(f"  [{entry['score']}] {entry['title']}")
 

@@ -1,11 +1,11 @@
-"""Mesure la valeur réelle du CriticAgent (module 4.4) sur le jeu de
-brouillons de ``radar/eval/critic_test_set.py`` (6 bons + 8 volontairement
-défectueux, 2 par catégorie), avec de vrais appels LLM.
+"""Measure the real value of the CriticAgent (module 4.4) on the draft set from
+``radar/eval/critic_test_set.py`` (6 good + 8 deliberately defective, 2 per
+category), with real LLM calls.
 
-Calcule le taux de détection (rappel sur les 8 défectueux) et le taux de
-faux rejets (sur les 6 bons), et écrit le détail par item dans
-``critic_agent_measurement.json``. Le verdict garder/jeter (§ANGLE_AGENT.md
-puis ce module : ``CRITIC_AGENT.md``) se décide sur ces chiffres, pas avant.
+Computes the detection rate (recall on the 8 defective) and the false reject
+rate (on the 6 good), and writes per-item detail to
+``results/critic_agent_measurement.json``. The keep/drop verdict (§ANGLE_AGENT.md
+then this module: ``CRITIC_AGENT.md``) is decided on these numbers, not before.
 
     uv run python scripts/measure_critic_agent.py
 """
@@ -17,12 +17,12 @@ from radar.drafting.critic import critique_draft
 from radar.eval.critic_test_set import CRITIC_TEST_SET
 from radar.llm.anthropic_client import AnthropicClient
 
-OUTPUT_PATH = Path("critic_agent_measurement.json")
+OUTPUT_PATH = Path("results/critic_agent_measurement.json")
 
 
-_MAX_TOKENS = 256  # le défaut (16) est dimensionné pour le scoring, insuffisant
-# pour "VERDICT: ..." + "RAISONS: ..." — cause de troncature déjà rencontrée
-# pour le drafting en 3.3 (_LLM_MAX_TOKENS) ; même correction ici.
+_MAX_TOKENS = 256  # the default (16) is sized for scoring, insufficient
+# for "VERDICT: ..." + "RAISONS: ..." — truncation cause already hit
+# for drafting in 3.3 (_LLM_MAX_TOKENS); same fix here.
 
 
 def main() -> None:
@@ -60,16 +60,17 @@ def main() -> None:
         "usage": sink.total().model_dump(mode="json"),
         "results": results,
     }
+    OUTPUT_PATH.parent.mkdir(exist_ok=True)
     OUTPUT_PATH.write_text(
         json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8"
     )
 
     print(
         f"n={payload['n_total']} "
-        f"({payload['n_defective']} défectueux, {payload['n_good']} bons)"
+        f"({payload['n_defective']} defective, {payload['n_good']} bons)"
     )
     print(
-        f"Détection  : {n_detected}/{len(defective)} "
+        f"Detection  : {n_detected}/{len(defective)} "
         f"({payload['detection_rate']:.0%})"
     )
     print(
@@ -77,7 +78,7 @@ def main() -> None:
         f"({payload['false_rejection_rate']:.0%})"
     )
     print(f"Coût       : {sink.total().cost_usd:.4f} USD")
-    print(f"Écrit dans {OUTPUT_PATH}")
+    print(f"Written to {OUTPUT_PATH}")
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
-"""Éval catégorielle de l'intake (hors suite) : classify réel vs labels humains.
+"""Categorical intake eval (outside the suite): real classify vs human labels.
 
-Vrais appels LLM. Petit jeu annoté à la main ; calcule l'accuracy et la matrice
-de confusion (métrique catégorielle, pas ordinale).
+Real LLM calls. Small hand-annotated set; computes accuracy and the
+confusion matrix (categorical metric, not ordinal).
 
     uv run python scripts/eval_intake.py
 """
@@ -45,9 +45,9 @@ def main() -> None:
     accuracy = sum(1 for true, pred in pairs if true == pred) / len(pairs)
     confusion = Counter((true.value, pred.value) for true, pred in pairs)
 
-    print(f"Intake — éval catégorielle (n={len(pairs)})")
+    print(f"Intake — categorical eval (n={len(pairs)})")
     print(f"  accuracy = {round(accuracy, 3)}")
-    print("  confusion (label humain -> prédiction) :")
+    print("  confusion (human label -> prediction):")
     for (true, pred), count in sorted(confusion.items()):
         print(f"    {true:>9} -> {pred:<9} : {count}")
 

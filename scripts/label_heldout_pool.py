@@ -1,16 +1,16 @@
-"""Annotation manuelle du held-out représentatif (module 3.5, correction :
-held-out RÉELLEMENT scrapé, pas rédigé).
+"""Manual annotation of the representative held-out (module 3.5, correction:
+held-out ACTUALLY scraped, not written).
 
-Filtre le pool réel produit par ``scrape_heldout_pool.py`` sur les 30 URLs
-choisies à la main, attache le label humain assigné à chacune (lu sur le
-titre + résumé RÉELS, avant toute exécution du scorer), et écrit
+Filters the real pool produced by ``scrape_heldout_pool.py`` down to the 30
+hand-picked URLs, attaches the human label assigned to each (read from the
+REAL title + summary, before any scorer run), and writes
 ``src/radar/eval/heldout_representative.json``.
 
-Sert de trace d'audit de l'annotation : chaque URL est un article réel et
-vérifiable. Ne pas modifier ``LABELS`` sans réexaminer le contenu réel.
+Serves as the annotation audit trail: each URL is a real, verifiable
+article. Do not modify ``LABELS`` without re-examining the real content.
 
-    uv run python scripts/scrape_heldout_pool.py   # régénère le pool
-    uv run python scripts/label_heldout_pool.py     # applique les labels
+    uv run python scripts/scrape_heldout_pool.py   # regenerates the pool
+    uv run python scripts/label_heldout_pool.py     # applies the labels
 """
 import json
 from pathlib import Path
@@ -18,11 +18,11 @@ from pathlib import Path
 POOL_PATH = Path("scratch_heldout_pool.json")
 OUTPUT_PATH = Path("src/radar/eval/heldout_representative.json")
 
-# url -> label humain (0-10). Choisi à la main en lisant le titre + résumé
-# réels scrapés (cf. QUALITY.md pour la méthode et la répartition visée).
+# url -> human label (0-10). Chosen by hand from the title + summary of
+# real scraped items (see QUALITY.md for the method and target split).
 LABELS: dict[str, int] = {
-    # --- hors-sujet (0-2) : actualité tech grand public, sans rapport avec
-    # l'automatisation/no-code pour une PME ---
+    # --- off-topic (0-2): mainstream tech news, unrelated to SMB
+    # automation/no-code ---
     "https://siecledigital.fr/2026/08/27/twitter-et-son-celebre-oiseau-bleu-sont-de-retour-mais-elon-musk-veut-les-faire-disparaitre/": 0,
     "https://siecledigital.fr/2026/08/27/facebook-et-instagram-juges-trop-addictifs-pour-les-jeunes-meta-accepte-de-payer-18-milliards/": 0,
     "https://siecledigital.fr/2026/08/26/le-bresil-inflige-une-amende-de-25-millions-deuros-a-tiktok-pour-ses-manquements-envers-les-mineurs/": 0,
@@ -33,8 +33,8 @@ LABELS: dict[str, int] = {
     "https://siecledigital.fr/2026/08/27/waymo-va-lancer-ses-robotaxis-sans-conducteur-dans-une-grande-ville-europeenne/": 1,
     "https://siecledigital.fr/2026/08/27/face-aux-memes-symptomes-les-ia-envoient-les-hommes-aux-urgences-mais-pas-les-femmes/": 1,
     "https://siecledigital.fr/2026/08/27/on-connait-enfin-la-date-de-presentation-du-tout-premier-iphone-pliable-dapple/": 0,
-    # --- moyen (5-6) : pertinent pour une PME ou lié à l'IA/tech, mais pas
-    # une automatisation concrète et actionnable ---
+    # --- medium (5-6): relevant to an SMB or tied to AI/tech, but not
+    # concrete, actionable automation ---
     "https://www.frenchweb.fr/le-veritable-frein-a-ladoption-de-lia-en-entreprise-nest-pas-la-technologie-mais-la-confiance/463054": 6,
     "https://www.frenchweb.fr/les-15-000-entreprises-qui-decouvriront-nis-2-apres-le-vote/462987": 5,
     "https://www.blogdumoderateur.com/reforme-facturation-electronique-tpe-pme/": 6,
@@ -45,8 +45,8 @@ LABELS: dict[str, int] = {
     "https://www.frenchweb.fr/building-france-invite-les-entrepreneurs-francais-a-transformer-leurs-idees-en-applications/462969": 6,
     "https://siecledigital.fr/2026/08/26/mauvaise-nouvelle-pour-les-abonnes-chatgpt-plus-openai-resserre-les-limites-dutilisation/": 5,
     "https://www.blogdumoderateur.com/expert-seo-formations-approfondir-competences/": 5,
-    # --- très pertinent (8-10) : automatisation/no-code concrète et
-    # actionnable pour une petite structure ---
+    # --- highly relevant (8-10): concrete, actionable automation/no-code
+    # for a small organization ---
     "https://zapier.com/blog/small-business-automation-software": 10,
     "https://zapier.com/blog/rozas-two-minute-lead-response": 9,
     "https://zapier.com/blog/zapier-mcp-guide": 8,
@@ -66,7 +66,7 @@ def main() -> None:
 
     missing = [url for url in LABELS if url not in by_url]
     if missing:
-        raise SystemExit(f"URLs introuvables dans le pool : {missing}")
+        raise SystemExit(f"URLs not found in the pool: {missing}")
 
     labeled = []
     for i, (url, label) in enumerate(LABELS.items()):
@@ -76,12 +76,12 @@ def main() -> None:
         item["label"] = label
         labeled.append(item)
 
-    assert len(labeled) == len({d["title"] for d in labeled}), "titres dupliqués"
+    assert len(labeled) == len({d["title"] for d in labeled}), "duplicate titles"
 
     OUTPUT_PATH.write_text(
         json.dumps(labeled, ensure_ascii=False, indent=2), encoding="utf-8"
     )
-    print(f"Écrit {len(labeled)} items dans {OUTPUT_PATH}")
+    print(f"Wrote {len(labeled)} items to {OUTPUT_PATH}")
 
 
 if __name__ == "__main__":

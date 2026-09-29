@@ -1,14 +1,14 @@
-"""Construit le jeu de contrôle « rappel réel » (module 3.5, point 4).
+"""Build the "real recall" check set (module 3.5, point 4).
 
-Le batch exact des 20 items du run réel de 3.3 n'a pas été conservé (le
-pipeline ne persiste que des compteurs agrégés, pas la liste des items
-fetchés — cf. ``PipelineReport``). Substitut le plus proche et honnête : les
-20 items **les plus récents, non sélectionnés** du même pool réel que le
-held-out (``scrape_heldout_pool.json``), donc un échantillon non biaisé (pas
-de curation vers un palier de label) représentatif de ce qu'un run réel
-produirait aujourd'hui avec les flux enrichis.
+The exact batch of the 20 items from the real run of 3.3 was not kept (the
+pipeline only persists aggregate counters, not the list of fetched items —
+see ``PipelineReport``). Closest honest substitute: the 20 **most recent,
+unselected** items from the same real pool as the held-out
+(``scrape_heldout_pool.json``), hence an unbiased sample (no curation
+toward a label tier) representative of what a real run would produce
+today with the enriched feeds.
 
-    uv run python scripts/scrape_heldout_pool.py       # (si besoin) régénère le pool
+    uv run python scripts/scrape_heldout_pool.py   # (if needed) regenerate pool
     uv run python scripts/label_production_recall_check.py
 """
 import json
@@ -19,8 +19,8 @@ HELDOUT_PATH = Path("src/radar/eval/heldout_representative.json")
 OUTPUT_PATH = Path("src/radar/eval/production_recall_check.json")
 N = 20
 
-# url -> label humain (0-10), assigné en lisant le titre + résumé réels,
-# avant toute exécution du scorer.
+# url -> human label (0-10), assigned from the real title + summary,
+# before any scorer run.
 LABELS: dict[str, int] = {
     "https://www.frenchweb.fr/pasqal-au-nasdaq-le-quantique-francais-cherche-le-capital-de-son-industrialisation/463104": 0,
     "https://www.frenchweb.fr/pourquoi-dotai-dotjs-est-le-seul-evenement-tech-incontournable-de-la-rentree/463091": 2,
@@ -55,10 +55,10 @@ def main() -> None:
 
     missing = [url for url in LABELS if url not in by_url]
     if missing:
-        raise SystemExit(f"URLs introuvables dans le pool : {missing}")
+        raise SystemExit(f"URLs not found in the pool: {missing}")
     overlap = set(LABELS) & heldout_urls
     if overlap:
-        raise SystemExit(f"chevauche le held-out de calibration : {overlap}")
+        raise SystemExit(f"overlaps the calibration held-out: {overlap}")
     if len(LABELS) != N:
         raise SystemExit(f"attendu {N} items, obtenu {len(LABELS)}")
 
@@ -73,7 +73,7 @@ def main() -> None:
     OUTPUT_PATH.write_text(
         json.dumps(labeled, ensure_ascii=False, indent=2), encoding="utf-8"
     )
-    print(f"Écrit {len(labeled)} items dans {OUTPUT_PATH}")
+    print(f"Wrote {len(labeled)} items to {OUTPUT_PATH}")
 
 
 if __name__ == "__main__":

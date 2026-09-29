@@ -1,11 +1,11 @@
-"""Calibration de ``min_score`` : precision/recall du held-out représentatif
-à plusieurs seuils.
+"""Calibrate ``min_score``: precision/recall on the representative held-out
+at several thresholds.
 
-Hors suite de tests : vrais appels LLM. Charge le held-out scellé
-(``src/radar/eval/heldout_representative.json``), le score avec le vrai
-modèle, calcule precision_at_threshold/recall_at_threshold pour chaque seuil
-de ``THRESHOLDS``, écrit ``quality_calibration.json``. Les résultats de ce
-script alimentent ``QUALITY.md`` (module 3.5).
+Outside the test suite: real LLM calls. Loads the sealed held-out
+(``src/radar/eval/heldout_representative.json``), scores it with the real
+model, computes precision_at_threshold/recall_at_threshold for each threshold
+in ``THRESHOLDS``, writes ``results/quality_calibration.json``. This script's results
+feed ``QUALITY.md`` (module 3.5).
 
     uv run python scripts/calibrate_threshold.py
 """
@@ -18,7 +18,7 @@ from radar.eval.metrics import precision_at_threshold, recall_at_threshold
 from radar.llm.anthropic_client import AnthropicClient
 
 HELDOUT_PATH = Path(harness.__file__).parent / "heldout_representative.json"
-OUTPUT_PATH = Path("quality_calibration.json")
+OUTPUT_PATH = Path("results/quality_calibration.json")
 THRESHOLDS = [4, 5, 6, 7, 8]
 
 
@@ -43,7 +43,7 @@ def main() -> None:
     ]
 
     payload = {
-        "source": "heldout_pme_automation (held-out représentatif, module 3.5)",
+        "source": "heldout_pme_automation (representative held-out, module 3.5)",
         "n": len(dataset),
         "thresholds": table,
         "usage": usage_sink.total().model_dump(mode="json"),
@@ -54,15 +54,16 @@ def main() -> None:
             )
         ],
     }
+    OUTPUT_PATH.parent.mkdir(exist_ok=True)
     with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, indent=2)
 
-    print(f"Calibration (n={payload['n']}, held-out représentatif)")
-    print(f"{'seuil':>5} | {'précision':>9} | {'rappel':>7}")
+    print(f"Calibration (n={payload['n']}, representative held-out)")
+    print(f"{'seuil':>5} | {'precision':>9} | {'rappel':>7}")
     for row in table:
         precision, recall = row["precision"], row["recall"]
         print(f"{row['threshold']:>5} | {precision:>9.4f} | {recall:>7.4f}")
-    print(f"Coût du run : {usage_sink.total().cost_usd:.4f} USD")
+    print(f"Run cost: {usage_sink.total().cost_usd:.4f} USD")
 
 
 if __name__ == "__main__":

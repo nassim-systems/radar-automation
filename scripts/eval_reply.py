@@ -1,9 +1,9 @@
-"""Éval de groundedness de la rédaction (hors suite) : draft_reply réel.
+"""Drafting groundedness eval (outside the suite): real draft_reply.
 
-Vrais appels LLM. Dans chaque cas, l'information demandée est ABSENTE de
-``known_facts`` : une réponse ancrée doit escalader ou rester générique, jamais
-affirmer le fait manquant (« forbidden »). Métrique = groundedness (fraction de
-réponses n'affirmant aucun fait hors contexte), pas accuracy.
+Real LLM calls. In each case, the requested information is ABSENT from
+``known_facts``: a grounded reply must escalate or stay generic, never
+assert the missing fact ("forbidden"). Metric = groundedness (fraction of
+replies asserting no out-of-context fact), not accuracy.
 
     uv run python scripts/eval_reply.py
 """

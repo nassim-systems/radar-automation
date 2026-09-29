@@ -1,21 +1,21 @@
-"""Chronomètre le travail humain que le radar remplace (module 4.6).
+"""Time the human work that the radar replaces (module 4.6).
 
-Transforme les hypothèses par défaut de ``radar/observability/value.py`` en
-**mesure**. Le protocole est volontairement rudimentaire — un chronomètre et
-une personne — mais il a la propriété qui compte : les items triés sont ceux
-d'un run réel (lus depuis ``run_trace.json``), pas des exemples choisis pour
-l'exercice.
+Turns the default assumptions of ``radar/observability/value.py`` into a
+**measurement**. The protocol is deliberately rudimentary — a stopwatch and
+one person — but it has the property that matters: the triaged items are
+those of a real run (read from ``run_trace.json``), not examples picked for
+the exercise.
 
-Ce que ce script ne fait pas : il ne mesure qu'**un** annotateur, une fois.
-C'est la même limite de non-indépendance que partout ailleurs dans ce projet
-(cf. ``QUALITY.md``, ``ANGLE_AGENT.md``) — assumée, pas masquée. Le résultat
-reste infiniment préférable à un chiffre inventé, et il est marqué
-``measured=true`` pour qu'on ne le confonde jamais avec une hypothèse —
-**uniquement si l'opérateur confirme explicitement** avoir chronométré pour
-de vrai (``_is_measured_confirmed``) ; toute autre réponse force
-``measured=false``, jamais l'inverse par défaut.
+What this script does not do: it measures only **one** annotator, once.
+This is the same non-independence limit as everywhere else in this project
+(see ``QUALITY.md``, ``ANGLE_AGENT.md``) — acknowledged, not hidden. The
+result remains infinitely preferable to an invented figure, and it is marked
+``measured=true`` so it is never mistaken for an assumption —
+**only if the operator explicitly confirms** having really timed it
+(``_is_measured_confirmed``); any other answer forces
+``measured=false``, never the reverse by default.
 
-Usage :
+Usage:
 
     uv run python scripts/measure_human_baseline.py [run_trace.json]
 """
@@ -42,23 +42,23 @@ DEFAULT_EUR_PER_USD = 0.92
 
 
 def _chrono(label: str) -> float:
-    """Mesure le temps entre deux Entrée. ``time.monotonic`` : insensible à
-    un ajustement d'horloge pendant la mesure."""
-    input(f"{label}\n  → Entrée pour DÉMARRER…")
+    """Measure the time between two Enter presses. ``time.monotonic``: unaffected by
+    a clock adjustment during the measurement."""
+    input(f"{label}\n  → Press Enter to START…")
     started = time.monotonic()
-    input("  → Entrée quand c'est FAIT…")
+    input("  → Press Enter when DONE…")
     elapsed = time.monotonic() - started
     print(f"  ⏱  {elapsed:.1f} s\n")
     return elapsed
 
 
 def _is_measured_confirmed(response: str) -> bool:
-    """``True`` seulement si l'opérateur a répondu exactement « oui »
-    (insensible à la casse et aux espaces superflus) — toute autre réponse,
-    y compris une entrée vide (Entrée pressée sans réfléchir), force
-    ``measured=False``. Fonction pure, testable sans mock d'``input``.
+    """``True`` only if the operator answered exactly "yes"
+    (insensitive to case and extra whitespace) — any other answer,
+    including an empty input (Enter pressed without thinking), forces
+    ``measured=False``. Pure function, testable without mocking ``input``.
     """
-    return response.strip().lower() == "oui"
+    return response.strip().lower() == "yes"
 
 
 def _ask_float(label: str, default: float) -> float:
@@ -68,31 +68,31 @@ def _ask_float(label: str, default: float) -> float:
     try:
         return float(raw.replace(",", "."))
     except ValueError:
-        print(f"  valeur illisible, on garde {default}")
+        print(f"  unreadable value, keeping {default}")
         return default
 
 
 def _measure_triage(trace: RunTrace) -> float | None:
-    """Chronomètre le tri d'items **réels** du dernier run."""
+    """Time the triage of **real** items from the latest run."""
     items = trace.items[:MAX_ITEMS]
     if not items:
-        print("Aucun item dans la trace : impossible de chronométrer le tri.")
+        print("No item in the trace: cannot time the triage.")
         return None
 
     print(
-        f"\n=== 1/3 — Tri ({len(items)} items réels du run du "
+        f"\n=== 1/3 — Tri ({len(items)} real items from the run of "
         f"{trace.run_at:%Y-%m-%d}) ===\n"
-        "Pour chaque item : lisez le titre (ouvrez l'URL si vous le feriez "
-        "vraiment), décidez s'il mérite un post, puis validez.\n"
+        "For each item: read the title (open the URL if you really would), "
+        "decide whether it deserves a post, then confirm.\n"
     )
     durations: list[float] = []
     for position, item in enumerate(items, start=1):
         print(f"[{position}/{len(items)}] {item.subject.title}")
         if item.subject.url:
             print(f"          {item.subject.url}")
-        durations.append(_chrono("  Trier cet item"))
+        durations.append(_chrono("  Triage this item"))
     mean = sum(durations) / len(durations)
-    print(f"→ Tri : {mean:.1f} s/item en moyenne (n={len(durations)})\n")
+    print(f"→ Triage: {mean:.1f} s/item on average (n={len(durations)})\n")
     return mean
 
 
@@ -100,9 +100,9 @@ def main() -> int:
     trace_path = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_TRACE
     if not trace_path.exists():
         print(
-            f"Trace introuvable : {trace_path}\n"
-            "Lancez d'abord un run (`uv run radar-run`) — le chronométrage "
-            "porte sur les items réels de ce run, pas sur des exemples.",
+            f"Trace not found: {trace_path}\n"
+            "Run the radar first (`uv run radar-run`) — the timing is based "
+            "on the real items of that run, not on examples.",
             file=sys.stderr,
         )
         return 2
@@ -112,40 +112,40 @@ def main() -> int:
     if triage is None:
         return 2
 
-    print("=== 2/3 — Rédaction ===")
-    print("Rédigez un post complet à partir d'un de ces articles, comme vous")
-    print("le publieriez vraiment.\n")
-    drafting = _chrono("  Rédiger un post de bout en bout")
+    print("=== 2/3 — Drafting ===")
+    print("Write a complete post from one of these articles, as you would")
+    print("really publish it.\n")
+    drafting = _chrono("  Write a post end to end")
 
-    print("=== 3/3 — Relecture ===")
-    print("Relisez un brouillon produit par le radar (run_report.json) et")
-    print("décidez de le publier, corriger ou jeter.\n")
-    review = _chrono("  Relire et valider un brouillon")
+    print("=== 3/3 — Review ===")
+    print("Review a draft produced by the radar (run_report.json) and")
+    print("decide whether to publish, fix or discard it.\n")
+    review = _chrono("  Review and validate a draft")
 
-    print("=== Paramètres économiques ===")
-    hourly = _ask_float("Coût horaire chargé (EUR/h)", DEFAULT_HOURLY_COST_EUR)
-    runs = _ask_float("Runs par mois", float(DEFAULT_RUNS_PER_MONTH))
-    rate = _ask_float("Taux EUR par USD", DEFAULT_EUR_PER_USD)
+    print("=== Economic parameters ===")
+    hourly = _ask_float("Loaded hourly cost (EUR/h)", DEFAULT_HOURLY_COST_EUR)
+    runs = _ask_float("Runs per month", float(DEFAULT_RUNS_PER_MONTH))
+    rate = _ask_float("EUR per USD rate", DEFAULT_EUR_PER_USD)
 
     print("=== Confirmation ===")
-    response = input("Avez-vous chronométré réellement ? (oui/non) : ")
+    response = input("Did you actually time it? (yes/no): ")
     measured = _is_measured_confirmed(response)
     if measured:
         note = (
-            f"Chronométré sur {len(trace.items[:MAX_ITEMS])} items réels du run "
-            f"du {trace.run_at:%Y-%m-%d} ; un seul annotateur, une seule passe "
-            "(même limite de non-indépendance que QUALITY.md)."
+            f"Timed on {len(trace.items[:MAX_ITEMS])} real items from the run "
+            f"of {trace.run_at:%Y-%m-%d}; a single annotator, a single pass "
+            "(same non-independence limit as QUALITY.md)."
         )
     else:
         print(
-            "  Réponse différente de « oui » : measured est forcé à false. "
-            "Les hypothèses par défaut resteront utilisées tant qu'un "
-            "chronométrage confirmé n'aura pas été fait."
+            "  Answer other than \"yes\": measured is forced to false. "
+            "The default hypotheses stay in use until a confirmed "
+            "timing has been done."
         )
         note = (
-            "measured=false : la confirmation opérateur n'a pas répondu "
-            "exactement « oui » — les temps ci-dessus ne doivent pas être "
-            "traités comme un chronométrage réel."
+            "measured=false: the operator confirmation was not exactly "
+            "\"yes\" — the times above must not be treated as a real "
+            "timing."
         )
 
     baseline = HumanBaseline(
@@ -160,14 +160,14 @@ def main() -> int:
         note=note,
     )
     write_human_baseline(baseline, DEFAULT_OUT)
-    print(f"\nBaseline écrite dans {DEFAULT_OUT} (measured={measured}).")
+    print(f"\nBaseline written to {DEFAULT_OUT} (measured={measured}).")
     if measured:
         print(
-            "Le prochain run l'utilisera automatiquement "
+            "The next run will use it automatically "
             "(value.baseline.measured = true)."
         )
     else:
-        print("Le prochain run continuera d'utiliser les hypothèses par défaut.")
+        print("The next run will keep using the default hypotheses.")
     return 0
 
 

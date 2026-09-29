@@ -1,8 +1,8 @@
-"""Évaluation out-of-sample : score le held-out annoté et compare aux labels.
+"""Out-of-sample evaluation: score the annotated held-out, compare to labels.
 
-Hors suite de tests : vrais appels LLM. Charge le jeu held-out figé et annoté
-(``src/radar/eval/heldout_labeled.json``), le score avec le vrai modèle, calcule
-Agreement + Spearman entre labels humains et scores modèle, écrit ``heldout.json``.
+Outside the test suite: real LLM calls. Loads the frozen, annotated held-out
+set (``src/radar/eval/heldout_labeled.json``), scores it with the real model,
+computes Agreement + Spearman (human labels vs model), writes ``heldout.json``.
 
     uv run python scripts/eval_heldout.py
 """
@@ -23,7 +23,7 @@ def main() -> None:
     rho = spearman(report.predictions, report.labels)
 
     payload = {
-        "source": "numerama (held-out, hors entraînement)",
+        "source": "numerama (held-out, out-of-sample)",
         "n": len(dataset),
         "agreement": round(report.metric_value, 4),
         "spearman": round(rho, 4),
