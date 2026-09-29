@@ -1,7 +1,7 @@
 [project]
 name = "radar-automation"
 version = "0.1.0"
-description = "RSS radar automation tooling"
+description = "Automated RSS monitoring pipeline: LLM relevance scoring and draft generation, with measured and documented design decisions"
 requires-python = ">=3.11"
 dependencies = [
   "anthropic>=0.120.0",
@@ -38,10 +38,10 @@ exclude = ["tests/fixtures", ".venv"]
 select = ["E", "F", "I", "UP", "ANN", "T20", "B", "SIM", "PL"]
 
 [tool.ruff.lint.per-file-ignores]
-# Les scripts opérationnels et le point d'entrée peuvent écrire sur stdout.
+# Operational scripts and the entry point may write to stdout.
 "scripts/*" = ["T201"]
 "src/app.py" = ["T201"]
-# Dictionnaires url -> label : les URLs réelles ne sont pas raccourcissables.
+# url -> label dictionaries: real URLs cannot be shortened.
 "scripts/label_heldout_pool.py" = ["E501"]
 "scripts/label_production_recall_check.py" = ["E501"]
 
