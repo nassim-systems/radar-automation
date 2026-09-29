@@ -7,7 +7,7 @@ _DEFAULT_STORE_DIR = ".data"
 
 
 class MissingSettingError(Exception):
-    """Levée quand une variable d'environnement requise est absente."""
+    """Raised when a required environment variable is missing."""
 
 
 class Settings(BaseModel):
@@ -17,11 +17,11 @@ class Settings(BaseModel):
 
 
 def load_settings(env: Mapping[str, str]) -> Settings:
-    """Charge la configuration depuis un environnement injecté — PUR, fail-fast.
+    """Load configuration from an injected environment: PURE, fail-fast.
 
-    Les secrets ne proviennent QUE de ``env`` (jamais du code, jamais de git).
-    Fonction pure : dépend uniquement de ``env``. Lève ``MissingSettingError``
-    dès qu'une variable requise manque.
+    Secrets come ONLY from ``env`` (never from code, never from git).
+    Pure function: depends only on ``env``. Raises ``MissingSettingError``
+    as soon as a required variable is missing.
     """
     api_key = _require(env, "ANTHROPIC_API_KEY")
     feed_urls = [

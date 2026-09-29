@@ -14,7 +14,7 @@ class RunHistoryStore(Protocol):
 
 
 class InMemoryRunHistoryStore:
-    """Store non persistant (tests, runs éphémères)."""
+    """Non-persistent store (tests, ephemeral runs)."""
 
     def __init__(self, max_records: int = _DEFAULT_MAX_RECORDS) -> None:
         self._max_records = max_records
@@ -29,14 +29,14 @@ class InMemoryRunHistoryStore:
 
 
 class JsonRunHistoryStore:
-    """Store persistant append-only sur fichier JSON, borné à ``max_records``.
+    """Append-only persistent JSON-file store, bounded to ``max_records``.
 
-    Même lecture résiliente que ``JsonSeenStore``/``JsonConversationStore``
-    (fichier absent ou corrompu → historique vide plutôt que de lever).
-    Contrairement à ``JsonConversationStore`` (une clé par conversation, donc
-    naturellement bornée), un historique de runs croît sans fin — on ne
-    conserve donc que les ``max_records`` entrées les plus récentes à chaque
-    écriture.
+    Same resilient read as ``JsonSeenStore``/``JsonConversationStore``
+    (missing or corrupt file → empty history rather than raising).
+    Unlike ``JsonConversationStore`` (one key per conversation, hence
+    naturally bounded), a run history grows without end — so only the
+    ``max_records`` most recent entries are kept on each
+    write.
     """
 
     def __init__(self, path: Path, max_records: int = _DEFAULT_MAX_RECORDS) -> None:

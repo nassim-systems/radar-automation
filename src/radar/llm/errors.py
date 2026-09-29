@@ -1,13 +1,13 @@
 class TransientLLMError(Exception):
-    """Erreur LLM transitoire (rate limit 429, surcharge 529) — seule
-    catégorie retentée par la politique de retry (module 4.3).
+    """Transient LLM error (rate limit 429, overload 529) — the only
+    category retried by the retry policy (module 4.3).
 
-    Traduite par ``AnthropicClient`` depuis les exceptions réelles du SDK
-    Anthropic, pour que le code de retry reste indépendant du SDK (le même
-    mécanisme fonctionne avec ``FakeLLM`` en test, sans dépendance au
-    package ``anthropic``). Toute autre exception — y compris les erreurs
-    HTTP non transitoires (400, 401...) et les bugs de code — n'est jamais
-    retentée : elle est soit isolée par item (frontière déjà en place dans
-    ``score_item``/``drafting``), soit propagée telle quelle si elle survient
-    hors de cette frontière.
+    Translated by ``AnthropicClient`` from the real Anthropic SDK
+    exceptions, so the retry code stays SDK-independent (the same
+    mechanism works with ``FakeLLM`` in tests, with no dependency on the
+    ``anthropic`` package). Any other exception — including non-transient
+    HTTP errors (400, 401...) and code bugs — is never retried: it is
+    either isolated per item (boundary already in place in
+    ``score_item``/``drafting``), or propagated as is if it occurs
+    outside that boundary.
     """

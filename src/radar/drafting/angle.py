@@ -9,11 +9,11 @@ _NONE_MARKERS = {"aucun", "aucune", "none", "n/a", "aucun angle"}
 
 
 class Angle(BaseModel):
-    """Verdict de l'AngleAgent : un angle éditorial honnête, ou aucun.
+    """AngleAgent verdict: an honest editorial angle, or none.
 
-    ``has_angle=False`` est une réponse légitime, pas un échec — c'est
-    exactement ce que la décomposition ajoute par rapport au mono-appel
-    ``build_draft_prompt`` (qui force toujours une rédaction). Cf.
+    ``has_angle=False`` is a legitimate answer, not a failure — it is
+    exactly what the decomposition adds over the single-call
+    ``build_draft_prompt`` (which always forces a draft). See
     ``ANGLE_AGENT.md``.
     """
 
@@ -22,11 +22,11 @@ class Angle(BaseModel):
 
 
 def build_angle_prompt(item: RawItem) -> str:
-    """Construit le prompt de décision d'angle éditorial pour un item.
+    """Build the editorial angle decision prompt for an item.
 
-    Frontière LLM isolée : fonction pure, aucune logique LLM, sortie
-    déterministe. Ne demande PAS de rédiger — uniquement de juger s'il
-    existe un angle PME honnête, sans en forcer un.
+    Isolated LLM boundary: pure function, no LLM logic, deterministic output.
+    Does NOT ask to write — only to judge whether an honest SMB angle
+    exists, without forcing one.
     """
     return (
         "Tu es rédacteur en chef pour un radar de veille automatisation-PME.\n"
@@ -54,12 +54,12 @@ def build_angle_prompt(item: RawItem) -> str:
 
 
 def parse_angle(response: str) -> Angle:
-    """Parse la sortie brute de l'AngleAgent en un ``Angle``.
+    """Parse the raw AngleAgent output into an ``Angle``.
 
-    Fonction pure. Décision d'architecte — sortie ambiguë ou vide : défaut
-    sûr ``has_angle=False`` plutôt que de risquer de traiter du bruit comme
-    un angle valide (cohérent avec le score neutre de ``parse_score`` sur
-    sortie non parsable : en cas de doute, ne pas forcer).
+    Pure function. Architect's decision — ambiguous or empty output: safe
+    default ``has_angle=False`` rather than risk treating noise as a valid
+    angle (consistent with the neutral score of ``parse_score`` on
+    unparsable output: when in doubt, do not force).
     """
     lines = [line.strip() for line in response.strip().splitlines() if line.strip()]
     if not lines:

@@ -1,25 +1,25 @@
-"""Instrumentation temporelle des appels LLM (module 4.6).
+"""Timing instrumentation of LLM calls (module 4.6).
 
-Décorateur ``LLMClient`` — pas une modification d'``AnthropicClient``. La
-raison est la même que pour le ``UsageSink`` du module 3.4 : le client réel
-n'a pas à connaître l'observabilité, et un décorateur laisse les ``FakeLLM``/
-``ScriptedLLM`` des tests instrumentables de la même façon que le client de
-production, sans code conditionnel.
+``LLMClient`` decorator — not a modification of ``AnthropicClient``. The
+reason is the same as for the module 3.4 ``UsageSink``: the real client
+has no need to know about observability, and a decorator lets the tests'
+``FakeLLM``/``ScriptedLLM`` be instrumented the same way as the
+production client, with no conditional code.
 
-**Attribution par item.** Le décorateur porte le *sujet* de l'appel (l'item
-en cours) et sa *phase* (le nom de l'étape). L'attribution est donc explicite
-au point d'appel, pas devinée après coup : chaque étape crée un décorateur
-par item. C'est le pendant, côté appels, de la trace par étape du module 4.1.
+**Per-item attribution.** The decorator carries the call's *subject* (the
+current item) and its *phase* (the step name). Attribution is therefore
+explicit at the call site, not guessed afterwards: each step creates a
+decorator per item. It is the call-side counterpart of module 4.1's step trace.
 
-**Attribution de l'usage (tokens/coût).** ``CallTimeline`` implémente aussi
-``UsageSink`` : branchée via ``TeeUsageSink`` à côté du ``ListUsageSink``
-existant, elle reçoit l'usage réel du même appel et l'attache à l'appel en
-cours. La corrélation passe par une variable *thread-local* et c'est
-volontairement correct : ``AnthropicClient.complete`` notifie son sink de
-façon synchrone, dans le thread qui exécute l'appel — le même que celui du
-décorateur, y compris dans le ``ThreadPoolExecutor`` du scoring concurrent
-(module 4.3). Aucun comptage de tokens/coût n'est réinventé ici : la source
-reste l'usage renvoyé par le SDK.
+**Usage attribution (tokens/cost).** ``CallTimeline`` also implements
+``UsageSink``: plugged via ``TeeUsageSink`` next to the existing
+``ListUsageSink``, it receives the real usage of the same call and attaches
+it to the current call. Correlation goes through a *thread-local* variable
+and this is deliberately correct: ``AnthropicClient.complete`` notifies its
+sink synchronously, in the thread running the call — the same as the
+decorator's, including in the concurrent scoring ``ThreadPoolExecutor``
+(module 4.3). No token/cost counting is reinvented here: the source
+remains the usage returned by the SDK.
 """
 import threading
 import time
@@ -32,7 +32,7 @@ from radar.llm.base import LLMClient
 
 
 class CallSubject(BaseModel):
-    """Ce sur quoi porte un appel LLM — un item du flux, en pratique."""
+    """What an LLM call is about — in practice, a feed item."""
 
     key: str
     title: str
@@ -40,14 +40,14 @@ class CallSubject(BaseModel):
 
 
 class LlmCallRecord(BaseModel):
-    """Un appel LLM réellement émis : quand, combien de temps, sur quoi,
-    avec quelle issue et quel usage.
+    """An LLM call actually issued: when, how long, on what,
+    with what outcome and what usage.
 
-    Un *retry* (module 4.3) produit un enregistrement par tentative — c'est
-    le nombre d'appels réellement émis à l'API qui est tracé, pas le nombre
-    d'items traités. ``PipelineReport.n_llm_calls`` doit donc coïncider avec
-    ``len(calls)`` : la divergence des deux compteurs serait un bug, et les
-    avoir mesurés indépendamment permet de le voir.
+    A *retry* (module 4.3) produces one record per attempt — it is the
+    number of calls actually issued to the API that is traced, not the
+    number of items processed. ``PipelineReport.n_llm_calls`` must therefore
+    match ``len(calls)``: a divergence between the two counters would be a
+    bug, and having measured them independently makes it visible.
     """
 
     phase: str
@@ -63,10 +63,10 @@ class LlmCallRecord(BaseModel):
 
 
 class _InFlight:
-    """Emplacement mutable de l'appel en cours dans le thread courant.
+    """Mutable slot for the in-progress call in the current thread.
 
-    Volontairement hors Pydantic : c'est un détail de mécanique interne,
-    jamais sérialisé, jamais exposé.
+    Deliberately outside Pydantic: it is an internal mechanics detail,
+    never serialized, never exposed.
     """
 
     __slots__ = ("usage",)
@@ -76,11 +76,11 @@ class _InFlight:
 
 
 class CallTimeline:
-    """Journal des appels LLM d'un run, sûr en environnement concurrent.
+    """Journal of a run's LLM calls, safe in a concurrent environment.
 
-    Implémente ``UsageSink`` (méthode ``record``) pour recevoir l'usage réel
-    de l'appel en cours — cf. le docstring du module pour la correction de
-    l'attribution thread par thread.
+    Implements ``UsageSink`` (``record`` method) to receive the real usage
+    of the in-progress call — see the module docstring for the correctness
+    of per-thread attribution.
     """
 
     def __init__(self) -> None:
@@ -89,11 +89,11 @@ class CallTimeline:
         self.calls: list[LlmCallRecord] = []
 
     def record(self, usage: LlmUsage) -> None:
-        """``UsageSink`` : attache l'usage à l'appel en cours dans CE thread.
+        """``UsageSink``: attach the usage to the in-progress call in THIS thread.
 
-        Un usage reçu hors de tout appel instrumenté est ignoré plutôt
-        qu'attribué au hasard à un autre appel : mieux vaut un champ absent
-        qu'un chiffre faux.
+        A usage received outside any instrumented call is ignored rather than
+        attributed at random to another call: better a missing field
+        than a wrong figure.
         """
         in_flight: _InFlight | None = getattr(self._local, "in_flight", None)
         if in_flight is not None:
@@ -114,20 +114,20 @@ class CallTimeline:
             self.calls.clear()
 
     def snapshot(self) -> list[LlmCallRecord]:
-        """Copie triée par instant de début — l'ordre d'insertion reflète
-        l'ordre de *fin* des appels, qui n'a pas de sens en concurrence."""
+        """Copy sorted by start instant — insertion order reflects the *end* order
+        of calls, which is meaningless under concurrency."""
         with self._lock:
             return sorted(self.calls, key=lambda call: call.started_at)
 
 
 class TimedLLMClient:
-    """Décore un ``LLMClient`` : chronomètre chaque appel et l'enregistre.
+    """Decorate an ``LLMClient``: time each call and record it.
 
-    Transparent pour l'appelant — ``complete`` renvoie le même ``str`` et
-    laisse passer les exceptions inchangées (une erreur LLM reste une erreur
-    LLM ; le module 4.3 s'appuie sur le type exact pour décider d'un retry).
-    Un appel qui échoue est tracé lui aussi, avec ``ok=False`` : c'est
-    précisément le cas où l'on veut savoir combien de temps il a coûté.
+    Transparent to the caller — ``complete`` returns the same ``str`` and
+    lets exceptions through unchanged (an LLM error stays an LLM error;
+    module 4.3 relies on the exact type to decide on a retry). A failing
+    call is traced too, with ``ok=False``: it is precisely the case where
+    we want to know how long it cost.
     """
 
     def __init__(

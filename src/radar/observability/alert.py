@@ -2,17 +2,17 @@ from radar.observability.models import RunRecord
 
 
 def check_alert(record: RunRecord, *, max_cost_usd: float) -> str | None:
-    """Vérifie un run contre un seuil simple : coût excessif ou échecs LLM.
+    """Check a run against a simple threshold: excessive cost or LLM failures.
 
-    Fonction pure. Renvoie un message d'alerte si un seuil est dépassé, sinon
-    ``None``. Ne décide pas du signal (exit code, stderr) : ça reste la
-    responsabilité de l'appelant (``app.main``).
+    Pure function. Returns an alert message if a threshold is exceeded, else
+    ``None``. Does not decide the signal (exit code, stderr): that remains
+    the caller's responsibility (``app.main``).
     """
     if record.usage.cost_usd > max_cost_usd:
         return (
-            f"coût du run ({record.usage.cost_usd:.4f} USD) "
-            f"> seuil ({max_cost_usd:.4f} USD)"
+            f"run cost ({record.usage.cost_usd:.4f} USD) "
+            f"> threshold ({max_cost_usd:.4f} USD)"
         )
     if record.report.n_failures > 0:
-        return f"{record.report.n_failures} échec(s) LLM durant le run"
+        return f"{record.report.n_failures} LLM failure(s) during the run"
     return None

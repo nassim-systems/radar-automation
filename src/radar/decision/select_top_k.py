@@ -3,12 +3,12 @@ from radar.ingest import item_key
 
 
 def select_top_k(scored_items: list[ScoredItem], k: int) -> list[ScoredItem]:
-    """Trie par ``(-score, item_key)`` et renvoie les ``k`` meilleurs.
+    """Sort by ``(-score, item_key)`` and return the top ``k``.
 
-    Fonction pure et déterministe (aucun LLM). Ordre total : score décroissant,
-    puis ``item_key`` croissant pour départager les ex æquo — reproductible et
-    indépendant de l'ordre d'entrée. Un ``k`` négatif ou nul renvoie une liste
-    vide ; un ``k`` supérieur au nombre d'items les renvoie tous.
+    Pure, deterministic function (no LLM). Total order: score descending,
+    then ``item_key`` ascending to break ties — reproducible and independent
+    of input order. A negative or zero ``k`` returns an empty list; a ``k``
+    greater than the number of items returns them all.
     """
     ordered = sorted(
         scored_items, key=lambda scored: (-scored.score, item_key(scored.item))

@@ -1,8 +1,8 @@
-"""Scoring concurrent borné, avec budget dur et retry/backoff (module 4.3).
+"""Bounded concurrent scoring, with hard budget and retry/backoff (module 4.3).
 
-Décisions d'architecture documentées dans ``CONCURRENCY.md`` : valeur par
-défaut de ``max_concurrency``, politique de troncature au budget, paramètres
-de retry/backoff, périmètre exact des erreurs retentées.
+Architecture decisions documented in ``CONCURRENCY.md``: default value of
+``max_concurrency``, budget truncation policy, retry/backoff parameters,
+exact scope of retried errors.
 """
 import time
 from collections.abc import Callable
@@ -21,9 +21,9 @@ DEFAULT_MAX_CONCURRENCY = 5
 
 
 class RetryPolicy(BaseModel):
-    """Retry borné, backoff exponentiel plafonné.
+    """Bounded retry, capped exponential backoff.
 
-    ``max_attempts`` inclut la tentative initiale (3 = 1 essai + 2 retries).
+    ``max_attempts`` includes the initial attempt (3 = 1 try + 2 retries).
     """
 
     max_attempts: int = 3
@@ -32,8 +32,8 @@ class RetryPolicy(BaseModel):
 
 
 class ConcurrentScoringConfig(BaseModel):
-    """Regroupe les paramètres de réglage (même esprit que ``PipelineConfig``
-    — évite un ``score_items_concurrently`` à rallonge de paramètres nus)."""
+    """Groups the tuning parameters (same spirit as ``PipelineConfig``
+    — avoids a ``score_items_concurrently`` with a long list of bare params)."""
 
     max_concurrency: int = DEFAULT_MAX_CONCURRENCY
     max_cost_usd: float | None = None
@@ -41,11 +41,11 @@ class ConcurrentScoringConfig(BaseModel):
 
 
 class ConcurrentScoreReport(BaseModel):
-    """``scored`` est dans l'ordre d'entrée (parmi les items retenus) —
-    l'ordre de complétion réel (variable selon la latence) n'y transparaît
-    jamais. ``n_attempted`` compte les items pour lesquels un scoring a été
-    *soumis* (retries inclus, budget exclus) ; l'invariant
-    ``n_attempted == len(scored) + n_failures`` tient toujours.
+    """``scored`` is in input order (among the retained items) — the actual
+    completion order (varying with latency) never shows through.
+    ``n_attempted`` counts the items for which a scoring was *submitted*
+    (retries included, budget-skipped excluded); the invariant
+    ``n_attempted == len(scored) + n_failures`` always holds.
     """
 
     scored: list[ScoredItem]
@@ -62,12 +62,12 @@ def _score_one_with_retry(
     policy: RetryPolicy,
     sleep: Callable[[float], None],
 ) -> tuple[ScoredItem | None, int]:
-    """Retourne ``(résultat ou None si échec définitif, nombre de retries)``.
+    """Return ``(result or None on final failure, number of retries)``.
 
-    Seul ``TransientLLMError`` déclenche un retry — jamais une erreur de
-    programmation ni une erreur LLM non transitoire (400, auth...), qui
-    échoue immédiatement, isolée à cet item (même politique que le
-    drafting existant : un échec LLM n'abat pas le lot).
+    Only ``TransientLLMError`` triggers a retry — never a programming error
+    nor a non-transient LLM error (400, auth...), which fails immediately,
+    isolated to that item (same policy as the existing drafting: an LLM
+    failure does not take down the batch).
     """
     failures = 0
     retries = 0
@@ -98,30 +98,30 @@ def score_items_concurrently(  # noqa: PLR0913
     sleep: Callable[[float], None] = time.sleep,
     wrap_llm: Callable[[RawItem], LLMClient] | None = None,
 ) -> ConcurrentScoreReport:
-    """Score ``items`` en parallèle, borné à ``config.max_concurrency`` appels
-    simultanés, réassemblés dans l'ordre d'entrée.
+    """Score ``items`` in parallel, bounded to ``config.max_concurrency``
+    simultaneous calls, reassembled in input order.
 
-    Traite les items par lots d'au plus ``max_concurrency`` : un lot est
-    entièrement soumis et attendu avant de vérifier le budget et de soumettre
-    le suivant. Conséquence assumée : un dépassement de budget en cours de
-    lot n'interrompt jamais les appels déjà en vol — le dépassement possible
-    est borné à un lot (``max_concurrency`` appels), jamais illimité. Cf.
-    ``CONCURRENCY.md`` pour la politique complète (troncature, pas d'erreur
-    levée).
+    Processes items in batches of at most ``max_concurrency``: a batch is
+    fully submitted and awaited before checking the budget and submitting
+    the next. Accepted consequence: a budget overrun mid-batch never
+    interrupts calls already in flight — the possible overrun is bounded
+    to one batch (``max_concurrency`` calls), never unbounded. See
+    ``CONCURRENCY.md`` for the full policy (truncation, no error
+    raised).
 
-    ``wrap_llm`` (module 4.6) est un seam d'instrumentation : si fourni, il
-    est appelé une fois par item pour obtenir le client à utiliser pour cet
-    item — c'est ainsi que la ``CallTimeline`` attribue chaque appel à son
-    item sans que ce module connaisse quoi que ce soit à l'observabilité. Le
-    défaut (aucun wrapping) laisse le comportement strictement inchangé.
-    Six paramètres pour six seams réellement distincts : ``noqa`` assumé,
-    comme pour ``build_radar_steps_production`` (module 4.5), plutôt qu'un
-    objet de configuration artificiel qui mélangerait réglages et
-    dépendances injectées.
+    ``wrap_llm`` (module 4.6) is an instrumentation seam: if provided, it
+    is called once per item to obtain the client to use for that item —
+    this is how the ``CallTimeline`` attributes each call to its item
+    without this module knowing anything about observability. The default
+    (no wrapping) leaves behavior strictly unchanged.
+    Six parameters for six genuinely distinct seams: ``noqa`` accepted,
+    as for ``build_radar_steps_production`` (module 4.5), rather than an
+    artificial config object that would mix settings and injected
+    dependencies.
     """
     cfg = config if config is not None else ConcurrentScoringConfig()
     if cfg.max_concurrency < 1:
-        raise ValueError("max_concurrency doit être >= 1")
+        raise ValueError("max_concurrency must be >= 1")
     sink = usage_sink if usage_sink is not None else ListUsageSink()
 
     def wrap(item: RawItem) -> LLMClient:

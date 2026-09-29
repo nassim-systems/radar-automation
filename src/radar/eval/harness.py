@@ -14,7 +14,7 @@ Scorer = Callable[[RawItem], int]
 
 
 class EvalItem(RawItem):
-    """Un ``RawItem`` augmenté du label humain (vérité terrain)."""
+    """A ``RawItem`` augmented with the human label (ground truth)."""
 
     label: int
 
@@ -29,17 +29,17 @@ _DATASET_ADAPTER = TypeAdapter(list[EvalItem])
 
 
 def load_dataset(path: Path = _DATASET_PATH) -> list[EvalItem]:
-    """Charge la vérité terrain annotée (RawItem + label) depuis un JSON."""
+    """Load the annotated ground truth (RawItem + label) from a JSON."""
     return _DATASET_ADAPTER.validate_json(path.read_text(encoding="utf-8"))
 
 
 def make_llm_scorer(llm: LLMClient) -> Scorer:
-    """Ferme la couture d'évaluation.
+    """Close the evaluation seam.
 
-    Le scorer déroule le pipeline du module 1.3 pour un item :
-    ``RawItem -> build_prompt -> llm.complete -> parse_score -> Score`` et
-    renvoie l'entier du ``Score``. On réutilise ``score_item`` (aucune
-    duplication de la logique de scoring).
+    The scorer runs the module 1.3 pipeline for an item:
+    ``RawItem -> build_prompt -> llm.complete -> parse_score -> Score`` and
+    returns the ``Score`` integer. Reuses ``score_item`` (no duplication of
+    the scoring logic).
     """
 
     def scorer(item: RawItem) -> int:
@@ -49,7 +49,7 @@ def make_llm_scorer(llm: LLMClient) -> Scorer:
 
 
 def evaluate(dataset: list[EvalItem], scorer: Scorer) -> Report:
-    """Applique ``scorer`` à chaque item et agrège le résultat dans un ``Report``."""
+    """Apply ``scorer`` to each item and aggregate the result into a ``Report``."""
     predictions = [scorer(item) for item in dataset]
     labels = [item.label for item in dataset]
     return Report(

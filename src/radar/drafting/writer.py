@@ -6,13 +6,13 @@ from radar.llm.base import LLMClient
 
 
 def build_writer_prompt(item: RawItem, angle: Angle) -> str:
-    """Construit le prompt de rédaction pour un item, étant donné l'angle
-    déjà décidé par l'AngleAgent.
+    """Build the writing prompt for an item, given the angle already
+    decided by the AngleAgent.
 
-    Frontière LLM isolée : fonction pure, aucune logique LLM, sortie
-    déterministe. Ne décide plus de l'angle — ne fait que rédiger. Robuste à
-    ``angle.has_angle=False`` (reste factuel, ne force rien) même si le
-    ``WriteStep`` de production ne l'appelle qu'avec un angle retenu.
+    Isolated LLM boundary: pure function, no LLM logic, deterministic output.
+    No longer decides the angle — only writes. Robust to
+    ``angle.has_angle=False`` (stays factual, forces nothing) even though the
+    production ``WriteStep`` only calls it with a retained angle.
     """
     if angle.has_angle:
         consigne_angle = (
@@ -43,10 +43,10 @@ def build_writer_prompt(item: RawItem, angle: Angle) -> str:
 
 
 def write_draft(item: RawItem, angle: Angle, llm: LLMClient) -> Draft:
-    """Rédige le post à partir de l'angle déjà décidé.
+    """Write the post from the already decided angle.
 
-    Réutilise ``parse_draft`` (module 1.x) — même nettoyage de sortie que le
-    mono-appel, aucune logique de parsing dupliquée.
+    Reuses ``parse_draft`` (module 1.x) — same output cleanup as the
+    single call, no duplicated parsing logic.
     """
     prompt = build_writer_prompt(item, angle)
     raw = llm.complete(prompt)

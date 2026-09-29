@@ -2,12 +2,12 @@ from radar.llm.fake import FakeLLM
 
 
 class ScriptedFakeLLM(FakeLLM):
-    """FakeLLM scénarisé : choisit la réponse selon le contenu du prompt.
+    """Scripted FakeLLM: picks the response based on the prompt content.
 
-    Étend :class:`FakeLLM` (module 1.3) sans le modifier. ``canned`` reste la
-    réponse par défaut ; ``mapping`` associe une sous-chaîne du prompt à une
-    réponse. Cela permet de tester ``evaluate`` sans clé API, en renvoyant des
-    scores différents selon l'item.
+    Extends :class:`FakeLLM` (module 1.3) without modifying it. ``canned``
+    remains the default response; ``mapping`` associates a prompt substring
+    with a response. This allows testing ``evaluate`` without an API key,
+    returning different scores depending on the item.
     """
 
     def __init__(self, canned: str, mapping: dict[str, str] | None = None) -> None:

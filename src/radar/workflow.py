@@ -1,22 +1,22 @@
-"""Le pipeline radar exprimé comme un ``Workflow`` (module 4.1) — avec la
-variante décomposée AngleAgent + WriterAgent (module 4.2, retenue après
-mesure : voir ``ANGLE_AGENT.md``) et un ``ScoreStep`` concurrent borné
-(module 4.3 : voir ``CONCURRENCY.md``).
+"""The radar pipeline expressed as a ``Workflow`` (module 4.1), with the
+decomposed AngleAgent + WriterAgent variant (module 4.2, kept after
+measurement: see ``ANGLE_AGENT.md``) and a bounded concurrent ``ScoreStep``
+(module 4.3: see ``CONCURRENCY.md``).
 
-Depuis le module 4.5 (``MIGRATION.md``), ``build_radar_steps_production``
-est l'**unique** chemin de production, câblé dans ``composition.py``.
-``run_pipeline`` (module 1.x, la fonction monolithique séquentielle) a été
-supprimée — voie morte éliminée, ce n'est plus « une démonstration
-parallèle », c'est la production. ``build_radar_steps``/
-``build_radar_steps_decomposed`` (mono/décomposé, scoring séquentiel)
-restent comme compositions alternatives testées, utiles pour la preuve de
-recomposition (cf. ``WORKFLOW.md``) — pas câblées en production.
+Since module 4.5 (``MIGRATION.md``), ``build_radar_steps_production`` is
+the **only** production path, wired in ``composition.py``.
+``run_pipeline`` (module 1.x, the sequential monolithic function) was
+removed: dead path eliminated, it is no longer "a parallel demonstration",
+it is production. ``build_radar_steps``/
+``build_radar_steps_decomposed`` (mono/decomposed, sequential scoring)
+remain as tested alternative compositions, useful for the recomposition
+proof (see ``WORKFLOW.md``); not wired in production.
 
-Aucune étape ne réimplémente de logique : chaque ``Step`` délègue à une
-fonction pure — ``deduplicate``, ``filter_fresh``, ``filter_unseen``,
+No step reimplements logic: each ``Step`` delegates to a pure function:
+``deduplicate``, ``filter_fresh``, ``filter_unseen``,
 ``score_item``/``score_items_concurrently``, ``filter_by_min_score``,
-``select_top_k``, ``build_draft_prompt``/``parse_draft`` (mono-appel),
-``decide_angle``/``write_draft`` (décomposé).
+``select_top_k``, ``build_draft_prompt``/``parse_draft`` (single-call),
+``decide_angle``/``write_draft`` (decomposed).
 """
 from collections.abc import Callable
 
@@ -47,10 +47,10 @@ from radar.tools.seen_store import SeenStore
 
 
 class RadarWorkflowState(WorkflowState):
-    """État concret du workflow radar — un champ par étage du pipeline.
+    """Concrete state of the radar workflow: one field per pipeline stage.
 
-    Champs typés (pas un sac générique) : cf. la décision « typage de
-    WorkflowState » dans ``WORKFLOW.md``.
+    Typed fields (not a generic bag): see the "WorkflowState typing"
+    decision in ``WORKFLOW.md``.
     """
 
     fetched: list[RawItem] = Field(default_factory=list)
@@ -68,11 +68,11 @@ class RadarWorkflowState(WorkflowState):
 
 
 def _as_radar_state(state: WorkflowState) -> RadarWorkflowState:
-    """Rétrécit ``WorkflowState`` vers l'état concret du workflow radar.
+    """Narrow ``WorkflowState`` to the concrete radar workflow state.
 
-    Sans vérification statique (ce projet n'exécute pas mypy), cette étape
-    transforme une erreur de composition en ``TypeError`` explicite et
-    immédiate plutôt qu'un ``AttributeError`` confus plus loin dans l'étape.
+    Without static checking (this project does not run mypy), this step turns a
+    composition error into an explicit, immediate ``TypeError`` rather than a
+    confusing ``AttributeError`` later in the step.
     """
     if not isinstance(state, RadarWorkflowState):
         raise TypeError(
@@ -87,13 +87,13 @@ def _timed(
     phase: str,
     item: RawItem,
 ) -> LLMClient:
-    """Décore ``llm`` pour attribuer ses appels à ``item`` dans ``phase``.
+    """Decorate ``llm`` to attribute its calls to ``item`` within ``phase``.
 
-    Sans timeline, renvoie le client tel quel : l'instrumentation est
-    strictement optionnelle et n'introduit aucun chemin de code différent
-    dans les étapes (module 4.6, cf. ``OBSERVABILITY.md``). Le nom de phase
-    est celui de l'étape — c'est ce qui permet de rapprocher plus tard le
-    temps cumulé des appels du temps réel de l'étape.
+    Without a timeline, return the client unchanged: instrumentation is strictly
+    optional and introduces no different code path in the steps
+    (module 4.6, see ``OBSERVABILITY.md``). The phase name is the step's name,
+    which is what later lets us match the cumulated call time against the
+    step's wall time.
     """
     if timeline is None:
         return llm
@@ -184,13 +184,13 @@ class ScoreStep:
 
 
 class ConcurrentScoreStep:
-    """Variante concurrente de ``ScoreStep`` (module 4.3) — même champ de
-    sortie (``state.scored``, dans l'ordre d'entrée des items), bornée par
-    ``ConcurrentScoringConfig`` (concurrence, budget dur, retry/backoff)
-    plutôt que par une boucle séquentielle. Drop-in : remplace ``ScoreStep``
-    dans n'importe quelle liste de ``Step`` sans toucher aux autres étapes.
-    Voir ``CONCURRENCY.md`` pour les décisions (défauts, politique de
-    budget, retry)."""
+    """Concurrent variant of ``ScoreStep`` (module 4.3): same output field
+    (``state.scored``, in item input order), bounded by
+    ``ConcurrentScoringConfig`` (concurrency, hard budget, retry/backoff)
+    rather than by a sequential loop. Drop-in: replaces ``ScoreStep``
+    in any ``Step`` list without touching the other steps.
+    See ``CONCURRENCY.md`` for the decisions (defaults, budget policy,
+    retry)."""
 
     name = "score"
 
@@ -256,11 +256,11 @@ class SelectTopKStep:
 
 
 class DraftStep:
-    """Isolation des échecs LLM item par item — même politique que
-    ``run_pipeline`` : seul l'appel ``llm.complete`` est isolé, un bug de
-    code (prompt/parsing) se propage. La résilience fine reste ici, dans
-    l'étape ; ``run_workflow`` ne gère que l'échec au niveau de l'étape
-    entière (cf. ``WORKFLOW.md``)."""
+    """Isolate LLM failures item by item, same policy as
+    ``run_pipeline``: only the ``llm.complete`` call is isolated; a code bug
+    (prompt/parsing) propagates. Fine-grained resilience stays here, in the
+    step; ``run_workflow`` only handles failure of the whole step
+    (see ``WORKFLOW.md``)."""
 
     name = "draft"
 
@@ -292,20 +292,20 @@ class DraftStep:
 
 
 class AngleStep:
-    """Décide l'angle éditorial de chaque item du top-k (module 4.2).
+    """Decide the editorial angle of each top-k item (module 4.2).
 
-    ``Angle.has_angle=False`` est une issue légitime, pas un échec : c'est
-    précisément ce qui manquait au mono-appel ``DraftStep``, qui rédige
-    toujours quelque chose même quand aucun angle PME honnête n'existe. Voir
-    ``ANGLE_AGENT.md`` pour la mesure ayant motivé ce choix.
+    ``Angle.has_angle=False`` is a legitimate outcome, not a failure: it is
+    precisely what the single-call ``DraftStep`` lacked; it always writes
+    something even when no honest SME angle exists. See ``ANGLE_AGENT.md``
+    for the measurement that motivated this choice.
 
-    **Isolation par item** (durcissement production, module 4.5) : un échec
-    LLM sur la décision d'angle d'un item n'abat pas les autres — l'item est
-    compté dans ``n_failures`` et reste « à voir » (pas de draft, retenté au
-    run suivant), même politique que ``ScoreStep``/``WriteStep``. Avant ce
-    durcissement, un seul appel raté aurait fait échouer toute l'étape (donc
-    tout le run, cf. ``core.workflow.engine.WorkflowError``) — acceptable
-    pour une mesure ponctuelle (4.2), pas pour le seul chemin de production.
+    **Per-item isolation** (production hardening, module 4.5): an LLM failure
+    on one item's angle decision does not take down the others. The item is
+    counted in ``n_failures`` and stays "unseen" (no draft, retried on the
+    next run), same policy as ``ScoreStep``/``WriteStep``. Before this
+    hardening, a single failed call would have failed the whole step (hence
+    the whole run, see ``core.workflow.engine.WorkflowError``): acceptable
+    for a one-off measurement (4.2), not for the only production path.
     """
 
     name = "angle"
@@ -336,9 +336,9 @@ class AngleStep:
 
 
 class WriteStep:
-    """Rédige uniquement les items avec un angle retenu par ``AngleStep`` —
-    remplace ``DraftStep`` dans la composition décomposée. Même isolation
-    des échecs LLM item par item que ``DraftStep``."""
+    """Write only the items with an angle kept by ``AngleStep``;
+    replaces ``DraftStep`` in the decomposed composition. Same per-item
+    LLM failure isolation as ``DraftStep``."""
 
     name = "write"
 
@@ -375,10 +375,10 @@ class WriteStep:
 
 
 class MarkSeenStep:
-    """Idempotence : ne marque vus que les items draftés avec succès — comme
-    ``run_pipeline``. Étape à part entière (pas un effet de bord caché dans
-    ``DraftStep``) : un workflow de scoring à blanc peut simplement omettre
-    cette étape sans dupliquer de code."""
+    """Idempotence: mark as seen only the items drafted successfully, like
+    ``run_pipeline``. A step in its own right (not a hidden side effect in
+    ``DraftStep``): a dry-run scoring workflow can simply omit this
+    step without duplicating code."""
 
     name = "mark_seen"
 
@@ -399,15 +399,15 @@ def build_radar_steps(
     config: PipelineConfig,
     timeline: CallTimeline | None = None,
 ) -> list[Step]:
-    """Câble les 9 étapes du radar dans l'ordre de ``run_pipeline``.
+    """Wire the radar's 9 steps in the order of ``run_pipeline``.
 
-    Pure composition — aucune des étapes n'est instanciée différemment de ce
-    que la fonction ``run_pipeline`` (supprimée au module 4.5) câblait déjà —
-    même ``PipelineConfig``, pas de champs dupliqués. Composition
-    alternative testée (scoring séquentiel, mono-appel) ; la production
-    utilise ``build_radar_steps_production``. Un appelant qui veut un
-    workflow différent (ex. un dry-run sans drafting) recompose sa propre
-    liste à partir des mêmes classes plutôt que de dupliquer cette fonction.
+    Pure composition: no step is instantiated differently from what the
+    ``run_pipeline`` function (removed in module 4.5) already wired, with the
+    same ``PipelineConfig`` and no duplicated fields. Tested alternative
+    composition (sequential scoring, single-call); production uses
+    ``build_radar_steps_production``. A caller who wants a different workflow
+    (e.g. a dry-run without drafting) recomposes its own list from the same
+    classes rather than duplicating this function.
     """
     return [
         FetchStep(fetch_items),
@@ -430,9 +430,9 @@ def build_radar_steps_decomposed(
     config: PipelineConfig,
     timeline: CallTimeline | None = None,
 ) -> list[Step]:
-    """Variante décomposée (module 4.2) : ``AngleStep`` + ``WriteStep``
-    remplacent ``DraftStep``. Retenue après comparaison mesurée sur le
-    held-out réel — voir ``ANGLE_AGENT.md`` (décision, coût, exemples).
+    """Decomposed variant (module 4.2): ``AngleStep`` + ``WriteStep``
+    replace ``DraftStep``. Kept after a measured comparison on the real
+    held-out set; see ``ANGLE_AGENT.md`` (decision, cost, examples).
     """
     return [
         FetchStep(fetch_items),
@@ -458,24 +458,24 @@ def build_radar_steps_production(  # noqa: PLR0913
     usage_sink: ListUsageSink | None = None,
     timeline: CallTimeline | None = None,
 ) -> list[Step]:
-    """Composition de production (module 4.5, voir ``MIGRATION.md``) :
-    scoring concurrent borné (module 4.3) + drafting décomposé AngleAgent/
-    WriterAgent (module 4.2 — seule décomposition mesurée et retenue).
-    C'est l'unique composition câblée dans ``composition.py``.
+    """Production composition (module 4.5, see ``MIGRATION.md``):
+    bounded concurrent scoring (module 4.3) + decomposed AngleAgent/
+    WriterAgent drafting (module 4.2, the only decomposition measured and kept).
+    This is the only composition wired in ``composition.py``.
 
-    7 paramètres, 7 seams d'injection réellement distincts (pas de
-    regroupement naturel comme ``PipelineConfig`` pour les autres composeurs
-    — ``noqa`` assumé plutôt qu'un objet de config artificiel).
+    7 parameters, 7 genuinely distinct injection seams (no natural grouping
+    like ``PipelineConfig`` for the other composers). ``noqa`` is deliberate
+    rather than an artificial config object.
 
-    ``timeline`` (module 4.6) est facultative : sans elle, la composition est
-    identique à ce qu'elle était, et aucune étape ne prend un chemin de code
-    différent. Cf. ``OBSERVABILITY.md``.
+    ``timeline`` (module 4.6) is optional: without it, the composition is
+    identical to what it was, and no step takes a different code path.
+    See ``OBSERVABILITY.md``.
 
-    ``usage_sink`` doit être le **même** sink que celui injecté dans
-    l'``AnthropicClient`` de l'appelant : ``ConcurrentScoreStep`` s'en sert
-    pour vérifier ``max_cost_usd`` entre deux lots (cf. ``CONCURRENCY.md``).
-    Passer un sink différent (ou aucun) désactive silencieusement le budget
-    dur — le scoring fonctionne quand même, juste sans plafond de coût.
+    ``usage_sink`` must be the **same** sink as the one injected into the
+    caller's ``AnthropicClient``: ``ConcurrentScoreStep`` uses it to check
+    ``max_cost_usd`` between two batches (see ``CONCURRENCY.md``).
+    Passing a different sink (or none) silently disables the hard budget;
+    scoring still works, just without a cost cap.
     """
     return [
         FetchStep(fetch_items),
@@ -492,11 +492,11 @@ def build_radar_steps_production(  # noqa: PLR0913
 
 
 def radar_workflow_state_to_pipeline_report(state: WorkflowState) -> PipelineReport:
-    """Projette l'état final du workflow vers le contrat ``PipelineReport``
-    existant (``run_report.json``, ``RunRecord`` — inchangé depuis le module
-    3.3, aucune régression sur son schéma). ``n_skipped_no_angle`` (module
-    4.2) n'a pas d'équivalent dans ``PipelineReport`` : cette information
-    reste visible sur l'état complet / le ``WorkflowRun``, pas dupliquée ici.
+    """Project the final workflow state onto the existing ``PipelineReport``
+    contract (``run_report.json``, ``RunRecord``, unchanged since module
+    3.3, no regression on its schema). ``n_skipped_no_angle`` (module
+    4.2) has no equivalent in ``PipelineReport``: this information
+    stays visible on the full state / the ``WorkflowRun``, not duplicated here.
     """
     s = _as_radar_state(state)
     return PipelineReport(

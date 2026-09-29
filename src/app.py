@@ -15,7 +15,7 @@ EXIT_ALERT = 3
 DEFAULT_REPORT_PATH = "run_report.json"
 DEFAULT_TRACE_PATH = "run_trace.json"
 DEFAULT_BASELINE_PATH = "human_baseline.json"
-MAX_COST_USD_ALERT = 1.0  # seuil d'alerte coût/run (module 3.4)
+MAX_COST_USD_ALERT = 1.0  # cost/run alert threshold (module 3.4)
 
 Builder = Callable[[Settings], Callable[[], RadarRunOutcome]]
 
@@ -28,24 +28,24 @@ def main(  # noqa: PLR0913
     trace_out: str = DEFAULT_TRACE_PATH,
     baseline_path: str = DEFAULT_BASELINE_PATH,
 ) -> int:
-    """Charge la config, câble et exécute le pipeline radar, écrit le rapport.
+    """Load the config, wire and run the radar pipeline, write the report.
 
-    Point d'entrée console (commande ``radar-run``) : ``env`` par défaut sur
-    ``os.environ`` pour être appelable sans argument. Écrit ``out`` en UTF-8
-    explicite (indépendant de toute redirection shell).
+    Console entry point (``radar-run`` command): ``env`` defaults to
+    ``os.environ`` so it can be called with no argument. Writes ``out`` with
+    explicit UTF-8 (independent of any shell redirection).
 
-    Codes de sortie : 0 = succès ; 2 = configuration manquante (stderr) ;
-    3 = alerte (coût du run ou échecs LLM au-dessus du seuil — stderr). Le
-    rapport est écrit avant la vérification d'alerte : une alerte n'empêche
-    pas d'avoir le rapport sous la main.
+    Exit codes: 0 = success; 2 = missing configuration (stderr);
+    3 = alert (run cost or LLM failures above threshold — stderr). The
+    report is written before the alert check: an alert does not prevent
+    having the report at hand.
 
-    **Deux artefacts, deux responsabilités** (module 4.6, ``OBSERVABILITY.md``)
-    : ``out`` reçoit le ``PipelineReport`` au schéma inchangé, ``trace_out``
-    la trace détaillée du même run. L'équation de valeur est appliquée ici,
-    et pas dans la composition, parce qu'elle repose sur des **hypothèses
-    commerciales** (``baseline_path``) et non sur la mesure : le runner
-    mesure, le point d'entrée interprète. Sans fichier de baseline, les
-    hypothèses par défaut sont utilisées et signalées comme telles
+    **Two artifacts, two responsibilities** (module 4.6, ``OBSERVABILITY.md``)
+    : ``out`` receives the ``PipelineReport`` with unchanged schema,
+    ``trace_out`` the detailed trace of the same run. The value equation is
+    applied here, not in the composition, because it rests on **business
+    assumptions** (``baseline_path``) rather than measurement: the runner
+    measures, the entry point interprets. Without a baseline file, the
+    default assumptions are used and flagged as such
     (``value.baseline.measured = false``).
     """
     if env is None:
@@ -70,15 +70,15 @@ def main(  # noqa: PLR0913
     )
     write_trace_json(trace, trace_out)
     print(
-        f"Rapport écrit dans {out} ({record.report.n_drafted} brouillon(s), "
-        f"{record.report.n_above_threshold} au-dessus du seuil, "
+        f"Report written to {out} ({record.report.n_drafted} draft(s), "
+        f"{record.report.n_above_threshold} above threshold, "
         f"{record.usage.cost_usd:.4f} USD, "
         f"{trace.latency.run_seconds:.1f} s)."
     )
     print(
-        f"Trace écrite dans {trace_out} "
-        f"({trace.n_llm_calls_traced} appel(s) LLM, "
-        f"{trace.latency.llm_cumulative_seconds:.1f} s cumulées)."
+        f"Trace written to {trace_out} "
+        f"({trace.n_llm_calls_traced} LLM call(s), "
+        f"{trace.latency.llm_cumulative_seconds:.1f} s cumulative)."
     )
     alert = check_alert(record, max_cost_usd=MAX_COST_USD_ALERT)
     if alert is not None:

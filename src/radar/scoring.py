@@ -12,11 +12,11 @@ class Score(BaseModel):
 
 
 def build_prompt(item: RawItem) -> str:
-    """Construit le prompt d'évaluation orienté automatisation-PME.
+    """Build the evaluation prompt oriented toward SME automation.
 
-    Fonction pure : sortie déterministe, aucune mutation de l'item. Le modèle
-    doit répondre uniquement par un entier ; ``parse_score`` tolère toute
-    sortie non entière (score neutre).
+    Pure function: deterministic output, no mutation of the item. The model
+    must answer with an integer only; ``parse_score`` tolerates any non-integer
+    output (neutral score).
     """
     return (
         "Tu es un évaluateur expert en automatisation pour PME.\n"
@@ -55,18 +55,18 @@ def build_prompt(item: RawItem) -> str:
 
 
 def parse_score(raw: str) -> Score:
-    """Parse la sortie brute du LLM en un ``Score``.
+    """Parse the raw LLM output into a ``Score``.
 
-    Fonction pure.
+    Pure function.
 
-    Décision d'architecte — sortie malformée :
-        En cas de sortie non parsable en entier, on renvoie un ``Score``
-        neutre (``score=0``) plutôt que de lever une exception. Le radar
-        traite les items en lot ; une seule réponse mal formée ne doit
-        pas interrompre tout le pipeline. Un score neutre relègue
-        simplement l'item au plus bas rang. Ce choix est cohérent avec
-        la résilience déjà en place ailleurs (``JsonSeenStore.load_seen``
-        renvoie un ensemble vide sur JSON corrompu au lieu de lever).
+    Architect decision - malformed output:
+        If the output cannot be parsed as an integer, return a neutral
+        ``Score`` (``score=0``) instead of raising. The radar processes items
+        in batches; a single malformed answer must not interrupt the whole
+        pipeline. A neutral score simply relegates the item to the lowest
+        rank. This is consistent with the resilience already in place elsewhere
+        (``JsonSeenStore.load_seen`` returns an empty set on corrupt JSON instead
+        of raising).
     """
     try:
         value = int(raw.strip())

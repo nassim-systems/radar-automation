@@ -2,38 +2,38 @@ SCALE = 10
 
 
 def agreement(predictions: list[int], labels: list[int]) -> float:
-    """Mesure l'accord entre scores prédits et scores humains (échelle 0-10).
+    """Measure agreement between predicted and human scores (0-10 scale).
 
-    Pourquoi cette métrique
-    -----------------------
-    Les labels sont des jugements humains sur une échelle ordinale 0-10. Une
-    exactitude stricte (exact match) serait trop sévère : prédire 6 quand
-    l'humain a mis 7 est un quasi-accord, pas une erreur binaire. On exploite
-    donc l'amplitude du désaccord plutôt qu'un simple booléen égal/différent.
+    Why this metric
+    ---------------
+    Labels are human judgments on an ordinal 0-10 scale. Strict accuracy
+    (exact match) would be too harsh: predicting 6 when the human said 7 is
+    a near-agreement, not a binary error. So we use the magnitude of the
+    disagreement rather than a mere equal/different boolean.
 
-    Ce qu'elle mesure
-    -----------------
-    On calcule l'erreur absolue moyenne (MAE) entre prédictions et labels, on
-    la normalise par l'amplitude de l'échelle (``SCALE`` = 10) et on la
-    retranche à 1 :
+    What it measures
+    ----------------
+    We compute the mean absolute error (MAE) between predictions and
+    labels, normalize it by the scale span (``SCALE`` = 10) and subtract it
+    from 1:
 
         agreement = 1 - MAE / SCALE
 
-    - 1.0 => scores identiques (accord parfait) ;
-    - 0.0 => désaccord maximal (écart moyen de 10 points).
+    - 1.0 => identical scores (perfect agreement);
+    - 0.0 => maximal disagreement (mean gap of 10 points).
 
-    Le résultat est borné à [0, 1] : des prédictions hors échelle ne peuvent
-    pas produire un accord négatif. La fonction est pure et déterministe, donc
-    entièrement reproductible sans clé API.
+    The result is bounded to [0, 1]: out-of-scale predictions cannot
+    produce a negative agreement. The function is pure and deterministic, so
+    fully reproducible without an API key.
 
-    Conventions et garde-fous
-    -------------------------
-    - Un ensemble vide ne contient aucun désaccord : l'accord vaut 1.0.
-    - Des listes de longueurs différentes sont une erreur de programmation et
-      lèvent ``ValueError``.
+    Conventions and safeguards
+    --------------------------
+    - An empty set contains no disagreement: agreement is 1.0.
+    - Lists of different lengths are a programming error and raise
+      ``ValueError``.
     """
     if len(predictions) != len(labels):
-        raise ValueError("predictions et labels doivent avoir la même longueur")
+        raise ValueError("predictions and labels must have the same length")
     if not predictions:
         return 1.0
     total_error = sum(
@@ -45,7 +45,7 @@ def agreement(predictions: list[int], labels: list[int]) -> float:
 
 
 def _average_ranks(values: list[float]) -> list[float]:
-    """Rangs 1-based, moyennés en cas d'égalité."""
+    """1-based ranks, averaged on ties."""
     ordered = sorted(values)
     rank_of: dict[float, float] = {}
     i = 0
@@ -60,18 +60,18 @@ def _average_ranks(values: list[float]) -> list[float]:
 
 
 def spearman(predictions: list[int], labels: list[int]) -> float:
-    """Corrélation de rang de Spearman entre prédictions et labels.
+    """Spearman rank correlation between predictions and labels.
 
-    Mesure si l'ordre induit par les scores prédits suit celui des labels
-    humains : pour un radar, c'est le *classement* qui compte, pas la valeur
-    absolue. Les égalités (nombreuses quand le modèle plafonne) sont gérées
-    par rangs moyens. Résultat dans [-1, 1] ; par convention 0.0 si une série
-    est constante (corrélation indéfinie) ou si les listes sont vides.
+    Measures whether the order induced by the predicted scores follows that
+    of the human labels: for a radar, the *ranking* matters, not the
+    absolute value. Ties (numerous when the model saturates) are handled
+    by average ranks. Result in [-1, 1]; by convention 0.0 if a series
+    is constant (undefined correlation) or if the lists are empty.
 
-    :raises ValueError: si les deux listes n'ont pas la même longueur.
+    :raises ValueError: if the two lists differ in length.
     """
     if len(predictions) != len(labels):
-        raise ValueError("predictions et labels doivent avoir la même longueur")
+        raise ValueError("predictions and labels must have the same length")
     n = len(predictions)
     if n == 0:
         return 0.0
@@ -93,26 +93,26 @@ def spearman(predictions: list[int], labels: list[int]) -> float:
 def precision_at_threshold(
     predictions: list[int], labels: list[int], threshold: int
 ) -> float:
-    """Précision du gate ``score >= threshold`` (celui qu'utilise ``min_score``).
+    """Precision of the ``score >= threshold`` gate (the one ``min_score`` uses).
 
-    Parmi les items que le modèle **retiendrait** à ce seuil, quelle fraction
-    est **vraiment pertinente** selon le label humain ?
+    Among the items the model would **retain** at this threshold, what
+    fraction is **truly relevant** according to the human label?
 
-        precision = |retenus ∩ pertinents| / |retenus|
+        precision = |retained ∩ relevant| / |retained|
 
-    « Retenu » = ``prediction >= threshold`` ; « pertinent » = ``label >=
-    threshold`` (même seuil des deux côtés : c'est la question qu'on pose à
-    ``min_score`` — si on ne draft qu'à partir de ce score, a-t-on raison ?).
+    "Retained" = ``prediction >= threshold``; "relevant" = ``label >=
+    threshold`` (same threshold on both sides: it is the question we ask
+    ``min_score`` — if we only draft from this score up, are we right?).
 
-    Convention : si le modèle ne retient aucun item à ce seuil, la précision
-    vaut 1.0 — aucun faux positif n'est possible (cohérent avec l'usage réel :
-    ``min_score`` qui ne fait rien drafter n'est jamais une erreur de
-    précision, cf. ``run_pipeline``/``filter_by_min_score``).
+    Convention: if the model retains no item at this threshold, precision
+    is 1.0 — no false positive is possible (consistent with real usage:
+    a ``min_score`` that drafts nothing is never a precision error, see
+    ``run_pipeline``/``filter_by_min_score``).
 
-    :raises ValueError: si les deux listes n'ont pas la même longueur.
+    :raises ValueError: if the two lists differ in length.
     """
     if len(predictions) != len(labels):
-        raise ValueError("predictions et labels doivent avoir la même longueur")
+        raise ValueError("predictions and labels must have the same length")
     retained_are_relevant = [
         label >= threshold
         for pred, label in zip(predictions, labels, strict=True)
@@ -126,20 +126,20 @@ def precision_at_threshold(
 def recall_at_threshold(
     predictions: list[int], labels: list[int], threshold: int
 ) -> float:
-    """Rappel du gate ``score >= threshold`` (celui qu'utilise ``min_score``).
+    """Recall of the ``score >= threshold`` gate (the one ``min_score`` uses).
 
-    Parmi les items **vraiment pertinents** selon le label humain, quelle
-    fraction le modèle **retient**-il à ce seuil ?
+    Among the items **truly relevant** according to the human label, what
+    fraction does the model **retain** at this threshold?
 
-        recall = |retenus ∩ pertinents| / |pertinents|
+        recall = |retained ∩ relevant| / |relevant|
 
-    Convention : si aucun item n'est vraiment pertinent à ce seuil, le rappel
-    vaut 1.0 — rien à retrouver, donc aucun faux négatif possible.
+    Convention: if no item is truly relevant at this threshold, recall
+    is 1.0 — nothing to retrieve, hence no false negative possible.
 
-    :raises ValueError: si les deux listes n'ont pas la même longueur.
+    :raises ValueError: if the two lists differ in length.
     """
     if len(predictions) != len(labels):
-        raise ValueError("predictions et labels doivent avoir la même longueur")
+        raise ValueError("predictions and labels must have the same length")
     relevant_are_retained = [
         pred >= threshold
         for pred, label in zip(predictions, labels, strict=True)

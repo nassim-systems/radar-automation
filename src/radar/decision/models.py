@@ -4,9 +4,9 @@ from radar.domain import RawItem
 
 
 class ScoredItem(BaseModel):
-    """Un ``RawItem`` accompagné de son score de pertinence (0-10).
+    """A ``RawItem`` together with its relevance score (0-10).
 
-    Sortie du scoring (module 1.4), entrée de la sélection et du drafting.
+    Output of scoring (module 1.4), input of selection and drafting.
     """
 
     item: RawItem

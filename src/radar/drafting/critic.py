@@ -1,12 +1,12 @@
-"""CriticAgent (module 4.4) : relit un brouillon déjà rédigé et vérifie
-qu'il respecte la ligne éditoriale — fait inventé, angle forcé, hors-ligne
-éditoriale, longueur.
+"""CriticAgent (module 4.4): re-reads an already written draft and checks
+that it follows the editorial line — invented fact, forced angle, off
+editorial line, length.
 
-La longueur est vérifiée par une fonction pure (``check_length``), sans
-appel LLM : c'est un critère purement mécanique, aucun jugement n'est requis
-— cohérent avec la grille d'arbitrage de ``WORKFLOW.md`` (pas de LLM là où
-une règle déterministe suffit). Les trois autres critères (fidélité, angle,
-ton) demandent un jugement réel et restent derrière la frontière LLM.
+Length is checked by a pure function (``check_length``), without an LLM
+call: it is a purely mechanical criterion, no judgment is required
+— consistent with the trade-off grid of ``WORKFLOW.md`` (no LLM where
+a deterministic rule suffices). The other three criteria (faithfulness,
+angle, tone) require real judgment and stay behind the LLM boundary.
 """
 import re
 
@@ -25,17 +25,17 @@ _REJECT_MARKERS = ("REJETE", "REJETÉ", "REJECT")
 
 
 class Verdict(BaseModel):
-    """``reasons`` est toujours vide si ``accepted=True``."""
+    """``reasons`` is always empty if ``accepted=True``."""
 
     accepted: bool
     reasons: list[str] = []
 
 
 def count_sentences(text: str) -> int:
-    """Heuristique simple : compte les terminaisons de phrase (. ! ?), en
-    ignorant les lignes de titre markdown (``# ...``). Approximatif par
-    nature — suffit à repérer un brouillon manifestement trop long, pas à
-    un comptage linguistique exact.
+    """Simple heuristic: counts sentence endings (. ! ?), ignoring markdown
+    heading lines (``# ...``). Approximate by nature — enough to spot a
+    manifestly too-long draft, not an exact
+    linguistic count.
     """
     body = " ".join(
         line for line in text.splitlines() if not line.strip().startswith("#")
@@ -46,8 +46,8 @@ def count_sentences(text: str) -> int:
 def check_length(
     draft: Draft, *, max_sentences: int = DEFAULT_MAX_SENTENCES
 ) -> str | None:
-    """Vérification pure, sans LLM. Renvoie une raison de rejet si le
-    brouillon dépasse ``max_sentences``, sinon ``None``."""
+    """Pure check, no LLM. Returns a rejection reason if the draft exceeds
+    ``max_sentences``, else ``None``."""
     n = count_sentences(draft.text)
     if n > max_sentences:
         return f"trop long : {n} phrases détectées (max {max_sentences})"
@@ -55,8 +55,8 @@ def check_length(
 
 
 def build_critic_prompt(item: RawItem, draft: Draft) -> str:
-    """Construit le prompt de relecture. Fonction pure, frontière LLM isolée
-    ailleurs (``critique_draft``)."""
+    """Build the review prompt. Pure function, LLM boundary isolated
+    elsewhere (``critique_draft``)."""
     return (
         "Tu es relecteur éditorial pour un radar de veille automatisation-PME. "
         "Un brouillon de post a déjà été rédigé à partir de l'article "
@@ -92,12 +92,12 @@ def build_critic_prompt(item: RawItem, draft: Draft) -> str:
 
 
 def parse_verdict(response: str) -> Verdict:
-    """Parse la sortie du CriticAgent.
+    """Parse the CriticAgent output.
 
-    Défaut sûr sur sortie ambiguë ou vide : **REJETÉ** — fail-closed,
-    cohérent avec l'asymétrie du coût d'erreur déjà établie ailleurs dans ce
-    projet (``QUALITY.md``, ``ANGLE_AGENT.md``) : un brouillon défectueux
-    accepté à tort coûte plus qu'un brouillon correct rejeté à tort.
+    Safe default on ambiguous or empty output: **REJECTED** — fail-closed,
+    consistent with the error-cost asymmetry already established elsewhere in
+    this project (``QUALITY.md``, ``ANGLE_AGENT.md``): a defective draft
+    wrongly accepted costs more than a correct draft wrongly rejected.
     """
     lines = [line.strip() for line in response.strip().splitlines() if line.strip()]
     if not lines:
@@ -133,9 +133,9 @@ def critique_draft(
     *,
     max_sentences: int = DEFAULT_MAX_SENTENCES,
 ) -> Verdict:
-    """Relit ``draft``. Court-circuite l'appel LLM si le défaut mécanique
-    (longueur) suffit déjà à rejeter — aucune raison de payer un jugement
-    LLM pour un critère déjà tranché par une règle pure."""
+    """Review ``draft``. Short-circuits the LLM call if the mechanical defect
+    (length) already suffices to reject — no reason to pay for an LLM
+    judgment on a criterion already settled by a pure rule."""
     length_issue = check_length(draft, max_sentences=max_sentences)
     if length_issue is not None:
         return Verdict(accepted=False, reasons=[length_issue])

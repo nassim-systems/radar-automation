@@ -1,22 +1,22 @@
-"""Équation de valeur humaine (module 4.6) : temps humain remplacé, coût
-équivalent, projection de ROI.
+"""Human value equation (module 4.6): human time replaced, equivalent cost,
+ROI projection.
 
-**Statut épistémique de ce module — à lire avant d'utiliser ses chiffres.**
-Tout ce qui précède dans ce projet est *mesuré* : les scores viennent d'un
-held-out annoté, les coûts du SDK, les latences d'une horloge. Ici, non. Une
-équation de valeur repose sur des **paramètres humains** (combien de temps
-met une personne à trier un article, à rédiger un post, combien coûte son
-heure) que ce dépôt ne peut pas mesurer tout seul.
+**Epistemic status of this module: read before using its figures.**
+Everything else in this project is *measured*: scores come from an annotated
+held-out set, costs from the SDK, latencies from a clock. Not here. A value
+equation rests on **human parameters** (how long a person takes to triage an
+article, to write a post, what their hour costs) that this repo cannot
+measure on its own.
 
-La séparation est donc explicite et matérialisée dans le type :
-``HumanBaseline`` porte les *hypothèses*, ``ValueEquation`` porte le *calcul*,
-et ``HumanBaseline.measured`` dit si les paramètres viennent d'un
-chronométrage réel (``scripts/measure_human_baseline.py``) ou des valeurs par
-défaut ci-dessous. Un chiffre de ROI dont ``measured`` vaut ``False`` est une
-projection paramétrique, pas un résultat — et il doit être présenté comme tel.
+The separation is therefore explicit and encoded in the type:
+``HumanBaseline`` holds the *assumptions*, ``ValueEquation`` the *calculation*,
+and ``HumanBaseline.measured`` says whether the parameters come from a
+real timing run (``scripts/measure_human_baseline.py``) or from the defaults
+below. An ROI figure with ``measured`` set to ``False`` is a parametric
+projection, not a result, and must be presented as such.
 
-Les valeurs par défaut ne sont pas des mesures déguisées : ce sont des
-ordres de grandeur prudents, choisis pour être remplacés.
+The defaults are not measurements in disguise: they are conservative orders
+of magnitude, chosen to be replaced.
 """
 import json
 from datetime import datetime
@@ -35,13 +35,13 @@ _DEFAULT_NOTE = (
 
 
 class HumanBaseline(BaseModel):
-    """Paramètres du travail humain que le radar remplace ou allège.
+    """Parameters of the human work that the radar replaces or lightens.
 
-    ``seconds_per_draft_review`` est le point d'honnêteté de ce modèle : le
-    système ne supprime pas le travail humain, il le déplace. Un brouillon
-    produit doit encore être relu et validé — ce temps résiduel est déduit du
-    gain, jamais ignoré. Sans ce terme, l'équation surestimerait le gain de
-    façon systématique.
+    ``seconds_per_draft_review`` is the honesty point of this model: the
+    system does not remove human work, it moves it. A produced draft must still
+    be reviewed and approved; this residual time is deducted from the gain,
+    never ignored. Without this term, the equation would systematically
+    overestimate the gain.
     """
 
     seconds_per_item_triage: float = 25.0
@@ -56,10 +56,10 @@ class HumanBaseline(BaseModel):
 
 
 class ValueEquation(BaseModel):
-    """Résultat du calcul, avec ses hypothèses attachées.
+    """Result of the computation, with its assumptions attached.
 
-    ``baseline`` est embarquée volontairement : un chiffre de ROI séparé de
-    ses paramètres est ininterprétable, et pire, réutilisable hors contexte.
+    ``baseline`` is embedded on purpose: an ROI figure separated from its
+    parameters cannot be interpreted and, worse, can be reused out of context.
     """
 
     baseline: HumanBaseline
@@ -99,18 +99,18 @@ def compute_value_equation(
     machine_cost_usd: float,
     baseline: HumanBaseline | None = None,
 ) -> ValueEquation:
-    """Applique ``baseline`` aux compteurs réels d'un run.
+    """Apply ``baseline`` to the actual counters of a run.
 
-    Le volume de travail humain remplacé est indexé sur ce que le système a
-    *réellement* fait ce run-là (``n_scored`` items triés, ``n_drafted``
-    brouillons rédigés) — pas sur une capacité théorique. Un run qui ne
-    drafte rien produit donc un gain de rédaction nul, ce qui est le
-    comportement voulu : l'équation suit la production réelle, y compris
-    quand elle est basse.
+    The volume of human work replaced is indexed on what the system
+    *actually* did in that run (``n_scored`` items triaged, ``n_drafted``
+    drafts written), not on a theoretical capacity. A run that drafts
+    nothing therefore yields zero writing gain, which is the intended
+    behavior: the equation tracks real output, even when it is
+    low.
 
-    ``roi_ratio`` et ``time_compression_ratio`` valent ``None`` plutôt que
-    l'infini quand leur dénominateur est nul — un ratio non calculable ne
-    doit pas se présenter comme un très grand nombre.
+    ``roi_ratio`` and ``time_compression_ratio`` are ``None`` rather than
+    infinity when their denominator is zero: an uncomputable ratio must not
+    present itself as a very large number.
     """
     params = baseline if baseline is not None else HumanBaseline()
 
@@ -163,12 +163,12 @@ def compute_value_equation(
 
 
 def load_human_baseline(path: str | Path) -> HumanBaseline:
-    """Charge une baseline chronométrée, ou renvoie les hypothèses par défaut.
+    """Load a timed baseline, or return the default assumptions.
 
-    L'absence de fichier n'est pas une erreur : c'est l'état normal tant que
-    personne ne s'est chronométré. Le ``measured=False`` embarqué dans le
-    résultat suffit à signaler que les chiffres sont des hypothèses — pas
-    besoin d'un mode dégradé bruyant.
+    A missing file is not an error: it is the normal state as long as
+    nobody has timed themselves. The embedded ``measured=False`` in the
+    result is enough to signal that the figures are assumptions; no need
+    for a noisy degraded mode.
     """
     file = Path(path)
     if not file.exists():

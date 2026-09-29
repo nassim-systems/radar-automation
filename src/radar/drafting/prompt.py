@@ -3,10 +3,10 @@ from radar.domain import RawItem
 
 
 def build_draft_prompt(item: RawItem) -> str:
-    """Construit le prompt de génération d'un brouillon de post pour un item.
+    """Build the prompt to generate a post draft for an item.
 
-    Frontière LLM isolée : fonction pure, aucune logique LLM, sortie
-    déterministe. La génération réelle se fait ailleurs via un ``LLMClient``.
+    Isolated LLM boundary: pure function, no LLM logic, deterministic output.
+    Actual generation happens elsewhere via an ``LLMClient``.
     """
     return (
         "Tu es un rédacteur qui prépare des brouillons de posts pour une PME.\n"

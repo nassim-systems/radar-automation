@@ -5,23 +5,23 @@ from radar.llm.errors import TransientLLMError
 from radar.llm.pricing import estimate_cost
 
 MODEL = "claude-haiku-4-5"
-MAX_TOKENS = 16  # suffit au scoring (un entier) ; le drafting en demande plus
+MAX_TOKENS = 16  # enough for scoring (one integer); drafting needs more
 # Erreurs traduites en TransientLLMError (module 4.3) : rate limit (429) et
-# surcharge (529) uniquement — choix explicite documenté dans CONCURRENCY.md,
-# qui exclut volontairement les 5xx génériques (InternalServerError).
+# overload (529) only — explicit choice documented in CONCURRENCY.md,
+# which deliberately excludes generic 5xx (InternalServerError).
 _RETRIABLE_ANTHROPIC_ERRORS = (RateLimitError, OverloadedError)
 
 
 class AnthropicClient:
-    """Adaptateur réel implémentant ``LLMClient`` via l'API Anthropic (Haiku 4.5).
+    """Real adapter implementing ``LLMClient`` via the Anthropic API (Haiku 4.5).
 
-    La clé API n'est jamais codée en dur. ``api_key`` peut être injecté par la
-    racine de composition (depuis l'environnement via ``Settings``) ; s'il vaut
-    ``None``, le SDK la résout lui-même depuis l'environnement. ``max_tokens``
-    est réglable : la valeur par défaut suffit au scoring, le drafting demande
-    davantage. ``usage_sink``, s'il est injecté, est notifié de l'usage réel
-    (tokens + coût) après chaque appel — ``complete`` continue de renvoyer un
-    ``str`` (aucun appelant existant, scoring/drafting/agent, n'est impacté).
+    The API key is never hard-coded. ``api_key`` may be injected by the
+    composition root (from the environment via ``Settings``); if it is
+    ``None``, the SDK resolves it from the environment itself. ``max_tokens``
+    is tunable: the default suffices for scoring, drafting needs more.
+    ``usage_sink``, if injected, is notified of the real usage (tokens +
+    cost) after each call — ``complete`` keeps returning a ``str`` (no
+    existing caller, scoring/drafting/agent, is affected).
     """
 
     def __init__(

@@ -1,19 +1,19 @@
-"""Trace de run exportable (module 4.6) — l'observabilité déjà produite,
-rendue lisible hors du processus.
+"""Exportable run trace (module 4.6) — the observability already produced,
+made readable outside the process.
 
-**Pourquoi un fichier dédié plutôt que des champs de plus dans
-``run_report.json``.** ``MIGRATION.md`` §5 pose une non-régression explicite :
-le schéma de ``PipelineReport`` est inchangé, et c'est ce qui a rendu la
-migration du module 4.5 vérifiable. ``RunRecord`` (donc ``run_history.json``)
-en dépend directement. Y greffer la trace romprait cette garantie pour une
-raison purement cosmétique. ``run_trace.json`` est donc un second artefact,
-apparié au premier par ``run_at`` — un contrat de plus, aucun contrat cassé.
+**Why a dedicated file rather than extra fields in
+``run_report.json``.** ``MIGRATION.md`` §5 sets an explicit non-regression:
+the ``PipelineReport`` schema is unchanged, and that is what made the
+module 4.5 migration verifiable. ``RunRecord`` (hence ``run_history.json``)
+depends on it directly. Grafting the trace onto it would break this
+guarantee for a purely cosmetic reason. ``run_trace.json`` is thus a second
+artifact, paired with the first by ``run_at`` — one more contract, none broken.
 
-**Rien n'est mesuré ici.** Ce module ne fait qu'agréger : les durées par
-étape viennent de ``run_workflow`` (module 4.1), les appels de la
-``CallTimeline`` (module 4.6), les tokens et coûts du ``UsageSink`` (module
-3.4). Les vues « par phase » et « par item » sont des projections de la même
-source d'appels — pas des compteurs parallèles susceptibles de diverger.
+**Nothing is measured here.** This module only aggregates: per-step
+durations come from ``run_workflow`` (module 4.1), calls from the
+``CallTimeline`` (module 4.6), tokens and costs from the ``UsageSink``
+(module 3.4). The "per phase" and "per item" views are projections of the
+same call source — not parallel counters that could diverge.
 """
 import json
 from datetime import datetime
@@ -30,11 +30,11 @@ from radar.pipeline import PipelineReport
 
 
 class RunCounters(BaseModel):
-    """Les compteurs de ``PipelineReport``, sans les brouillons.
+    """The ``PipelineReport`` counters, without the drafts.
 
-    Les brouillons restent dans ``run_report.json`` : les dupliquer ici
-    doublerait la taille du fichier et créerait deux copies à garder
-    cohérentes pour zéro information nouvelle.
+    The drafts stay in ``run_report.json``: duplicating them here would
+    double the file size and create two copies to keep consistent, for
+    zero new information.
     """
 
     n_fetched: int
@@ -49,13 +49,13 @@ class RunCounters(BaseModel):
 
 
 class PhaseTiming(BaseModel):
-    """Agrégat des appels LLM d'une phase.
+    """Aggregate of a phase's LLM calls.
 
-    Le nom d'une phase est, par construction, le nom de l'étape qui l'émet
-    (``score``, ``angle``, ``write``) : c'est ce qui permet de rapprocher le
-    temps *cumulé* des appels du temps *réel* de l'étape. Leur rapport
-    (``speedup``) est la mesure directe du gain de concurrence du module 4.3 —
-    à 1,0 l'étape est séquentielle, au-dessus elle recouvre ses appels.
+    A phase's name is, by construction, the name of the step that emits it
+    (``score``, ``angle``, ``write``): this is what allows relating the
+    *cumulative* call time to the step's *actual* time. Their ratio
+    (``speedup``) is the direct measure of the module 4.3 concurrency gain —
+    at 1.0 the step is sequential, above it the step overlaps its calls.
     """
 
     phase: str
@@ -72,7 +72,7 @@ class PhaseTiming(BaseModel):
 
 
 class ItemTiming(BaseModel):
-    """Ce qu'un item aura coûté en temps et en argent, tous appels confondus."""
+    """What an item cost in time and money, all calls combined."""
 
     subject: CallSubject
     n_calls: int
@@ -83,14 +83,14 @@ class ItemTiming(BaseModel):
 
 
 class LatencySummary(BaseModel):
-    """Latences du run, du plus global au plus fin.
+    """Run latencies, from the most global to the finest.
 
-    ``orchestration_seconds`` est l'écart entre la durée réelle du run et la
-    somme des étapes — le coût propre du moteur. Le garder explicite évite la
-    tentation de présenter la somme des étapes comme la durée du run.
-    ``llm_cumulative_seconds`` peut dépasser ``run_seconds`` : c'est attendu
-    dès qu'il y a de la concurrence, et c'est précisément ce que mesure
-    ``PhaseTiming.speedup``.
+    ``orchestration_seconds`` is the gap between the run's actual duration
+    and the sum of the steps — the engine's own cost. Keeping it explicit
+    avoids the temptation of presenting the sum of the steps as the run
+    duration. ``llm_cumulative_seconds`` can exceed ``run_seconds``: this is
+    expected whenever there is concurrency, and it is precisely what
+    ``PhaseTiming.speedup`` measures.
     """
 
     run_seconds: float
@@ -104,12 +104,12 @@ class LatencySummary(BaseModel):
 
 
 class RunTrace(BaseModel):
-    """Trace complète et autoportante d'un run.
+    """Complete, self-contained trace of a run.
 
-    ``n_llm_calls_traced`` est mesuré indépendamment de
-    ``counters.n_llm_calls`` (reconstruit par les étapes, module 4.5) : les
-    deux doivent coïncider, et les avoir obtenus par deux chemins distincts
-    est ce qui permet de voir un écart s'il apparaît.
+    ``n_llm_calls_traced`` is measured independently of
+    ``counters.n_llm_calls`` (rebuilt by the steps, module 4.5): the two
+    must match, and having obtained them by two distinct paths is what
+    makes a gap visible if one appears.
     """
 
     run_at: datetime
@@ -127,12 +127,12 @@ class RunTrace(BaseModel):
 
 
 class RadarRunOutcome(BaseModel):
-    """Ce que renvoie le runner de production : le ``RunRecord`` historisé
-    (schéma inchangé, module 3.4) **et** la trace du même run.
+    """What the production runner returns: the historized ``RunRecord``
+    (unchanged schema, module 3.4) **and** the trace of the same run.
 
-    Deux objets plutôt qu'un ``RunRecord`` enrichi : l'historique persistant
-    garde exactement le schéma qu'il avait, et la trace reste facultative
-    pour tout appelant qui ne la consomme pas.
+    Two objects rather than an enriched ``RunRecord``: the persistent history
+    keeps exactly the schema it had, and the trace stays optional for any
+    caller that does not consume it.
     """
 
     record: RunRecord
@@ -142,7 +142,7 @@ class RadarRunOutcome(BaseModel):
 def summarize_phases(
     calls: list[LlmCallRecord], steps: list[StepTrace]
 ) -> list[PhaseTiming]:
-    """Agrège les appels par phase, en les rapprochant de l'étape homonyme."""
+    """Aggregate calls by phase, relating them to the same-named step."""
     wall_by_step = {step.name: step.duration_seconds for step in steps}
     order: list[str] = []
     grouped: dict[str, list[LlmCallRecord]] = {}
@@ -181,11 +181,11 @@ def summarize_phases(
 
 
 def summarize_items(calls: list[LlmCallRecord]) -> list[ItemTiming]:
-    """Agrège les appels par item, dans l'ordre de leur premier appel.
+    """Aggregate calls by item, in order of their first call.
 
-    Les appels sans sujet (aucun item attaché) sont ignorés plutôt que
-    regroupés sous une clé fourre-tout : ils restent visibles dans ``calls``
-    et dans ``phases``, où ils ont un sens.
+    Calls without a subject (no item attached) are ignored rather than
+    grouped under a catch-all key: they stay visible in ``calls`` and in
+    ``phases``, where they make sense.
     """
     order: list[str] = []
     grouped: dict[str, list[LlmCallRecord]] = {}
@@ -222,7 +222,7 @@ def build_run_trace(
     calls: list[LlmCallRecord],
     run_at: datetime,
 ) -> RunTrace:
-    """Assemble la trace exportable à partir des sources déjà instrumentées."""
+    """Assemble the exportable trace from the already-instrumented sources."""
     steps = workflow_run.trace
     steps_seconds = sum(step.duration_seconds for step in steps)
     durations = [call.duration_seconds for call in calls]
@@ -262,8 +262,8 @@ def build_run_trace(
 
 
 def write_trace_json(trace: RunTrace, out: str | Path) -> None:
-    """Écrit la trace en JSON, UTF-8 explicite — même convention que
-    ``write_report_json`` (indépendance vis-à-vis des redirections shell)."""
+    """Write the trace as JSON, explicit UTF-8, same convention as
+    ``write_report_json`` (independent of shell redirections)."""
     Path(out).write_text(
         json.dumps(trace.model_dump(mode="json"), ensure_ascii=False, indent=2),
         encoding="utf-8",

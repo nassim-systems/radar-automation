@@ -37,7 +37,7 @@ class JsonSeenStore:
 
 
 class InMemorySeenStore:
-    """SeenStore non persistant (tests, runs éphémères)."""
+    """Non-persistent SeenStore (tests, ephemeral runs)."""
 
     def __init__(self) -> None:
         self._seen: set[str] = set()

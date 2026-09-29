@@ -1,11 +1,11 @@
-"""Types et fonctions pures partagés par le pipeline radar.
+"""Types and pure functions shared by the radar pipeline.
 
-``run_pipeline`` (la fonction monolithique séquentielle du module 1.x) a été
-supprimée au module 4.5 : ``radar/workflow.py`` (``build_radar_steps_production``,
-scoring concurrent + drafting décomposé) est désormais l'unique chemin de
-production, câblé dans ``composition.py``. Voir ``MIGRATION.md`` pour
-l'arbitrage. Ce module conserve les types et fonctions pures que le workflow
-réutilise : ``PipelineConfig``, ``PipelineReport``, ``ScoredDraft``,
+``run_pipeline`` (the sequential monolithic function of module 1.x) was
+removed in module 4.5: ``radar/workflow.py`` (``build_radar_steps_production``,
+concurrent scoring + decomposed drafting) is now the only production
+path, wired in ``composition.py``. See ``MIGRATION.md`` for the
+trade-off. This module keeps the pure types and functions the workflow
+reuses: ``PipelineConfig``, ``PipelineReport``, ``ScoredDraft``,
 ``filter_by_min_score``, ``write_report_json``.
 """
 import json
@@ -28,7 +28,7 @@ class PipelineConfig(BaseModel):
 
 
 class ScoredDraft(BaseModel):
-    """Un brouillon apparié à son item et à son score (pas de liste positionnelle)."""
+    """A draft paired with its item and its score (no positional list)."""
 
     item: RawItem
     score: int
@@ -49,18 +49,18 @@ class PipelineReport(BaseModel):
 
 
 def filter_by_min_score(items: list[ScoredItem], min_score: int) -> list[ScoredItem]:
-    """Ne garde que les items dont le score atteint ``min_score``.
+    """Keep only the items whose score reaches ``min_score``.
 
-    Étage pur, appliqué avant ``select_top_k`` : un item hors-sujet ne doit
-    pas consommer une place dans le top-K à la place d'un item pertinent.
+    Pure stage, applied before ``select_top_k``: an off-topic item must not
+    take a top-K slot away from a relevant item.
     """
     return [scored for scored in items if scored.score >= min_score]
 
 
 def write_report_json(report: PipelineReport, out: str | Path) -> None:
-    """Écrit ``report`` en JSON, encoding UTF-8 explicite.
+    """Write ``report`` as JSON with explicit UTF-8 encoding.
 
-    Indépendant de toute redirection shell (celle-ci varie d'encodage par OS).
+    Independent of any shell redirection (whose encoding varies by OS).
     """
     Path(out).write_text(
         json.dumps(report.model_dump(mode="json"), ensure_ascii=False, indent=2),

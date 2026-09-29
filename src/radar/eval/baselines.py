@@ -4,7 +4,7 @@ CONSTANT_SCORE = 5
 KEYWORD_WEIGHT = 3
 MAX_SCORE = 10
 
-# Mots-clés « automatisation-PME » pour la baseline naïve.
+# "SMB automation" keywords for the naive baseline.
 KEYWORDS = (
     "automatis",
     "no-code",
@@ -32,12 +32,12 @@ KEYWORDS = (
 
 
 def constant_scorer(item: RawItem) -> int:
-    """Baseline triviale : renvoie toujours le même score neutre."""
+    """Trivial baseline: always returns the same neutral score."""
     return CONSTANT_SCORE
 
 
 def keyword_scorer(item: RawItem) -> int:
-    """Baseline naïve : score fonction du nombre de mots-clés PME présents."""
+    """Naive baseline: score is a function of the number of SMB keywords present."""
     text = f"{item.title} {item.summary or ''}".lower()
     hits = sum(1 for keyword in KEYWORDS if keyword in text)
     return min(MAX_SCORE, hits * KEYWORD_WEIGHT)

@@ -1,7 +1,7 @@
-"""Racine de composition : le SEUL module autorisé à importer ``agent`` ET
-``executor``. Instancie les vraies implémentations (LLM réel, flux, stores
-persistants, exécuteur réel) et câble les pipelines. Aucun secret n'est codé
-ici : tout vient de ``Settings`` (donc de l'environnement).
+"""Composition root: the ONLY module allowed to import ``agent`` AND
+``executor``. Instantiates the real implementations (real LLM, feeds,
+persistent stores, real executor) and wires the pipelines. No secret is
+hard-coded here: everything comes from ``Settings`` (hence the environment).
 """
 import ssl
 import urllib.request
@@ -44,38 +44,38 @@ from radar.workflow import (
 from settings import Settings
 
 _USER_AGENT = "Mozilla/5.0 (compatible; radar-automation/0.1; RSS reader)"
-# Bundle de CA certifi plutôt que le magasin par défaut de l'OS : certains
-# flux (ex. blog.n8n.io) échouent la validation TLS avec le contexte SSL par
-# défaut de Python sur cette machine (chaîne de certification non résolue).
+# certifi CA bundle rather than the OS default store: some feeds
+# (e.g. blog.n8n.io) fail TLS validation with Python's default SSL
+# context on this machine (certificate chain unresolved).
 _SSL_CONTEXT = ssl.create_default_context(cafile=certifi.where())
 _MAX_AGE = timedelta(days=7)
 _TOP_K = 5
 _MAX_SCORED = 30
-_MIN_SCORE = 8  # calibré module 3.5 : voir QUALITY.md (precision/recall par seuil)
+_MIN_SCORE = 8  # calibrated in module 3.5, see QUALITY.md
 _MAX_HISTORY_TURNS = 20
-_LLM_MAX_TOKENS = 512  # marge pour le drafting ; le scoring reste court de fait
-_MAX_CONCURRENCY = 5  # défaut prudent, cf. CONCURRENCY.md
+_LLM_MAX_TOKENS = 512  # headroom for drafting; scoring stays short anyway
+_MAX_CONCURRENCY = 5  # prudent default, see CONCURRENCY.md
 
 
 def build_radar_pipeline(settings: Settings) -> Callable[[], RadarRunOutcome]:
-    """Câble le workflow radar de production avec les vraies implémentations.
+    """Wire the production radar workflow with the real implementations.
 
-    Chemin unique depuis le module 4.5 (``MIGRATION.md``) : scoring
-    concurrent borné (module 4.3) + drafting décomposé AngleAgent/
-    WriterAgent (module 4.2) via ``build_radar_steps_production``.
-    ``run_pipeline`` (module 1.x) a été supprimée — plus de voie morte.
+    Single path since module 4.5 (``MIGRATION.md``): bounded concurrent
+    scoring (module 4.3) + decomposed AngleAgent/WriterAgent drafting
+    (module 4.2) via ``build_radar_steps_production``. ``run_pipeline``
+    (module 1.x) was removed — no more dead path.
 
-    Le runner renvoie un ``RadarRunOutcome`` : le ``RunRecord`` (rapport +
-    usage LLM agrégé du run, horodaté), archivé dans l'historique persistant
-    (module 3.4) avec exactement le même schéma qu'avant — aucune régression
-    pour ``run_report.json``/``RunHistoryStore`` — **et** la trace détaillée
-    du même run (module 4.6, ``OBSERVABILITY.md``), qui vit dans son propre
-    artefact plutôt que d'élargir un contrat existant.
+    The runner returns a ``RadarRunOutcome``: the ``RunRecord`` (report +
+    aggregated LLM usage of the run, timestamped), archived in the persistent
+    history (module 3.4) with exactly the same schema as before — no
+    regression for ``run_report.json``/``RunHistoryStore`` — **and** the
+    detailed trace of the same run (module 4.6, ``OBSERVABILITY.md``), which
+    lives in its own artifact rather than widening an existing contract.
 
-    Le ``TeeUsageSink`` est ce qui permet aux deux consommateurs d'usage de
-    coexister sans double comptage : le ``ListUsageSink`` alimente le budget
-    dur du scoring concurrent (module 4.3) et le total du ``RunRecord``, la
-    ``CallTimeline`` attribue le même usage à l'appel LLM qui l'a produit.
+    The ``TeeUsageSink`` is what lets the two usage consumers coexist
+    without double counting: the ``ListUsageSink`` feeds the hard budget of
+    concurrent scoring (module 4.3) and the ``RunRecord`` total, while the
+    ``CallTimeline`` attributes the same usage to the LLM call that produced it.
     """
     usage_sink = ListUsageSink()
     timeline = CallTimeline()
@@ -129,7 +129,7 @@ def build_radar_pipeline(settings: Settings) -> Callable[[], RadarRunOutcome]:
 
 
 def build_agent(settings: Settings) -> Callable[[InboundMessage], AgentResult]:
-    """Câble ``handle_message`` avec les vraies implémentations. Renvoie un runner."""
+    """Wire ``handle_message`` with the real implementations. Returns a runner."""
     llm = AnthropicClient(
         api_key=settings.anthropic_api_key, max_tokens=_LLM_MAX_TOKENS
     )
@@ -150,7 +150,7 @@ def build_agent(settings: Settings) -> Callable[[InboundMessage], AgentResult]:
 
 
 def build_executor(settings: Settings) -> Callable[[ApprovedAction], ExecutionResult]:
-    """Câble l'exécuteur réel (sink + journal persistant). Renvoie un runner."""
+    """Wire the real executor (sink + persistent journal). Returns a runner."""
     sink = RecordingActionSink()
     ledger = JsonExecutionLedger(settings.store_dir / "executed.json")
 
@@ -174,7 +174,7 @@ def _make_feed_fetcher(feed_urls: list[str]) -> Callable[[], list[RawItem]]:
                     xml = response.read().decode("utf-8", errors="replace")
                 items.extend(parse_rss(xml))
             except (OSError, ParseError):
-                # skip + continue : un flux en échec ne doit pas tuer le run.
+                # skip + continue: a failing feed must not kill the run.
                 continue
         return items
 

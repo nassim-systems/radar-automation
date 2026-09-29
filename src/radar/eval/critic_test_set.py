@@ -1,13 +1,13 @@
-"""Jeu de brouillons pour mesurer le CriticAgent (module 4.4).
+"""Draft set to measure the CriticAgent (module 4.4).
 
-6 brouillons corrects réutilisés tels quels du run réel du module 4.2
-(``draft_strategy_comparison.json`` — déjà jugés bons dans ``ANGLE_AGENT.md``)
-+ 8 brouillons **volontairement défectueux**, deux par catégorie demandée
-(fait inventé, angle forcé, hors-ligne éditoriale, trop long), construits à
-la main pour ce test — pas prétendus réels. Les articles sources restent
-réels (titres/résumés issus de ``heldout_representative.json`` et
-``production_recall_check.json``, module 3.5) ; seul le brouillon, sur les 8
-cas défectueux, est fabriqué délibérément pour être détecté.
+6 correct drafts reused as-is from the real run of module 4.2
+(``results/draft_strategy_comparison.json`` — already judged good in ``ANGLE_AGENT.md``)
++ 8 **deliberately defective** drafts, two per requested category
+(invented fact, forced angle, off editorial line, too long), hand-built
+for this test — not claimed to be real. The source articles remain
+real (titles/summaries from ``heldout_representative.json`` and
+``production_recall_check.json``, module 3.5); only the draft, in the 8
+defective cases, is deliberately fabricated to be detected.
 """
 from datetime import UTC, datetime
 
@@ -39,7 +39,7 @@ def _item(external_id: str, title: str, summary: str) -> RawItem:
 
 
 CRITIC_TEST_SET: list[CriticTestCase] = [
-    # --- 6 bons brouillons réels (module 4.2, draft_strategy_comparison.json) ---
+    # --- 6 good real drafts (module 4.2, results/draft_strategy_comparison.json) ---
     CriticTestCase(
         id="good-rozas",
         item=_item(
@@ -177,7 +177,7 @@ CRITIC_TEST_SET: list[CriticTestCase] = [
         ),
         expected_accepted=True,
     ),
-    # --- fait inventé (2) ---
+    # --- invented fact (2) ---
     CriticTestCase(
         id="defect-invented-fact-goose",
         item=_item(
@@ -219,7 +219,7 @@ CRITIC_TEST_SET: list[CriticTestCase] = [
         expected_accepted=False,
         defect_category="fait_invente",
     ),
-    # --- angle forcé (2) ---
+    # --- forced angle (2) ---
     CriticTestCase(
         id="defect-forced-angle-bedrock",
         item=_item(
@@ -268,7 +268,7 @@ CRITIC_TEST_SET: list[CriticTestCase] = [
         expected_accepted=False,
         defect_category="angle_force",
     ),
-    # --- hors ligne éditoriale (2) ---
+    # --- off editorial line (2) ---
     CriticTestCase(
         id="defect-off-brand-hype-spam",
         item=_item(
