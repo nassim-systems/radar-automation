@@ -1,58 +1,91 @@
 # radar-automation
 
-*EN — An automated monitoring pipeline (RSS → relevance scoring → draft posts). What is worth reading here is not that it works: every design decision is measured before it is kept, including the decision to remove a component. Decision records are written in French.*
+An automated monitoring pipeline: RSS feeds → LLM relevance scoring → draft posts.
 
-Un système de veille automatisé : il lit des flux RSS, note la pertinence de chaque article pour une PME, et rédige un brouillon de post pour les rares articles qui passent le seuil.
+What is worth reading here is not that it works. It is that every design decision is
+measured before it is kept, including the decision to remove a component. The
+measurements, and their limits, are in the repository.
 
-Ce qui est intéressant ici n'est pas qu'il fonctionne. C'est que **chaque décision d'architecture est mesurée avant d'être gardée, y compris celle de retirer un composant.**
+## Read these first
 
-## À lire en premier
-
-| Document | Ce qu'il montre |
+| Document | What it shows |
 |---|---|
-| [`QUALITY.md`](QUALITY.md) | Comment le seuil de pertinence est calibré : jeu réel annoté à la main, précision et rappel par seuil, limites écrites noir sur blanc. |
-| [`CRITIC_AGENT.md`](CRITIC_AGENT.md) | Un agent relecteur construit, testé, mesuré, puis **jeté** : 67 % de faux rejets sur 14 cas réels. |
-| [`OBSERVABILITY.md`](OBSERVABILITY.md) | Trace horodatée par étape, par article et par appel LLM ; ce qui est mesuré et ce qui n'est qu'une hypothèse. |
+| [`docs/QUALITY.md`](docs/QUALITY.md) | How the relevance threshold is calibrated: a hand-labelled real set, precision and recall per threshold, limits stated plainly. |
+| [`docs/CRITIC_AGENT.md`](docs/CRITIC_AGENT.md) | A reviewer agent that was built, tested, measured and discarded: 67% false rejects on 14 real cases. |
+| [`docs/OBSERVABILITY.md`](docs/OBSERVABILITY.md) | A timestamped trace per step, per article and per LLM call; what is measured and what is only a hypothesis. |
 
-Les autres décisions : [`WORKFLOW.md`](WORKFLOW.md) (pourquoi une orchestration explicite plutôt qu'un agent), [`ANGLE_AGENT.md`](ANGLE_AGENT.md), [`CONCURRENCY.md`](CONCURRENCY.md), [`MIGRATION.md`](MIGRATION.md), [`HELDOUT.md`](HELDOUT.md).
+The other decision records: [`docs/WORKFLOW.md`](docs/WORKFLOW.md) (why explicit orchestration
+rather than an agent), [`docs/ANGLE_AGENT.md`](docs/ANGLE_AGENT.md),
+[`docs/CONCURRENCY.md`](docs/CONCURRENCY.md), [`docs/MIGRATION.md`](docs/MIGRATION.md),
+[`docs/HELDOUT.md`](docs/HELDOUT.md). [`docs/DOSSIER_DEMO.md`](docs/DOSSIER_DEMO.md) is the ten-minute
+version for a non-technical reader.
 
-## Le pipeline
+## The pipeline
 
 ```
 fetch → deduplicate → filter_fresh → filter_unseen → score → filter_by_min_score
       → select_top_k → angle → write → mark_seen
 ```
 
-Dix étapes, dont trois appellent un modèle (`score`, `angle`, `write`). Les sept autres sont du code déterministe et testé : la séquence est fixe quel que soit le contenu, aucune raison de faire décider un modèle de l'étape suivante.
+Ten steps, three of which call a model (`score`, `angle`, `write`). The other seven are
+deterministic, tested code: the sequence is fixed whatever the content, so there is no
+reason to let a model decide the next step. Orchestration is explicit (`run_workflow`,
+frozen Pydantic state), scoring runs concurrently under a hard budget with retry and
+backoff, and every call is traced.
 
-## Chiffres vérifiables dans ce dépôt
+## Verifiable numbers
 
-- **264 tests**, `ruff` propre.
-- [`run_trace.json`](run_trace.json), un run réel du 1ᵉʳ septembre 2026 : 17 articles notés, 17 appels au modèle, 0 échec, **3,8 s** de bout en bout pour 13,4 s d'appels cumulés (gain de parallélisme ×4,0), coût 0,008 $.
-- [`docs/run_history.json`](docs/run_history.json), trois runs réels : 73 appels, 0 échec, ≈ 0,040 $ au total.
+- **264 tests**, `ruff` clean.
+- **`run_trace.json`**, one real run on 1 September 2026: 17 articles scored, 17 model
+  calls, 0 failures, 3.8 s end to end for 13.4 s of cumulative call time (parallelism
+  gain ×4.0), cost $0.008.
+- **`docs/run_history.json`**, three real runs: 73 calls, 0 failures, about $0.040 in
+  total.
 
-## Limites, assumées
+## Limits, stated
 
-- **Rappel de 70 %** au seuil retenu : 3 articles pertinents sur 10 ne sont pas traités ce jour-là. Choix documenté dans `QUALITY.md` : rater un article coûte moins cher que publier un mauvais brouillon.
-- **Échantillons petits** (n = 10 à 30 selon la mesure) : les tendances sont nettes, les intervalles de confiance larges.
-- **Le système produit peu** : deux des trois runs enregistrés n'ont donné aucun brouillon. C'est un filtre exigeant, pas une machine à contenu.
+- **Recall is 70% at the chosen threshold**: 3 relevant articles out of 10 are not
+  processed that day. This is a documented choice in `QUALITY.md`: missing an article
+  costs less than publishing a bad draft.
+- **Samples are small** (n = 10 to 30 depending on the measurement). Trends are clear,
+  confidence intervals are wide.
+- **The system produces little**: two of the three recorded runs yielded no draft. It is
+  a demanding filter, not a content machine.
+- **Language**: the LLM prompts and the generated drafts are in French, and part of the
+  evaluation data is French-language news, because the target audience is French-speaking
+  SMBs. Documentation and code are in English.
 
-## Lancer et reproduire
+## Run and reproduce
 
 ```bash
-uv run ruff check . && uv run pytest -q     # 264 tests
+uv run ruff check . && uv run pytest -q     # 264 tests, no API key needed
 
-export ANTHROPIC_API_KEY=...                # jamais dans le code ni dans git
-export FEED_URLS=https://exemple.com/feed,https://autre.com/rss
-uv run radar-run                            # écrit run_report.json et run_trace.json
+export ANTHROPIC_API_KEY=...                # never in code, never in git
+export FEED_URLS=https://example.com/feed,https://example.org/rss
+uv run radar-run                            # writes run_report.json and run_trace.json
 ```
 
-L'ordonnancement quotidien (cron, Planificateur de tâches) est décrit dans [`docs/ordonnancement.md`](docs/ordonnancement.md).
+Daily scheduling (cron, Windows Task Scheduler) is described in
+[`docs/scheduling.md`](docs/scheduling.md).
 
-## À propos de la numérotation
+## Repository layout
 
-Dans les documents et les commentaires, un « module 4.5 » désigne une **étape du projet numérotée dans l'ordre où elle a été réalisée** (1.x à 3.x : pipeline, agent, observabilité, calibration ; 4.x : arbitrages d'architecture). Les arbitrages 4.x et la calibration ont chacun leur document, qui donne la question posée, la mesure et la décision.
+```
+src/         pipeline, workflow engine, drafting agents, observability
+tests/       264 tests (no API key: the LLM layer is faked)
+scripts/     calibration, held-out labelling, measurement and evaluation scripts
+results/     raw outputs of the measurements cited in the decision records
+docs/        decision records, demo dossier, scheduling guide, run history
+run_trace.json, run_report.json    output of one real run
+```
+
+## A note on numbering
+
+In documents and comments, "module 4.5" means a project step, numbered in the order it
+was done: 1.x to 3.x cover the pipeline, the agent, observability and calibration; 4.x
+are architecture trade-offs. Each 4.x trade-off and the calibration has its own document,
+giving the question asked, the measurement and the decision.
 
 ## Stack
 
-Python ≥ 3.11 · Pydantic · SDK Anthropic (Claude Haiku 4.5) · pytest · ruff.
+Python ≥ 3.11 · Pydantic · Anthropic SDK (Claude Haiku 4.5) · pytest · ruff.

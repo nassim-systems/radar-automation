@@ -9,11 +9,5 @@ heldout_scrape.json
 .env
 .data/
 
-# Documents commerciaux et personnels — jamais dans le dépôt public
-Claude outputs/
-KHIRAMI_*.md
-AUDIT_*.md
-PLAN_30_*.md
-PROGRAMME_*.md
-DEMO_DOSSIER_PLAN.md
+# Local output of scripts/measure_human_baseline.py
 human_baseline.json
