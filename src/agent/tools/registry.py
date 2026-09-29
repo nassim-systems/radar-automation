@@ -2,11 +2,11 @@ from agent.tools.base import ReadResult, ReadTool
 
 
 class ReadToolRegistry:
-    """Sélection structurée des outils de LECTURE (pas de boucle ReAct libre).
+    """Structured selection of READ tools (no free ReAct loop).
 
-    Ne contient que des ``ReadTool`` (réversibles). Les actions d'écriture ne
-    sont jamais des tools : elles n'existent que sous forme de ``ProposedAction``
-    et ne peuvent donc structurellement pas entrer dans ce registre.
+    Contains only ``ReadTool``s (reversible). Write actions are never tools:
+    they exist only as ``ProposedAction`` and so structurally cannot enter
+    this registry.
     """
 
     def __init__(self, tools: list[ReadTool]) -> None:

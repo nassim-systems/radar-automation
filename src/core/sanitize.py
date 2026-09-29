@@ -5,11 +5,11 @@ _WHITESPACE = re.compile(r"\s+")
 
 
 def sanitize(text: str) -> str:
-    """Neutralise un texte non fiable avant interpolation dans un prompt.
+    """Neutralize untrusted text before interpolating it into a prompt.
 
-    Primitive unique partagée par ``radar`` et ``agent``. Retire toute balise
-    ``<...>`` (dont les délimiteurs ``<article>`` / ``<message>``) pour empêcher
-    une injection de refermer prématurément le bloc de données, et normalise les
-    espaces. Fonction pure, lecture seule.
+    Single primitive shared by ``radar`` and ``agent``. Strips every
+    ``<...>`` tag (including the ``<article>`` / ``<message>`` delimiters) so
+    an injection cannot close the data block prematurely, and normalizes
+    whitespace. Pure, read-only function.
     """
     return _WHITESPACE.sub(" ", _TAG.sub("", text)).strip()

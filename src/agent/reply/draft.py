@@ -11,12 +11,12 @@ def draft_reply(
     context: ClientContext,
     llm: LLMClient,
 ) -> DraftReply:
-    """Rédige une réponse ancrée (lecture seule, aucun envoi, aucune action).
+    """Draft a grounded reply (read-only, no send, no action).
 
-    Frontière LLM isolée derrière ``llm`` (injecté). Défaut sûr = escalade :
-    seul l'appel ``llm.complete`` est isolé et, s'il échoue, on renvoie une
-    escalade (``needs_human_facts=True``) plutôt qu'une réponse inventée.
-    L'``intent`` réel (celui de l'intake) est reporté sur le résultat.
+    LLM boundary isolated behind ``llm`` (injected). Safe default = escalation:
+    only the ``llm.complete`` call is isolated and, if it fails, we return an
+    escalation (``needs_human_facts=True``) rather than an invented reply.
+    The real ``intent`` (the one from intake) is carried onto the result.
     """
     prompt = build_reply_prompt(msg, intent, context)
     try:

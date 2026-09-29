@@ -4,7 +4,7 @@ from pydantic import BaseModel, ConfigDict, field_validator
 
 
 class ReadResult(BaseModel):
-    """Résultat d'un outil de lecture — réversible, sans effet de bord."""
+    """Result of a read tool — reversible, no side effect."""
 
     tool: str
     ok: bool
@@ -12,7 +12,7 @@ class ReadResult(BaseModel):
 
 
 class ReadTool(Protocol):
-    """Outil de LECTURE seule : réversible, exécutable de façon autonome."""
+    """READ-only tool: reversible, can run autonomously."""
 
     name: str
     description: str
@@ -22,12 +22,12 @@ class ReadTool(Protocol):
 
 
 class ProposedAction(BaseModel):
-    """Action d'ÉCRITURE proposée — donnée inerte, jamais exécutable.
+    """Proposed WRITE action — inert data, never executable.
 
-    Invariant structurel : ``requires_human_approval`` vaut TOUJOURS ``True``
-    (forcé à la validation) et le modèle est gelé (immuable). Il n'existe
-    aucune méthode d'exécution : une action ne peut que transiter par la porte
-    d'action vers une approbation humaine, hors de ce code.
+    Structural invariant: ``requires_human_approval`` is ALWAYS ``True``
+    (forced at validation) and the model is frozen (immutable). There is
+    no execution method: an action can only pass through the action gate
+    to a human approval, outside this code.
     """
 
     model_config = ConfigDict(frozen=True)
@@ -40,5 +40,5 @@ class ProposedAction(BaseModel):
     @field_validator("requires_human_approval")
     @classmethod
     def _force_human_approval(cls, value: bool) -> bool:
-        # Invariant : impossible de proposer une action sans approbation humaine.
+        # Invariant: an action cannot be proposed without human approval.
         return True

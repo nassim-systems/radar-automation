@@ -3,11 +3,11 @@ from agent.reply.models import ESCALATION_MARKER, DraftReply
 
 
 def parse_reply(raw: str) -> DraftReply:
-    """Structure la sortie du LLM en ``DraftReply`` (fonction pure).
+    """Structure the LLM output into a ``DraftReply`` (pure function).
 
-    Extrait le texte, retire le marqueur d'escalade et positionne
-    ``needs_human_facts=True`` si le modèle a escaladé — ou, défaut sûr, si la
-    réponse est vide. ``intent`` est neutre ici (fixé par ``draft_reply``).
+    Extracts the text, strips the escalation marker and sets
+    ``needs_human_facts=True`` if the model escalated — or, as a safe default,
+    if the reply is empty. ``intent`` is neutral here (set by ``draft_reply``).
     """
     text = raw.strip()
     escalated = ESCALATION_MARKER in text

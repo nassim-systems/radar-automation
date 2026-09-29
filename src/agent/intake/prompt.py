@@ -5,11 +5,11 @@ _LABELS = ", ".join(intent.value for intent in Intent)
 
 
 def build_classification_prompt(msg: InboundMessage) -> str:
-    """Construit le prompt de classification d'intention (fonction pure).
+    """Build the intent classification prompt (pure function).
 
-    Le sujet et le corps sont sanitizés et encapsulés dans ``<message>`` pour
-    empêcher toute injection de contourner la consigne. Le modèle doit répondre
-    par un seul label de l'``Enum`` ``Intent``.
+    The subject and body are sanitized and wrapped in ``<message>`` to keep
+    any injection from bypassing the instruction. The model must answer
+    with a single label of the ``Intent`` ``Enum``.
     """
     subject = sanitize(msg.subject or "")
     body = sanitize(msg.body)

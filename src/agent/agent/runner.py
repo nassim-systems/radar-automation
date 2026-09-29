@@ -20,8 +20,8 @@ class AgentConfig(BaseModel):
     max_history_turns: int
 
 
-# Routage structuré des outils de LECTURE selon l'intent — en dur, déterministe,
-# aucune boucle ReAct. Un tel routage fixe est auditable et reproductible.
+# Structured routing of READ tools by intent: hard-coded, deterministic,
+# no ReAct loop. Such fixed routing is auditable and reproducible.
 _ROUTES: dict[Intent, tuple[str, ...]] = {
     Intent.PROSPECT: ("crm_lookup",),
     Intent.SUPPORT: ("crm_lookup", "kb_search"),
@@ -39,20 +39,20 @@ def handle_message(
     llm: LLMClient,
     config: AgentConfig,
 ) -> AgentResult:
-    """Boucle agent déterministe, pure sur les dépendances injectées.
+    """Deterministic agent loop, pure over its injected dependencies.
 
-    Enchaîne : ``classify`` → ``load conversation`` → ``build_history_block`` →
-    routage structuré des read-tools par intent → ``draft_reply`` ancré →
-    ``ProposedAction`` (human-gated) pour l'envoi → append du tour CLIENT.
+    Chains: ``classify`` → ``load conversation`` → ``build_history_block`` →
+    structured routing of read-tools by intent → grounded ``draft_reply`` →
+    ``ProposedAction`` (human-gated) for sending → append of the CLIENT turn.
 
-    - **Aucune écriture externe** n'est exécutée : toute écriture est une
+    - **No external write** is executed: every write is a
       ``ProposedAction`` (``requires_human_approval=True``).
-    - **Safe-default** : tout échec LLM (classification) escalade.
-    - **Ne re-sanitize pas** le bloc ``<turn>`` : il est déjà sûr.
-    - **Politique d'append** : seul le tour CLIENT (le message reçu) est
-      mémorisé. Le brouillon agent n'est PAS ajouté, car il n'est pas envoyé
-      tant qu'un humain n'a pas validé la ``ProposedAction`` — l'historique ne
-      doit refléter que ce qui s'est réellement passé.
+    - **Safe default**: any LLM failure (classification) escalates.
+    - **Does not re-sanitize** the ``<turn>`` block: it is already safe.
+    - **Append policy**: only the CLIENT turn (the received message) is
+      stored. The agent draft is NOT added, because it is not sent until a
+      human approves the ``ProposedAction`` — history must reflect only what
+      actually happened.
     """
     conversation_id = conversation_id_for(msg)
     conversation = conversations.load(conversation_id)
@@ -115,7 +115,7 @@ def _propose_reply(
             to=msg.sender,
             subject=subject,
             body=draft.text,
-            reason=f"Réponse '{intent.value}' à valider avant tout envoi.",
+            reason=f"Reply '{intent.value}' requires approval before sending.",
         )
     ]
 

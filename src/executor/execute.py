@@ -9,18 +9,18 @@ ALREADY_EXECUTED = "already_executed"
 
 
 class NotApproved(Exception):
-    """Levée quand ``execute`` reçoit autre chose qu'une ``ApprovedAction``."""
+    """Raised when ``execute`` receives anything other than an ``ApprovedAction``."""
 
 
 class ActionSink(Protocol):
-    """Capacité d'agir réellement (ex. futur client SMTP). Injectée."""
+    """Ability to really act (e.g. a future SMTP client). Injected."""
 
     def perform(self, action: ApprovedAction) -> None:
         ...
 
 
 class ExecutionLedger(Protocol):
-    """Journal des actions déjà exécutées (support de l'idempotence)."""
+    """Journal of already executed actions (idempotence support)."""
 
     def was_executed(self, action_id: str) -> bool:
         ...
@@ -41,10 +41,10 @@ class InMemoryExecutionLedger:
 
 
 class JsonExecutionLedger:
-    """Journal persistant des actions exécutées — idempotence entre les runs.
+    """Persistent journal of executed actions — idempotence across runs.
 
-    Même esprit que ``JsonSeenStore`` : lecture résiliente (fichier absent ou
-    corrompu → aucune action connue) plutôt que de lever.
+    Same spirit as ``JsonSeenStore``: resilient read (missing or corrupt
+    file → no known action) rather than raising.
     """
 
     def __init__(self, path: Path) -> None:
@@ -71,7 +71,7 @@ class JsonExecutionLedger:
 
 
 class RecordingActionSink:
-    """Sink de démonstration : enregistre l'action au lieu d'agir sur le monde."""
+    """Demo sink: records the action instead of acting on the world."""
 
     def __init__(self) -> None:
         self.performed: list[ApprovedAction] = []
@@ -83,22 +83,22 @@ class RecordingActionSink:
 def execute(
     action: ApprovedAction, *, sink: ActionSink, ledger: ExecutionLedger
 ) -> ExecutionResult:
-    """Seule primitive d'exécution réelle (package ``executor``).
+    """The only real execution primitive (``executor`` package).
 
-    Fail-closed : refuse tout ce qui n'est pas une ``ApprovedAction`` porteuse
-    d'une approbation humaine. Idempotente : une action déjà exécutée (même
-    ``action_id``) n'est pas rejouée. La frontière d'import garantit que le
-    package ``agent`` ne peut jamais atteindre cette fonction.
+    Fail-closed: refuses anything that is not an ``ApprovedAction`` carrying
+    a human approval. Idempotent: an already executed action (same
+    ``action_id``) is not replayed. The import boundary guarantees that the
+    ``agent`` package can never reach this function.
     """
     if not isinstance(action, ApprovedAction) or not action.approved_by.strip():
         raise NotApproved(
-            "execute n'accepte qu'une ApprovedAction approuvée par un humain"
+            "execute only accepts an ApprovedAction approved by a human"
         )
     if ledger.was_executed(action.action_id):
         return ExecutionResult(
             action_id=action.action_id,
             status=ALREADY_EXECUTED,
-            detail="déjà exécutée (idempotence)",
+            detail="already executed (idempotent)",
         )
     sink.perform(action)
     ledger.mark_executed(action.action_id)

@@ -12,7 +12,7 @@ class InboundMessage(BaseModel):
     received_at: datetime
 
 
-# Forme (str, Enum) imposée par le spec du module (équivaut à StrEnum en 3.11+).
+# (str, Enum) form required by the spec (same as StrEnum on 3.11+).
 class Intent(str, Enum):  # noqa: UP042
     PROSPECT = "prospect"
     SUPPORT = "support"

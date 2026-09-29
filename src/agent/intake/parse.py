@@ -2,10 +2,10 @@ from agent.intake.models import Intent
 
 
 def parse_classification(raw: str) -> Intent:
-    """Parse la réponse du LLM en ``Intent`` (Enum fermé).
+    """Parse the LLM response into an ``Intent`` (closed Enum).
 
-    Fonction pure. La casse et les espaces de bord sont ignorés. Tout label
-    inconnu, vide ou ambigu retombe sur ``Intent.OTHER`` — le défaut sûr.
+    Pure function. Case and surrounding whitespace are ignored. Any unknown,
+    empty or ambiguous label falls back to ``Intent.OTHER`` — the safe default.
     """
     normalized = raw.strip().lower()
     for intent in Intent:

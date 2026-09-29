@@ -5,11 +5,11 @@ from radar.llm.base import LLMClient
 
 
 def classify(msg: InboundMessage, llm: LLMClient) -> Intent:
-    """Classe un message entrant en une ``Intent`` (lecture seule).
+    """Classify an incoming message into an ``Intent`` (read-only).
 
-    Aucun effet de bord, aucun tool-use, aucun état global. La frontière LLM est
-    isolée derrière ``llm`` (injecté). Toute réponse inconnue ou malformée
-    retombe sur ``Intent.OTHER`` via ``parse_classification`` (défaut sûr).
+    No side effect, no tool use, no global state. The LLM boundary is
+    isolated behind ``llm`` (injected). Any unknown or malformed response
+    falls back to ``Intent.OTHER`` via ``parse_classification`` (safe default).
     """
     prompt = build_classification_prompt(msg)
     return parse_classification(llm.complete(prompt))

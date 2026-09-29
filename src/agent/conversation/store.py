@@ -17,10 +17,10 @@ class ConversationStore(Protocol):
 
 
 class InMemoryConversationStore:
-    """Store non persistant : état d'instance uniquement, aucun global mutable.
+    """Non-persistent store: instance state only, no mutable global.
 
-    ``load`` renvoie toujours une copie indépendante (muter le résultat
-    n'altère pas le store). Pratique pour les tests.
+    ``load`` always returns an independent copy (mutating the result does
+    not alter the store). Convenient for tests.
     """
 
     def __init__(self) -> None:
@@ -37,10 +37,10 @@ class InMemoryConversationStore:
 
 
 class JsonConversationStore:
-    """Store persistant sur fichier JSON — la mémoire survit entre les runs.
+    """Persistent JSON-file store — memory survives across runs.
 
-    Même esprit que ``JsonSeenStore`` (Phase 1) : lecture résiliente (fichier
-    absent ou corrompu → conversation vide) plutôt que de lever.
+    Same spirit as ``JsonSeenStore`` (Phase 1): resilient read (missing or
+    corrupt file → empty conversation) rather than raising.
     """
 
     def __init__(self, path: Path) -> None:

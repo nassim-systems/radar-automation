@@ -6,28 +6,28 @@ from core.usage import LlmUsage
 
 
 class WorkflowState(BaseModel):
-    """État de base d'un workflow.
+    """Base state of a workflow.
 
-    ``frozen=True`` rend l'immuabilité structurelle, pas seulement
-    conventionnelle : une étape ne peut pas muter l'état reçu (une tentative
-    lève ``pydantic.ValidationError``), elle doit renvoyer une nouvelle
-    instance (``state.model_copy(update={...})``). Chaque workflow concret
-    définit sa propre sous-classe avec ses champs métier typés — cf.
-    ``WORKFLOW.md`` (décision « typage de WorkflowState »).
+    ``frozen=True`` makes immutability structural, not merely
+    conventional: a step cannot mutate the state it receives (an attempt
+    raises ``pydantic.ValidationError``), it must return a new instance
+    (``state.model_copy(update={...})``). Each concrete workflow defines
+    its own subclass with typed business fields — see ``WORKFLOW.md``
+    (decision "typing of WorkflowState").
     """
 
     model_config = ConfigDict(frozen=True)
 
 
 class StepTrace(BaseModel):
-    """Trace d'exécution d'une étape : nom, horodatage, durée, issue.
+    """Execution trace of a step: name, timestamps, duration, outcome.
 
-    ``started_at``/``ended_at`` sont des instants UTC (horloge murale) : ils
-    situent l'étape dans le temps réel et permettent de la corréler aux
-    appels LLM qu'elle a déclenchés. ``duration_seconds`` reste mesurée
-    séparément avec ``time.monotonic()``, insensible aux ajustements
-    d'horloge. Les deux ne sont donc pas redondants — c'est volontaire :
-    l'un sert à situer, l'autre à mesurer.
+    ``started_at``/``ended_at`` are UTC instants (wall clock): they place the
+    step in real time and allow correlating it with the LLM calls it
+    triggered. ``duration_seconds`` is still measured separately with
+    ``time.monotonic()``, unaffected by clock adjustments. The two are
+    therefore not redundant — this is deliberate: one locates, the other
+    measures.
     """
 
     name: str
@@ -39,18 +39,18 @@ class StepTrace(BaseModel):
 
 
 class WorkflowRun(BaseModel):
-    """Résultat d'un ``run_workflow`` réussi : état final, trace, usage agrégé.
+    """Result of a successful ``run_workflow``: final state, trace, aggregated usage.
 
-    ``usage`` réutilise ``LlmUsage``/``UsageSink`` du module 3.4 (tokens,
-    coût) — aucune observabilité parallèle réinventée ici. La durée par
-    étape (``StepTrace.duration_seconds``), elle, est une préoccupation
-    d'orchestration que le sink d'usage LLM ne couvre pas ; elle est mesurée
-    directement par ``run_workflow``.
+    ``usage`` reuses ``LlmUsage``/``UsageSink`` from module 3.4 (tokens,
+    cost) — no parallel observability reinvented here. Per-step duration
+    (``StepTrace.duration_seconds``), for its part, is an orchestration
+    concern that the LLM usage sink does not cover; it is measured
+    directly by ``run_workflow``.
 
-    ``duration_seconds`` (module 4.6) est la latence **de bout en bout** du
-    run — pas la somme des étapes : l'écart entre les deux est le coût
-    d'orchestration lui-même, et il doit rester visible plutôt qu'être
-    dissous dans une somme.
+    ``duration_seconds`` (module 4.6) is the **end-to-end** latency of the
+    run — not the sum of the steps: the gap between the two is the
+    orchestration cost itself, and it must stay visible rather than be
+    dissolved in a sum.
     """
 
     final_state: WorkflowState

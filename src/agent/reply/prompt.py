@@ -6,19 +6,19 @@ from core.sanitize import sanitize
 def build_reply_prompt(
     msg: InboundMessage, intent: Intent, context: ClientContext
 ) -> str:
-    """Construit le prompt de rédaction de réponse ancrée (fonction pure).
+    """Build the grounded reply drafting prompt (pure function).
 
-    Les champs d'origine client (``message``, ``client_name``, ``known_facts``)
-    sont sanitizés via ``core.sanitize``. ``history_summary`` est l'exception :
-    il doit déjà être un bloc sûr (produit par ``build_history_block``) et n'est
-    PAS re-sanitizé, sous peine de détruire sa structure ``<turn>``. Le prompt
-    impose de n'utiliser QUE ``context.known_facts`` et d'escalader (marqueur
-    ``ESCALATION_MARKER``) plutôt que d'inventer.
+    Client-originated fields (``message``, ``client_name``, ``known_facts``)
+    are sanitized via ``core.sanitize``. ``history_summary`` is the exception:
+    it must already be a safe block (produced by ``build_history_block``) and
+    is NOT re-sanitized, or its ``<turn>`` structure would be destroyed. The
+    prompt requires using ONLY ``context.known_facts`` and escalating (marker
+    ``ESCALATION_MARKER``) rather than inventing.
     """
     facts = [sanitize(fact) for fact in context.known_facts]
     facts_block = "\n".join(f"- {fact}" for fact in facts) if facts else "- (aucun)"
     client_name = sanitize(context.client_name or "")
-    # Historique déjà sûr (bloc <turn>) : le re-sanitizer détruirait sa structure.
+    # Already-safe history (<turn> block): re-sanitizing would break it.
     history = context.history_summary or ""
     return (
         "Tu es un agent qui rédige la réponse à un message client d'une PME.\n"

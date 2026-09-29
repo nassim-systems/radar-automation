@@ -2,7 +2,7 @@ from agent.tools.base import ReadResult
 
 
 class CrmReadTool:
-    """Recherche une fiche client par email — lecture seule, sans LLM."""
+    """Look up a customer record by email — read-only, no LLM."""
 
     name = "crm_lookup"
     description = "Recherche une fiche client par email."
@@ -16,10 +16,10 @@ class CrmReadTool:
 
 
 class KnowledgeBaseReadTool:
-    """Recherche par mot-clé dans la base de connaissances — lecture seule."""
+    """Keyword search in the knowledge base — read-only."""
 
     name = "kb_search"
-    description = "Recherche par mot-clé dans la base de connaissances."
+    description = "Keyword search in the knowledge base."
 
     def __init__(self, articles: dict[str, str]) -> None:
         self._articles = articles

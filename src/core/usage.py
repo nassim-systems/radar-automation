@@ -10,21 +10,21 @@ class LlmUsage(BaseModel):
 
 
 class UsageSink(Protocol):
-    """Canal séparé pour l'usage LLM.
+    """Separate channel for LLM usage.
 
-    ``AnthropicClient.complete`` continue de renvoyer un ``str`` (aucun des
-    nombreux appelants existants — scoring, drafting, agent — n'a besoin de
-    changer) ; si un sink est injecté, il est notifié après chaque appel réel.
+    ``AnthropicClient.complete`` keeps returning a ``str`` (none of the many
+    existing callers — scoring, drafting, agent — needs to change); if a sink
+    is injected, it is notified after each real call.
     """
 
     def record(self, usage: LlmUsage) -> None: ...
 
 
 class ListUsageSink:
-    """Accumule les usages en mémoire et expose leur somme.
+    """Accumulate usages in memory and expose their sum.
 
-    Même esprit que ``RecordingActionSink`` (module 3.1) : un sink simple pour
-    la racine de composition et les tests.
+    Same spirit as ``RecordingActionSink`` (module 3.1): a simple sink for
+    the composition root and tests.
     """
 
     def __init__(self) -> None:
@@ -42,17 +42,17 @@ class ListUsageSink:
 
 
 class TeeUsageSink:
-    """Diffuse chaque usage à plusieurs sinks, dans l'ordre donné.
+    """Broadcast each usage to several sinks, in the given order.
 
-    Nécessaire depuis le module 4.6 (``OBSERVABILITY.md``) : le budget dur du
-    scoring concurrent lit le total agrégé d'un ``ListUsageSink`` (module 4.3)
-    tandis que la timeline d'appels attribue le même usage à l'appel LLM en
-    cours. Deux consommateurs, une seule source — plutôt que deux comptages
-    parallèles qui pourraient diverger.
+    Needed since module 4.6 (``OBSERVABILITY.md``): the hard budget of
+    concurrent scoring reads the aggregated total of a ``ListUsageSink``
+    (module 4.3) while the call timeline attributes the same usage to the
+    LLM call in progress. Two consumers, one source — rather than two
+    parallel counts that could diverge.
 
-    Aucune politique propre : ni filtrage, ni transformation, ni absorption
-    d'erreur. Si un sink lève, l'erreur se propage (un sink cassé est un bug,
-    pas un incident à avaler).
+    No policy of its own: no filtering, no transformation, no error
+    swallowing. If a sink raises, the error propagates (a broken sink is a
+    bug, not an incident to swallow).
     """
 
     def __init__(self, sinks: list[UsageSink]) -> None:

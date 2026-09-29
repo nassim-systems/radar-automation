@@ -6,7 +6,7 @@ PENDING_HUMAN_APPROVAL = "pending_human_approval"
 
 
 class GateDecision(BaseModel):
-    """Décision de la porte d'action : toujours en attente d'un humain."""
+    """Action gate decision: always pending a human."""
 
     proposed: ProposedAction
     approved: bool
@@ -14,12 +14,12 @@ class GateDecision(BaseModel):
 
 
 def gate_action(proposed: ProposedAction) -> GateDecision:
-    """Porte d'action : l'agent ne peut que PROPOSER, jamais exécuter.
+    """Action gate: the agent can only PROPOSE, never execute.
 
-    Renvoie une décision ``approved=False`` en attente d'approbation humaine.
-    Ce module n'expose volontairement AUCUNE primitive d'exécution : ni
-    ``execute``, ni ``run``, ni ``dispatch``. L'exécution éventuelle a lieu
-    hors de ce code, après validation humaine explicite.
+    Returns an ``approved=False`` decision pending human approval.
+    This module deliberately exposes NO execution primitive: no
+    ``execute``, no ``run``, no ``dispatch``. Any execution happens
+    outside this code, after explicit human approval.
     """
     return GateDecision(
         proposed=proposed,

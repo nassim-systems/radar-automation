@@ -2,7 +2,7 @@ from pydantic import BaseModel
 
 from agent.intake.models import Intent
 
-# Marqueur d'escalade : le modèle le place en tête quand une info manque.
+# Escalation marker: the model puts it first when info is missing.
 ESCALATION_MARKER = "[ESCALADE]"
 
 

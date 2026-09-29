@@ -13,14 +13,14 @@ class Step(Protocol):
 
 
 class WorkflowError(Exception):
-    """Levée quand une étape échoue — porte la trace partielle et l'usage
-    déjà accumulé, pour que l'échec reste observable (pas seulement signalé).
+    """Raised when a step fails — carries the partial trace and the usage
+    already accumulated, so the failure stays observable (not just reported).
 
-    N'est jamais utilisée pour avaler une erreur : ``run_workflow`` la lève
-    systématiquement via ``raise ... from error``, l'exception d'origine
-    reste visible dans la chaîne. Cohérent avec la politique déjà en place
-    dans ``radar/pipeline.py`` : un bug de code se propage — ici, au niveau
-    de l'étape entière plutôt que de l'item.
+    Never used to swallow an error: ``run_workflow`` always raises it via
+    ``raise ... from error``, the original exception stays visible in the
+    chain. Consistent with the policy already in place in
+    ``radar/pipeline.py``: a code bug propagates — here, at the level of
+    the whole step rather than the item.
     """
 
     def __init__(
@@ -35,7 +35,7 @@ class WorkflowError(Exception):
         self.trace = trace
         self.usage = usage
         self.original = original
-        super().__init__(f"étape « {step_name} » a échoué : {original}")
+        super().__init__(f"step '{step_name}' failed: {original}")
 
 
 def run_workflow(
@@ -44,27 +44,27 @@ def run_workflow(
     *,
     usage_sink: ListUsageSink | None = None,
 ) -> WorkflowRun:
-    """Enchaîne ``steps`` en état-passant : chaque étape reçoit l'état
-    renvoyé par la précédente et en renvoie un nouveau (immuable).
+    """Chain ``steps`` in state-passing style: each step receives the state
+    returned by the previous one and returns a new (immutable) one.
 
-    - **Abort, pas skip** : si une étape lève, l'exécution s'arrête et
-      ``WorkflowError`` est levée (trace partielle + usage déjà accumulé
-      attachés). Une étape est une unité de travail complète (fetch, score,
-      draft...) — la « sauter » silencieusement casserait les étapes
-      suivantes qui dépendent de son résultat. La résilience fine (item par
-      item, ex. un échec LLM isolé) reste la responsabilité de chaque étape,
-      pas de l'orchestrateur — cf. ``WORKFLOW.md``.
-    - **Horodatage (module 4.6)** : chaque étape porte son instant de début
-      et de fin (UTC) en plus de sa durée monotone, et le run porte les
-      siens. La latence de bout en bout du run n'est pas la somme des
-      étapes : l'écart mesure le coût d'orchestration, gardé visible plutôt
-      que dissous. Cf. ``OBSERVABILITY.md``.
-    - **Observabilité réutilisée, pas réinventée** : ``usage_sink`` est le
-      ``ListUsageSink`` du module 3.4, injecté dans les clients LLM que les
-      étapes utilisent en interne. ``run_workflow`` ne fait qu'en lire le
-      total agrégé ; il ne sait rien des tokens/coûts. Seule la durée par
-      étape est mesurée ici, une préoccupation que le sink d'usage ne couvre
-      pas.
+    - **Abort, not skip**: if a step raises, execution stops and
+      ``WorkflowError`` is raised (partial trace + usage already accumulated
+      attached). A step is a complete unit of work (fetch, score,
+      draft...) — silently "skipping" it would break the following steps
+      that depend on its result. Fine-grained resilience (item by item,
+      e.g. an isolated LLM failure) remains each step's responsibility,
+      not the orchestrator's — see ``WORKFLOW.md``.
+    - **Timestamps (module 4.6)**: each step carries its start and end
+      instants (UTC) in addition to its monotonic duration, and the run
+      carries its own. The end-to-end run latency is not the sum of the
+      steps: the gap measures the orchestration cost, kept visible rather
+      than dissolved. See ``OBSERVABILITY.md``.
+    - **Observability reused, not reinvented**: ``usage_sink`` is the
+      ``ListUsageSink`` from module 3.4, injected into the LLM clients the
+      steps use internally. ``run_workflow`` only reads its aggregated total;
+      it knows nothing about tokens/costs. Only the per-step duration is
+      measured here, a concern the usage sink does
+      not cover.
     """
     sink = usage_sink if usage_sink is not None else ListUsageSink()
     state = initial

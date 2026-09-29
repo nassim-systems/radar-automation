@@ -6,23 +6,23 @@ from core.sanitize import sanitize
 
 
 def conversation_id_for(msg: InboundMessage) -> str:
-    """Identité de fil stable et déterministe.
+    """Stable, deterministic thread identity.
 
-    Même ``(canal, expéditeur)`` (normalisés) → même identifiant. Fonction
-    pure : ne dépend que du message, aucun état.
+    Same ``(channel, sender)`` (normalized) → same identifier. Pure
+    function: depends only on the message, no state.
     """
     key = f"{msg.channel.strip().lower()}|{msg.sender.strip().lower()}"
     return hashlib.sha256(key.encode("utf-8")).hexdigest()
 
 
 def build_history_block(turns: list[Turn], max_turns: int) -> str:
-    """Construit un bloc d'historique PUR, borné aux ``max_turns`` derniers tours.
+    """Build a PURE history block, bounded to the last ``max_turns`` turns.
 
-    Chaque tour (client ET agent) est sanitizé via ``core.sanitize`` — idempotent
-    et défense en profondeur. Le format est structuré (``<turn role="...">``) :
-    comme ``sanitize`` retire toute balise du texte, un client ne peut ni forger
-    un tour, ni en imiter le rôle, ni refermer le bloc prématurément. Fonction
-    pure : aucune mutation de ``turns``, aucun effet de bord.
+    Each turn (client AND agent) is sanitized via ``core.sanitize`` —
+    idempotent and defense in depth. The format is structured
+    (``<turn role="...">``): since ``sanitize`` strips every tag from the text,
+    a client can neither forge a turn, nor mimic its role, nor close the
+    block prematurely. Pure function: no mutation of ``turns``, no side effect.
     """
     recent = turns[-max_turns:] if max_turns > 0 else []
     lines = [
