@@ -1,5 +1,7 @@
 # radar-automation
 
+[![CI](https://github.com/nassim-systems/radar-automation/actions/workflows/ci.yml/badge.svg)](https://github.com/nassim-systems/radar-automation/actions/workflows/ci.yml)
+
 An automated monitoring pipeline: RSS feeds → LLM relevance scoring → draft posts.
 
 What is worth reading here is not that it works. It is that every design decision is
