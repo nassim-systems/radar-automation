@@ -88,6 +88,13 @@ was done: 1.x to 3.x cover the pipeline, the agent, observability and calibratio
 are architecture trade-offs. Each 4.x trade-off and the calibration has its own document,
 giving the question asked, the measurement and the decision.
 
+## License
+
+[MIT](LICENSE). One exception: the evaluation files under `src/radar/eval/` and
+`fixtures/` contain titles and short summaries taken from public RSS feeds, with their
+source URLs. That text belongs to its publishers, is reproduced only to evaluate the
+pipeline, and is not covered by the MIT license. It will be removed on request.
+
 ## Stack
 
 Python ≥ 3.11 · Pydantic · Anthropic SDK (Claude Haiku 4.5) · pytest · ruff.
